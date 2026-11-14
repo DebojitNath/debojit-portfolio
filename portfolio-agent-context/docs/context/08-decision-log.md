@@ -12,6 +12,9 @@ YYYY-MM-DD | Area | Decision | Changed from (if any) | Notes
 
 ## Log
 
+2026-11-14 | World Toggle | World toggle names DECIDED as `Focus` (professional world) and `Drift` (creative liminal world). | Option B | Replaces "On Duty / Off Duty" and "Space".
+2026-11-14 | World Toggle | "Duty" rejected as too official; options requested for pair name. "Space" must not be the toggle label (Space is the visual theme, not the mode name). | PROPOSED | Owner feedback on toggle identity.
+2026-11-14 | Visual Direction | Space world needs rich painterly depth (glowing celestial bodies, sunset/nebula gradient depth, vibrant oranges/teals/magentas mixed with deep space) based on reference image. Off-duty world is light-in-nature liminal/backrooms with shadowed contrast. | PROPOSED | Owner provided reference image for interactive hero style.
 2026-11-14 | Domain | Set apex `debojit.tech` as production (no www), `www.debojit.tech` redirects to apex | OPEN | Standard clean modern developer URL structure.
 2026-11-14 | Hosting | Vercel chosen and connected to GitHub repo `DebojitNath/debojit-portfolio` | OPEN | CI/CD live on `https://debojit.tech`.
 2026-11-14 | Database / Contact | Supabase chosen for storing visitor contact info (avoids email inbox flooding) | OPEN | Owner confirmed preference for Supabase over direct email.

@@ -9,7 +9,7 @@ When a question is answered, move it into `08-decision-log.md` and delete it her
 ### Structure
 - [ ] **Contact placement.** Suggested: keep it in the professional world and add a footer link in both worlds. Alternative: one contact per world, or a single shared page. Which?
 - [ ] **Blog placement.** Professional world, personal world, or its own sub-world?
-- [ ] **Name of the professional world.** "On Duty" was floated; the owner has not named it.
+- [x] ~~**Name of the professional world.**~~ DECIDED: `Focus` (professional world) / `Drift` (creative liminal world).
 - [ ] **Movies structure.** One page, or sub-worlds (for example by genre or mood)? Need favorite movie titles first.
 - [ ] **Do professional-world pages get sub-worlds too?** (Projects by category, for example.) Owner said worlds have sub-worlds but has not listed the professional ones.
 - [ ] **Which extra pages to build?** About, Resume, project detail pages, 404 page, "now" widget, guestbook. Each is PROPOSED only.

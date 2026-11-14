@@ -16,7 +16,7 @@ SITE
 ```
 LANDING (Space)  [DECIDED]  — preload screen, then space hero, access to professional content
 │
-├── WORLD 1: professional (name "On Duty" is PROPOSED; owner has not named it)
+├── WORLD 1: "Focus" (professional world, space theme) [DECIDED name]
 │   ├── Projects            [DECIDED]  premium-AI-site look; layout PROPOSED
 │   │   └── Project detail  [PROPOSED] one page per project
 │   ├── About               [PROPOSED]
@@ -24,7 +24,7 @@ LANDING (Space)  [DECIDED]  — preload screen, then space hero, access to profe
 │   ├── Blog                [DECIDED exists; which world: OPEN]
 │   └── Contact             [DECIDED exists; placement OPEN]
 │
-└── WORLD 2: "Beyond Code / Off Duty"  [DECIDED name, reached via toggle]
+└── WORLD 2: "Drift" (creative world, liminal/backrooms theme) [DECIDED name]
     ├── Liminal landing     [DECIDED]  unsettling written lines, personal creativity
     ├── Games               [DECIDED]
     │   ├── RDR2            [DECIDED]  Arthur Morgan crying GIF slot + background gameplay scenes
