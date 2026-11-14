@@ -12,6 +12,8 @@ YYYY-MM-DD | Area | Decision | Changed from (if any) | Notes
 
 ## Log
 
+2026-11-14 | Domain | Set apex `debojit.tech` as production (no www), `www.debojit.tech` redirects to apex | OPEN | Standard clean modern developer URL structure.
+2026-11-14 | Hosting | Vercel chosen and connected to GitHub repo `DebojitNath/debojit-portfolio` | OPEN | CI/CD live on `https://debojit.tech`.
 2026-11-14 | Database / Contact | Supabase chosen for storing visitor contact info (avoids email inbox flooding) | OPEN | Owner confirmed preference for Supabase over direct email.
 2026-11-14 | Domain | Domain confirmed as `debojit.tech` | OPEN | Owner confirmed domain is ready to be put to use.
 
