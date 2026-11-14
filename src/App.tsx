@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Sparkles, Compass, Radio, ArrowRight, Github } from 'lucide-react';
+import { useState } from 'react';
+import { Sparkles, Compass, Radio, Github } from 'lucide-react';
 
 export default function App() {
   const [activeWorld, setActiveWorld] = useState<'space' | 'off-duty'>('space');
