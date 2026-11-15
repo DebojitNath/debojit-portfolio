@@ -28,3 +28,8 @@ dist-ssr
 .env.production
 .env.local
 
+# Build & Agent Artifacts
+*.tsbuildinfo
+.agent/
+
+

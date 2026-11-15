@@ -1,22 +1,36 @@
 import { useState, useEffect } from 'react';
-import { 
-  Sparkles, 
-  Compass, 
-  ArrowUpRight, 
-  Terminal, 
-  Layers, 
-  Cpu, 
-  Volume2, 
+import { useLenis } from 'lenis/react';
+import CosmicBackground from './components/CosmicBackground';
+import FloatingAstronaut from './components/FloatingAstronaut';
+import WebGLLines from './components/WebGLLines';
+import WebGLHalftone from './components/WebGLHalftone';
+import GravitationalArc from './components/GravitationalArc';
+import {
+  Sparkles,
+  Compass,
+  ArrowUpRight,
+  Volume2,
   VolumeX,
   Github,
   Linkedin,
-  Mail
+  Mail,
+  ArrowDown,
+  Shield,
+  Activity,
+  Send,
+  Layers,
+  Terminal,
+  Brain,
+  CheckCircle2,
+  GraduationCap
 } from 'lucide-react';
 
 export default function App() {
   const [world, setWorld] = useState<'focus' | 'drift'>('focus');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(false);
+  const lenis = useLenis();
 
   // Smooth mouse parallax tracking
   useEffect(() => {
@@ -31,106 +45,64 @@ export default function App() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // =========================================================================
+  // MOUNTAIN SCROLL PARALLAX CONFIGURATION (Adjust these numbers to tweak!)
+  // =========================================================================
+  // 1. Initial Landing Page Spread (Y offset in px when at top of page)
+  //    Higher number = sits lower down on the screen.
+  const MOUNTAIN_SPREAD = {
+    layer3: 80, // Background horizon (spread lowest)
+    layer2: 40,  // Midground ridges
+    layer1: 0,  // Foreground rocks
+  };
+
+  // 2. Scroll Convergence (how fast they sink and hide behind each other on scroll)
+  //    Adjust the multipliers (* 220, * 110, etc.) to control how fast each layer sinks.
+  const mountainY3 = MOUNTAIN_SPREAD.layer3 + scrollProgress * 300; // Sinks fastest behind layer 2 & 1
+  const mountainY2 = MOUNTAIN_SPREAD.layer2 + scrollProgress * 100; // Sinks behind layer 1
+  const mountainY1 = MOUNTAIN_SPREAD.layer1 - scrollProgress * 50;  // Foreground rises slightly for depth
+  // Track global scroll progress (0.0 at top, 1.0 at bottom) via Lenis
+  useLenis(({ progress }) => {
+    setScrollProgress(progress);
+  });
+
+  // Butter-smooth section scroll
+  const scrollTo = (targetId: string) => {
+    if (lenis) {
+      lenis.scrollTo(targetId, { offset: -80, duration: 1.8 });
+    } else {
+      const el = document.querySelector(targetId);
+      el?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className={`min-h-screen relative overflow-hidden select-none transition-colors duration-1000 ${
-      world === 'focus' 
-        ? 'bg-[#090614] text-[#f8fafc]' 
-        : 'bg-[#e7ebd9] text-[#1c221a]'
-    }`}>
+    <div
+      className={`min-h-screen w-full max-w-full overflow-x-hidden relative select-none font-sans transition-colors duration-700 ${world === 'focus'
+        ? 'bg-[#000000] text-[#f8fafc]'
+        : 'bg-[#e5e9d6] text-[#1b2018]'
+        }`}
+    >
 
       {/* ========================================================= */}
       {/* BACKGROUND LAYERS                                         */}
       {/* ========================================================= */}
       {world === 'focus' ? (
-        /* FOCUS WORLD: Painterly Cosmic Sky with Sunset Nebula & Parallax */
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {/* Base Sky Gradient: Deep space indigo to rich sunset crimson */}
-          <div 
-            className="absolute inset-0 transition-transform duration-700 ease-out opacity-90"
-            style={{
-              background: 'radial-gradient(circle at 75% 30%, #581c87 0%, #311042 30%, #150928 65%, #070410 100%)',
-              transform: `translate(${mousePos.x * -10}px, ${mousePos.y * -10}px) scale(1.05)`
-            }}
-          />
-
-          {/* Fiery Sunset Nebula Horizon (Right-side warm glow inspired by reference image) */}
-          <div 
-            className="absolute top-[-10%] right-[-5%] w-[850px] h-[750px] rounded-full blur-[140px] opacity-45 pointer-events-none transition-transform duration-1000 ease-out"
-            style={{
-              background: 'radial-gradient(circle, #ff6b35 0%, #f43f5e 40%, #7e22ce 75%, transparent 100%)',
-              transform: `translate(${mousePos.x * -25}px, ${mousePos.y * -20}px)`
-            }}
-          />
-
-          {/* Celestial Moon / Planet (Top Left) */}
-          <div 
-            className="absolute top-16 left-[18%] w-36 h-36 rounded-full transition-transform duration-500 ease-out opacity-85"
-            style={{
-              background: 'radial-gradient(circle at 35% 35%, #94a3b8 0%, #475569 45%, #1e293b 85%, #090d16 100%)',
-              boxShadow: '0 0 45px rgba(148, 163, 184, 0.25), inset -8px -8px 20px rgba(0,0,0,0.85)',
-              transform: `translate(${mousePos.x * 15}px, ${mousePos.y * 12}px)`
-            }}
-          >
-            {/* Subtle atmospheric ring */}
-            <div className="absolute inset-[-15%] rounded-full border border-sky-400/20 blur-[1px] rotate-12" />
-          </div>
-
-          {/* Secondary Distant Moon (Top Right) */}
-          <div 
-            className="absolute top-28 right-[28%] w-14 h-14 rounded-full opacity-60 transition-transform duration-500 ease-out"
-            style={{
-              background: 'radial-gradient(circle at 40% 40%, #cbd5e1 0%, #64748b 70%, #1e1b4b 100%)',
-              transform: `translate(${mousePos.x * 8}px, ${mousePos.y * 8}px)`
-            }}
-          />
-
-          {/* Distant Twinkling Stardust Field */}
-          <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px] opacity-25" />
-
-          {/* Stylized Alien Mountain Silhouettes (Bottom Landscape) */}
-          <svg 
-            className="absolute bottom-0 left-0 right-0 w-full h-[320px] object-cover opacity-85 transition-transform duration-700 ease-out pointer-events-none"
-            viewBox="0 0 1440 320" 
-            fill="none" 
-            preserveAspectRatio="none"
-            style={{
-              transform: `translate(${mousePos.x * 8}px, ${mousePos.y * 5}px) scale(1.02)`
-            }}
-          >
-            {/* Back Mountain Ridge (Deep Burgundy/Plum) */}
-            <path 
-              d="M0,192L48,181.3C96,171,192,149,288,165.3C384,181,480,235,576,224C672,213,768,139,864,138.7C960,139,1056,213,1152,229.3C1248,245,1344,203,1392,181.3L1440,160L1440,320L0,320Z" 
-              fill="#260b2d" 
-              opacity="0.75"
-            />
-            {/* Mid Mountain Ridge (Dark Wine & Amber highlights) */}
-            <path 
-              d="M0,240L60,218.7C120,197,240,155,360,165.3C480,176,600,240,720,245.3C840,251,960,197,1080,176C1200,155,1320,165,1380,170.7L1440,176L1440,320L0,320Z" 
-              fill="#180720"
-            />
-            {/* Foreground Alien Crags */}
-            <path 
-              d="M0,280L80,266.7C160,253,320,227,480,234.7C640,243,800,285,960,288C1120,291,1280,253,1360,234.7L1440,216L1440,320L0,320Z" 
-              fill="#0d0412" 
-            />
-          </svg>
-        </div>
+        /* THREE.JS INTERACTIVE COSMIC CANVAS (Deep 3D Starfield & Primary Amber Sun) */
+        <CosmicBackground scrollProgress={scrollProgress} mousePos={mousePos} />
       ) : (
-        /* DRIFT WORLD: Uncanny Liminal Backrooms (Light, Fluorescent, Shadowed) */
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {/* Institutional Pale Wall Tone with Sickly Fluorescent Tint */}
-          <div 
+        /* DRIFT WORLD: Uncanny Liminal Backrooms */
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          <div
             className="absolute inset-0 opacity-95"
             style={{
-              background: 'radial-gradient(circle at 50% 20%, #fbfcee 0%, #e8edd7 45%, #d5dec2 85%, #b9c4a4 100%)'
+              background: 'radial-gradient(circle at 50% 15%, #fbfcee 0%, #e8edd7 45%, #d5dec2 85%, #b9c4a4 100%)'
             }}
           />
 
-          {/* Flickering Fluorescent Tube Glow from Ceiling */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[180px] bg-amber-100/60 blur-[70px] animate-flicker pointer-events-none" />
 
-          {/* Perspective Corridor Grid Lines (Evoking endless backroom hallways) */}
-          <div 
+          <div
             className="absolute inset-0 opacity-20 pointer-events-none"
             style={{
               backgroundImage: 'linear-gradient(to right, #404a37 1px, transparent 1px), linear-gradient(to bottom, #404a37 1px, transparent 1px)',
@@ -139,7 +111,6 @@ export default function App() {
             }}
           />
 
-          {/* Ominous Dark Shadow Corridor at Bottom Left & Right */}
           <div className="absolute bottom-0 left-0 w-[450px] h-[350px] bg-gradient-to-tr from-[#141a12] via-[#242c20]/60 to-transparent blur-[80px] opacity-80" />
           <div className="absolute bottom-0 right-0 w-[400px] h-[350px] bg-gradient-to-tl from-[#141a12] via-[#242c20]/50 to-transparent blur-[90px] opacity-75" />
         </div>
@@ -148,333 +119,618 @@ export default function App() {
       {/* ========================================================= */}
       {/* NAVIGATION / TOP BAR                                      */}
       {/* ========================================================= */}
-      <header className="relative z-30 flex items-center justify-between max-w-7xl mx-auto w-full px-6 py-6 md:px-12">
-        {/* Name / Brand Identity */}
-        <div className="flex items-center gap-3">
-          <span className="text-xl md:text-2xl font-bold tracking-tight">
-            Debojit <span className={world === 'focus' ? 'text-amber-400' : 'text-emerald-800'}>Nath</span>
-          </span>
-          <span className={`text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-full border ${
-            world === 'focus' 
-              ? 'border-white/10 text-white/50 bg-white/5' 
-              : 'border-black/10 text-black/50 bg-black/5'
-          }`}>
-            v1.0
-          </span>
-        </div>
+      <header
+        className={`fixed top-0 inset-x-0 z-50 backdrop-blur-xl border-b transition-all duration-300 px-6 py-2.5 md:py-3 md:px-12 font-mono ${world === 'focus'
+          ? 'bg-purple-950/20 border-purple-500/15 text-[#f8fafc] shadow-lg shadow-purple-950/20'
+          : 'bg-white/60 border-black/5 text-stone-900 shadow-sm'
+          }`}
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xl md:text-2xl font-bold tracking-tight font-sans">
+              Debojit <span className={world === 'focus' ? 'text-amber-400' : 'text-emerald-800'}>Nath</span>
+            </span>
+          </div>
 
-        {/* Center Nav Links (Professional Pages) */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-          {['About', 'Projects', 'Stack', 'Contact'].map((item) => (
-            <button
-              key={item}
-              className={`transition-colors relative py-1 ${
-                world === 'focus' 
-                  ? 'text-slate-300 hover:text-white' 
+          <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest font-mono">
+            {[
+              { name: 'About', id: '#about' },
+              { name: 'Projects', id: '#projects' },
+              { name: 'Journey', id: '#journey' },
+              { name: 'Contact', id: '#contact' },
+            ].map((item) => (
+              <button
+                key={item.name}
+                onClick={() => scrollTo(item.id)}
+                className={`transition-colors py-1 cursor-pointer ${world === 'focus'
+                  ? 'text-slate-300 hover:text-white'
                   : 'text-stone-700 hover:text-black font-semibold'
-              }`}
-            >
-              {item}
-            </button>
-          ))}
-        </nav>
+                  }`}
+              >
+                {item.name}
+              </button>
+            ))}
+          </nav>
 
-        {/* Right Controls: Audio + World Switcher */}
-        <div className="flex items-center gap-3">
-          {/* Audio toggle button */}
-          <button
-            onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`p-2.5 rounded-full backdrop-blur-md border transition-all ${
-              world === 'focus'
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className={`p-2 rounded-full backdrop-blur-md border transition-all ${world === 'focus'
                 ? 'bg-white/5 border-white/10 text-slate-300 hover:text-white hover:bg-white/10'
                 : 'bg-black/5 border-black/10 text-stone-700 hover:text-black hover:bg-black/10'
-            }`}
-            title={soundEnabled ? 'Mute Atmosphere' : 'Enable Atmosphere'}
-          >
-            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          </button>
+                }`}
+              title={soundEnabled ? 'Mute Atmosphere' : 'Enable Atmosphere'}
+            >
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            </button>
 
-          {/* THE WORLD SLIDER / TOGGLE (Focus vs Drift) */}
-          <div className={`flex items-center p-1 rounded-full backdrop-blur-xl border transition-all shadow-lg ${
-            world === 'focus' 
-              ? 'bg-black/40 border-white/15 shadow-purple-950/40' 
+            {/* THE WORLD SLIDER / TOGGLE (Focus vs Drift) */}
+            <div className={`flex items-center p-1 rounded-full backdrop-blur-xl border transition-all shadow-lg ${world === 'focus'
+              ? 'bg-black/40 border-white/15 shadow-purple-950/40'
               : 'bg-white/60 border-black/10 shadow-stone-900/10'
-          }`}>
-            <button
-              onClick={() => setWorld('focus')}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${
-                world === 'focus'
+              }`}>
+              <button
+                onClick={() => setWorld('focus')}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${world === 'focus'
                   ? 'bg-gradient-to-r from-orange-500 via-rose-500 to-purple-600 text-white shadow-md shadow-orange-500/30'
                   : 'text-stone-600 hover:text-black'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Focus</span>
-            </button>
+                  }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Focus</span>
+              </button>
 
-            <button
-              onClick={() => setWorld('drift')}
-              className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${
-                world === 'drift'
+              <button
+                onClick={() => setWorld('drift')}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${world === 'drift'
                   ? 'bg-[#293325] text-[#d6e4cb] shadow-md shadow-stone-900/30'
                   : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Compass className="w-3.5 h-3.5" />
-              <span>Drift</span>
-            </button>
+                  }`}
+              >
+                <Compass className="w-3.5 h-3.5" />
+                <span>Drift</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* ========================================================= */}
-      {/* MAIN HERO CONTENT                                         */}
+      {/* SCROLLABLE MAIN CONTENT                                   */}
       {/* ========================================================= */}
-      <main className="relative z-20 max-w-7xl mx-auto w-full px-6 md:px-12 pt-8 pb-16 flex-1 flex flex-col justify-center">
-        {world === 'focus' ? (
-          /* ======================================================= */
-          /* WORLD 1: FOCUS (Vibrant Cosmic Hero)                    */
-          /* ======================================================= */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            {/* Left Column: Bold Typography & Punchline Pill */}
-            <div className="lg:col-span-7 flex flex-col items-start space-y-6">
-              
-              {/* Intro sub-label */}
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-                <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
-                <span className="text-xs font-mono uppercase tracking-widest text-slate-300">
-                  Software Developer & AI Engineer
-                </span>
-              </div>
+      <div className="relative z-20">
 
-              {/* Main Headline with Custom White Cutout Pill */}
-              <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08]">
-                <span>Hi, I'm Debojit</span>
-                <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-300 mt-2">
-                  Dedicated to Crafting
-                </span>
-                
-                {/* The Signature Cutout White Pill (Inspired by Reference) */}
-                <span className="inline-block mt-3 px-6 py-2 rounded-2xl bg-white text-[#0a0518] font-extrabold tracking-tight text-3xl sm:text-5xl md:text-6xl shadow-2xl shadow-purple-500/30 transform hover:-rotate-1 transition-transform cursor-default">
-                  Interactive
-                </span>
-
-                <span className="block text-3xl sm:text-5xl md:text-6xl font-light text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-teal-200 mt-2">
-                  AI & Digital Experiences
-                </span>
-              </h1>
-
-              {/* Subtitle */}
-              <p className="text-base sm:text-lg text-slate-300/85 max-w-xl font-normal leading-relaxed pt-1">
-                Synthesizing machine intelligence, responsive 3D WebGL interfaces, and high-throughput systems into memorable, visceral products.
-              </p>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-4">
-                <button className="group relative inline-flex items-center gap-3 px-7 py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 text-white font-semibold text-sm shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                  <span>Explore Selected Work</span>
-                  <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </button>
-
-                <button className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium text-sm backdrop-blur-md transition-all">
-                  <span>Resume / Dossier</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column: Zero-G Astronaut / Shards + Floating Role Capsules */}
-            <div className="lg:col-span-5 relative flex flex-col items-center justify-center min-h-[440px]">
-              
-              {/* Zero-G Floating Astronaut Illustration with Parallax */}
-              <div 
-                className="relative w-72 h-72 sm:w-80 sm:h-80 transition-transform duration-300 ease-out animate-float"
+        {/* --------------------------------------------------------- */}
+        {/* SECTION 1: HERO VIEWPORT (Full Screen Width, Zero Gaps!) */}
+        {/* --------------------------------------------------------- */}
+        <section id="hero" className="min-h-screen relative flex flex-col justify-between w-full overflow-hidden">
+          {world === 'focus' ? (
+            <>
+              {/* VIBRANT PURPLE COSMIC SKY AT TOP OF WEBPAGE */}
+              <div
+                className="absolute top-0 inset-x-0 h-[480px] pointer-events-none z-0"
                 style={{
-                  transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)`
+                  background: 'radial-gradient(ellipse 100% 90% at 50% -10%, rgba(138, 43, 226, 0.45) 0%, rgba(98, 25, 155, 0.35) 35%, rgba(55, 12, 95, 0.22) 65%, transparent 100%)',
+                  opacity: Math.max(0, 1 - scrollProgress * 3.5),
+                  transition: 'opacity 0.25s ease-out'
+                }}
+              />
+
+              {/* SMOOTH ATMOSPHERIC SUNSET LIGHT (Shifted to right, brighter radiant sunset glow) */}
+              <div
+                className="absolute inset-0 pointer-events-none transition-opacity duration-300 ease-out z-0"
+                style={{
+                  background: 'radial-gradient(ellipse 80% 70% at 88% 34%, rgba(255, 115, 50, 0.55) 0%, rgba(244, 63, 94, 0.42) 28%, rgba(192, 38, 211, 0.28) 52%, rgba(107, 33, 168, 0.15) 72%, transparent 100%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
+                  maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
+                  opacity: Math.max(0, 1 - scrollProgress * 5.0),
+                }}
+              />
+
+              {/* SECONDARY INTENSE SUNSET CORE (Bright radiant corona along far right) */}
+              <div
+                className="absolute inset-0 pointer-events-none transition-opacity duration-300 ease-out z-0"
+                style={{
+                  background: 'radial-gradient(ellipse 50% 55% at 94% 32%, rgba(255, 145, 70, 0.45) 0%, rgba(244, 63, 94, 0.25) 35%, rgba(217, 70, 239, 0.14) 60%, transparent 100%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
+                  maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
+                  opacity: Math.max(0, 1 - scrollProgress * 5.0),
+                }}
+              />
+
+              {/* ======================================================= */}
+              {/* HERO SKY PLANET (Replaced weird ball with planet.png)    */}
+              {/* ======================================================= */}
+              <div
+                className="absolute inset-0 pointer-events-none z-0 overflow-hidden"
+                style={{
+                  opacity: Math.max(0, 1 - scrollProgress * 3.5),
+                  transition: 'opacity 0.2s ease-out'
                 }}
               >
-                {/* Floating Outer Glass Shards (Zero-G Fragments) */}
-                <div 
-                  className="absolute -top-6 -left-4 w-10 h-10 border border-teal-300/40 bg-teal-400/10 backdrop-blur-md rotate-45 animate-float-slow"
-                  style={{ transform: `translate(${mousePos.x * -15}px, ${mousePos.y * -15}px)` }}
-                />
-                <div 
-                  className="absolute -bottom-8 right-6 w-14 h-8 border border-orange-400/40 bg-orange-500/10 backdrop-blur-md -rotate-12 animate-float"
-                  style={{ transform: `translate(${mousePos.x * 18}px, ${mousePos.y * 18}px)` }}
-                />
-                <div 
-                  className="absolute top-1/2 -right-8 w-8 h-8 border border-purple-400/40 bg-purple-500/10 backdrop-blur-md rotate-12 animate-float-slow"
-                />
+                {/* COLOSSAL CELESTIAL PLANET (Shifted slightly right for optimal composition) */}
+                <div
+                  className="absolute top-[-2%] sm:top-[-4%] md:top-[-6%] left-[2%] sm:left-[5%] md:left-[7%] w-[850px] sm:w-[1150px] md:w-[1450px] lg:w-[1650px] xl:w-[1800px] pointer-events-none transition-transform duration-500 ease-out"
+                  style={{
+                    transform: `translate(${mousePos.x * 14}px, ${mousePos.y * 10}px)`
+                  }}
+                >
+                  <img
+                    src="/shapes/planet.png"
+                    alt="Celestial Planet"
+                    className="w-full h-auto object-contain filter drop-shadow-[0_0_60px_rgba(168,85,247,0.3)] select-none pointer-events-none opacity-95"
+                    draggable={false}
+                  />
+                </div>
+              </div>
 
-                {/* Stylized Floating Zero-G Astronaut Visual Canvas */}
-                <div className="w-full h-full rounded-3xl bg-gradient-to-b from-purple-900/30 to-black/60 border border-white/10 backdrop-blur-xl p-6 flex flex-col items-center justify-center text-center shadow-2xl shadow-orange-500/10 relative overflow-hidden group">
-                  {/* Internal ambient glow */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 via-transparent to-cyan-500/20 opacity-60 group-hover:opacity-100 transition-opacity" />
-                  
-                  {/* Zero-G Core Mascot Icon */}
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-orange-500 to-amber-300 p-1 mb-4 shadow-xl shadow-orange-500/30 relative z-10 animate-pulse-slow">
-                    <div className="w-full h-full rounded-full bg-[#12071f] flex items-center justify-center border-2 border-orange-300/30">
-                      <Cpu className="w-10 h-10 text-orange-300" />
+              {/* HERO MAIN CONTENT GRID (Centered in max-w-7xl) */}
+              <div className="max-w-7xl mx-auto w-full px-6 md:px-12 pt-16 sm:pt-20 pb-24 sm:pb-28 my-auto relative z-20">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+                  {/* Left Column: Bold Headline & Honest Student Bio */}
+                  <div className="lg:col-span-7 flex flex-col items-start space-y-6">
+                    <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+                      <GraduationCap className="w-4 h-4 text-orange-400" />
+                      <span className="text-xs font-mono uppercase tracking-widest text-slate-300">
+                        4th Year Computer Science Undergrad
+                      </span>
+                    </div>
+
+                    <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08] font-sans">
+                      <span>Hi, I'm Debojit</span>
+                      <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-300 mt-2">
+                        A Developer Dedicated to Crafting
+                      </span>
+
+                      {/* The Signature Cutout White Pill */}
+                      <span className="inline-block mt-3 px-6 py-2 rounded-2xl bg-white text-[#0a0518] font-extrabold tracking-tight text-3xl sm:text-5xl md:text-6xl shadow-2xl shadow-purple-500/30 transform hover:-rotate-1 transition-transform cursor-default">
+                        Interactive
+                      </span>
+
+                      <span className="block text-3xl sm:text-5xl md:text-6xl font-light text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-teal-200 mt-2">
+                        AI & Software Solutions
+                      </span>
+                    </h1>
+
+                    <p className="text-base sm:text-lg text-slate-300/85 max-w-xl font-normal leading-relaxed pt-1">
+                      Undergraduate CS student passionate about building intelligent systems, full-stack web applications, and creative digital experiences.
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-4 pt-4 font-mono">
+                      <button
+                        onClick={() => scrollTo('#projects')}
+                        className="group relative inline-flex items-center gap-3 px-7 py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 text-white font-semibold text-xs tracking-wider uppercase shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                      >
+                        <span>Explore Projects</span>
+                        <ArrowDown className="w-4 h-4 group-hover:translate-y-1 transition-transform" />
+                      </button>
+
+                      <button
+                        onClick={() => scrollTo('#about')}
+                        className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium text-xs tracking-wider uppercase backdrop-blur-md transition-all cursor-pointer"
+                      >
+                        <span>About Me</span>
+                      </button>
                     </div>
                   </div>
 
-                  <h3 className="text-lg font-bold text-white relative z-10">Debojit Nath</h3>
-                  <p className="text-xs text-orange-300/90 font-mono mt-1 relative z-10">debojit.tech • Zero-G Orbit</p>
-                  
-                  <div className="mt-4 flex items-center gap-2 text-[11px] text-slate-300 font-mono bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 relative z-10">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                    <span>Engineered for 60 FPS Flow</span>
+                  {/* Right Column: CLEAN SLEEK FLOATING ASTRONAUT */}
+                  <div className="lg:col-span-5 relative flex items-center justify-center min-h-[420px]">
+                    <FloatingAstronaut mousePos={mousePos} />
                   </div>
+
                 </div>
               </div>
 
-              {/* Floating Status Capsules (Right-side cards from reference) */}
-              <div className="w-full mt-6 space-y-3">
-                <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-between hover:bg-white/10 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <span className="w-2.5 h-2.5 rounded-full bg-orange-400" />
-                    <div>
-                      <p className="text-xs font-semibold text-white">Full-Stack & Systems Architecture</p>
-                      <p className="text-[11px] text-slate-400 font-mono">React • TypeScript • Cloud</p>
-                    </div>
-                  </div>
-                  <Terminal className="w-4 h-4 text-slate-400" />
-                </div>
+              {/* CUSTOM LAYERED PARALLAX MOUNTAINS (Zero Cursor Movement + Dynamic Scroll Convergence) */}
+              <div className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-hidden">
+                {/* Layer 3 (Background Horizon): mountain3.png */}
+                <img
+                  src="/shapes/mountain3.png"
+                  alt="Alien Mountain Layer 3"
+                  className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-10 transition-transform duration-300 ease-out"
+                  style={{
+                    transform: `translate3d(0, ${mountainY3}px, 0)`
+                  }}
+                  draggable={false}
+                />
 
-                <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-between hover:bg-white/10 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <span className="w-2.5 h-2.5 rounded-full bg-teal-400" />
-                    <div>
-                      <p className="text-xs font-semibold text-white">Interactive 3D & Creative Motion</p>
-                      <p className="text-[11px] text-slate-400 font-mono">Three.js • WebGL • GSAP</p>
-                    </div>
-                  </div>
-                  <Layers className="w-4 h-4 text-teal-400" />
-                </div>
+                {/* Layer 2 (Midground Ridges): mountain2.png */}
+                <img
+                  src="/shapes/mountain2.png"
+                  alt="Alien Mountain Layer 2"
+                  className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-20 transition-transform duration-300 ease-out"
+                  style={{
+                    transform: `translate3d(0, ${mountainY2}px, 0)`
+                  }}
+                  draggable={false}
+                />
+
+                {/* Layer 1 (Foreground Spires / Rocks): mountain1.png */}
+                <img
+                  src="/shapes/mountain1.png"
+                  alt="Alien Mountain Layer 1"
+                  className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-30 transition-transform duration-300 ease-out"
+                  style={{
+                    transform: `translate3d(0, ${mountainY1}px, 0)`
+                  }}
+                  draggable={false}
+                />
               </div>
-
-            </div>
-          </div>
-        ) : (
-          /* ======================================================= */
-          /* WORLD 2: DRIFT (Uncanny Liminal / Backrooms Space)      */
-          /* ======================================================= */
-          <div className="max-w-4xl mx-auto w-full py-12 flex flex-col items-start space-y-8 animate-fade-in">
-            
-            {/* Warning / Liminal Tag */}
-            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-black/5 border border-black/10">
-              <span className="w-2 h-2 rounded-full bg-amber-600 animate-flicker" />
-              <span className="text-xs font-mono uppercase tracking-widest text-stone-700 font-semibold">
-                Off Duty • Liminal Corridor 0.1
-              </span>
-            </div>
-
-            {/* Unsettling Liminal Headline */}
-            <h1 className="text-5xl sm:text-7xl md:text-8xl font-serif font-normal tracking-tight text-[#161c14] leading-[1.05]">
-              Are we even in <span className="italic font-light text-emerald-950 underline decoration-amber-600/40">reality</span>?
-            </h1>
-
-            {/* Poetic Liminal Paragraph */}
-            <p className="text-lg sm:text-2xl text-stone-700/90 max-w-2xl font-light leading-relaxed">
-              No meetings. No commit logs. Just an endless hallway of fluorescent hums, unfinished thoughts, the embers of an RDR2 campfire, and midnight frequencies.
-            </p>
-
-            {/* Liminal Sub-World Portal Doors */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full pt-6">
-              
-              {/* Door 1: RDR2 / Games */}
-              <div className="p-6 rounded-2xl bg-white/40 border border-black/10 backdrop-blur-md hover:bg-white/70 transition-all hover:-translate-y-1 cursor-pointer group">
-                <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold block mb-2">
-                  Sub-World 01
+            </>
+          ) : (
+            /* DRIFT HERO */
+            <div className="max-w-4xl mx-auto w-full py-12 flex flex-col items-start space-y-8">
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-black/5 border border-black/10">
+                <span className="w-2 h-2 rounded-full bg-amber-600 animate-flicker" />
+                <span className="text-xs font-mono uppercase tracking-widest text-stone-700 font-semibold">
+                  Off Duty • Liminal Corridor 0.1
                 </span>
-                <h3 className="text-xl font-bold text-stone-900 group-hover:text-amber-900 transition-colors">
-                  Campfire Dust (RDR2)
-                </h3>
-                <p className="text-xs text-stone-600 mt-2 font-mono leading-relaxed">
-                  Arthur Morgan, weeping in the rain. Elden Ring fog and lost frontiers.
-                </p>
-                <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-stone-800">
-                  <span>Enter Corridor</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </div>
               </div>
 
-              {/* Door 2: Spotify Frequencies */}
-              <div className="p-6 rounded-2xl bg-white/40 border border-black/10 backdrop-blur-md hover:bg-white/70 transition-all hover:-translate-y-1 cursor-pointer group">
-                <span className="text-xs font-mono uppercase tracking-widest text-emerald-800 font-bold block mb-2">
-                  Sub-World 02
-                </span>
-                <h3 className="text-xl font-bold text-stone-900 group-hover:text-emerald-900 transition-colors">
-                  Midnight Frequencies
-                </h3>
-                <p className="text-xs text-stone-600 mt-2 font-mono leading-relaxed">
-                  Tame Impala, The Weeknd, Lana Del Rey. Soundscapes composed by a friend.
-                </p>
-                <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-stone-800">
-                  <span>Listen In</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              <h1 className="text-5xl sm:text-7xl md:text-8xl font-serif font-normal tracking-tight text-[#161c14] leading-[1.05]">
+                Are we even in <span className="italic font-light text-emerald-950 underline decoration-amber-600/40">reality</span>?
+              </h1>
+
+              <p className="text-lg sm:text-2xl text-stone-700/90 max-w-2xl font-light leading-relaxed">
+                No meetings. No commit logs. Just an endless hallway of fluorescent hums, unfinished thoughts, the embers of an RDR2 campfire, and midnight frequencies.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full pt-6">
+                <div className="p-6 rounded-2xl bg-white/40 border border-black/10 backdrop-blur-md hover:bg-white/70 transition-all hover:-translate-y-1 cursor-pointer group">
+                  <span className="text-xs font-mono uppercase tracking-widest text-amber-800 font-bold block mb-2">Sub-World 01</span>
+                  <h3 className="text-xl font-bold text-stone-900 group-hover:text-amber-900">Campfire Dust (RDR2)</h3>
+                  <p className="text-xs text-stone-600 mt-2 font-mono">Arthur Morgan weeping in the rain. Elden Ring fog.</p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-white/40 border border-black/10 backdrop-blur-md hover:bg-white/70 transition-all hover:-translate-y-1 cursor-pointer group">
+                  <span className="text-xs font-mono uppercase tracking-widest text-emerald-800 font-bold block mb-2">Sub-World 02</span>
+                  <h3 className="text-xl font-bold text-stone-900 group-hover:text-emerald-900">Midnight Frequencies</h3>
+                  <p className="text-xs text-stone-600 mt-2 font-mono">Tame Impala, The Weeknd, Lana Del Rey.</p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-white/40 border border-black/10 backdrop-blur-md hover:bg-white/70 transition-all hover:-translate-y-1 cursor-pointer group">
+                  <span className="text-xs font-mono uppercase tracking-widest text-stone-600 font-bold block mb-2">Sub-World 03</span>
+                  <h3 className="text-xl font-bold text-stone-900 group-hover:text-stone-950">Empty Cinema</h3>
+                  <p className="text-xs text-stone-600 mt-2 font-mono">Flickering projectors, silent theaters, and cinema.</p>
                 </div>
               </div>
-
-              {/* Door 3: Cinema */}
-              <div className="p-6 rounded-2xl bg-white/40 border border-black/10 backdrop-blur-md hover:bg-white/70 transition-all hover:-translate-y-1 cursor-pointer group">
-                <span className="text-xs font-mono uppercase tracking-widest text-stone-600 font-bold block mb-2">
-                  Sub-World 03
-                </span>
-                <h3 className="text-xl font-bold text-stone-900 group-hover:text-stone-950 transition-colors">
-                  Empty Cinema
-                </h3>
-                <p className="text-xs text-stone-600 mt-2 font-mono leading-relaxed">
-                  Flickering projectors, silent theaters, and cinema that lingers.
-                </p>
-                <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-stone-800">
-                  <span>Open Door</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </div>
-              </div>
-
             </div>
+          )}
+        </section>
 
-          </div>
+        {/* GRADIENT BEDROCK: Smooth feathering from transparent -> black -> transparent with zero harsh lines */}
+        {world === 'focus' && (
+          <div
+            className="w-full h-32 sm:h-36 md:h-44 relative z-20 pointer-events-none -mt-6 sm:-mt-8"
+            style={{
+              background: 'linear-gradient(to bottom, transparent 0%, #000000 25%, #000000 75%, transparent 100%)'
+            }}
+          />
         )}
-      </main>
+
+        {/* --------------------------------------------------------- */}
+        {/* SECTION 2: ABOUT                                          */}
+        {/* --------------------------------------------------------- */}
+        <section id="about" className="py-28 max-w-7xl mx-auto px-6 md:px-12 relative z-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div className="lg:col-span-5">
+              <span className="text-xs font-mono uppercase tracking-widest text-amber-400">01 / Profile</span>
+              <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mt-2 font-sans">About Debojit</h2>
+              <p className="text-base text-slate-300/80 mt-6 leading-relaxed">
+                I am a 4th-year Computer Science undergraduate student preparing for software developer and AI engineer roles. I enjoy turning complex problem statements into clean code, practical web applications, and intuitive user experiences.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 font-mono text-xs text-slate-400">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>4th Year Computer Science Student</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>Passionate about AI Engineering & Full-Stack</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>Building real-world projects & learning daily</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5 font-sans">
+              <div className="p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md hover:border-orange-500/30 transition-all">
+                <Brain className="w-8 h-8 text-orange-400 mb-4" />
+                <h3 className="text-lg font-bold text-white">Machine Learning & AI</h3>
+                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed">
+                  Exploring LLM integration, agentic workflows, and applying machine learning algorithms to practical challenges.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md hover:border-teal-500/30 transition-all">
+                <Layers className="w-8 h-8 text-teal-400 mb-4" />
+                <h3 className="text-lg font-bold text-white">Full-Stack Development</h3>
+                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed">
+                  Building responsive web applications with React, TypeScript, Tailwind CSS, and cloud backends.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md hover:border-rose-500/30 transition-all">
+                <Terminal className="w-8 h-8 text-rose-400 mb-4" />
+                <h3 className="text-lg font-bold text-white">Computer Science Core</h3>
+                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed">
+                  Strong foundational grounding in Data Structures, Algorithms, Object-Oriented Design, and Databases.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md hover:border-amber-400/30 transition-all">
+                <Compass className="w-8 h-8 text-amber-300 mb-4" />
+                <h3 className="text-lg font-bold text-white">Creative Exploration</h3>
+                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed">
+                  Blending clean engineering rigor with personal creativity, gaming lore, and dynamic motion design.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* --------------------------------------------------------- */}
+        {/* SECTION 3: AEGIS-REMIXED BENTO PROJECTS                   */}
+        {/* --------------------------------------------------------- */}
+        <section id="projects" className="py-28 max-w-6xl mx-auto px-6 md:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
+            <div>
+              <span className="text-xs font-mono uppercase tracking-widest text-orange-400">02 / Portfolio</span>
+              <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mt-2 font-mono text-white">
+                Selected Bento Projects
+              </h2>
+            </div>
+            <p className="text-xs font-mono text-slate-400 max-w-sm">
+              Sample project architectures featuring interactive WebGL shaders and clean engineering modules.
+            </p>
+          </div>
+
+          {/* THE BENTO CONTAINER */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 w-full font-mono">
+
+            {/* Card 1: Grainy / Light (Black Globe WebGL Lines) */}
+            <article
+              className="col-span-1 relative w-full min-h-[460px] rounded-[2rem] flex flex-col justify-between p-8 overflow-hidden shadow-2xl border border-transparent group"
+              style={{
+                background: 'linear-gradient(#f4f4f0, #f4f4f0) padding-box, linear-gradient(135deg, #ffffff 0%, #d1d5db 100%) border-box',
+                color: '#111111'
+              }}
+            >
+              <div
+                className="absolute inset-0 z-10 pointer-events-none opacity-[0.15]"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                  mixBlendMode: 'multiply'
+                }}
+              />
+
+              <div className="absolute inset-0 z-0 top-1/4 pointer-events-none opacity-60 group-hover:opacity-85 transition-opacity">
+                <WebGLLines color={0x111111} />
+              </div>
+
+              <header className="relative z-20 flex justify-between items-center text-sm tracking-tight font-normal">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <Shield className="w-5 h-5 text-black" />
+                  <span>Autonomous Agent Engine</span>
+                </div>
+                <span className="text-xs opacity-50 uppercase tracking-widest font-mono">Sector.01</span>
+              </header>
+
+              <main className="relative z-20 mt-auto">
+                <h3 className="text-3xl md:text-4xl tracking-tight leading-[1.1] mb-4 font-mono font-bold text-black">
+                  Sample Project 01.<br />Agent Workflows.
+                </h3>
+                <p className="text-xs leading-relaxed font-sans max-w-[240px] text-black/70">
+                  Sample multi-agent coordination system with state machine orchestration and clean rollback logic.
+                </p>
+                <div className="mt-4 flex items-center gap-2 text-xs font-mono font-bold text-black hover:text-orange-600 transition-colors cursor-pointer">
+                  <span>View Repository</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </div>
+              </main>
+            </article>
+
+            {/* Card 2: Cybernetic Yellow Grid + Aura Asset */}
+            <article
+              className="col-span-1 relative w-full min-h-[460px] rounded-[2rem] flex flex-col justify-between p-8 overflow-hidden shadow-2xl border border-transparent group"
+              style={{
+                background: 'linear-gradient(#FDE047, #FDE047) padding-box, linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(202,138,4,0.4) 100%) border-box',
+                color: '#111111'
+              }}
+            >
+              <div className="absolute inset-0 z-0 opacity-40 mix-blend-multiply pointer-events-none">
+                <img
+                  src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/724142aa-44a6-48d3-9cf3-761e00d05b78_1600w.jpg"
+                  className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-700"
+                  alt="Futuristic Deconstructed Pyramid"
+                />
+              </div>
+
+              <div
+                className="absolute inset-0 z-0 opacity-[0.15] pointer-events-none"
+                style={{
+                  backgroundImage: 'linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)',
+                  backgroundSize: '1.5rem 1.5rem'
+                }}
+              />
+
+              <header className="relative z-20 flex justify-between items-center text-sm tracking-tight font-normal">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <Activity className="w-5 h-5 text-black" />
+                  <span>Cloud Telemetry Pipeline</span>
+                </div>
+                <span className="text-xs opacity-50 uppercase tracking-widest font-mono">Sector.02</span>
+              </header>
+
+              <main className="relative z-20 mt-auto">
+                <h3 className="text-3xl md:text-4xl tracking-tight leading-[1.1] font-mono font-bold text-black mb-3">
+                  Sample Project 02.<br />Backend Service.
+                </h3>
+                <p className="text-xs leading-relaxed font-sans max-w-[240px] text-black/80 font-medium">
+                  Distributed logging and event processing pipeline designed for cloud deployments.
+                </p>
+                <div className="mt-4 flex items-center gap-2 text-xs font-mono font-bold text-black hover:text-amber-800 transition-colors cursor-pointer">
+                  <span>Architecture Spec</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </div>
+              </main>
+            </article>
+
+            {/* Card 3: Black Halftone Shader Matrix (Full Width) */}
+            <article
+              className="col-span-1 md:col-span-2 relative w-full min-h-[400px] md:min-h-[360px] rounded-[2rem] flex flex-col md:flex-row justify-between p-8 overflow-hidden text-white shadow-2xl border border-transparent group"
+              style={{
+                background: 'linear-gradient(#0A0A0A, #0A0A0A) padding-box, linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 100%) border-box'
+              }}
+            >
+              <div className="absolute inset-0 z-0 md:left-1/3 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
+                <WebGLHalftone color1="#c084fc" color2="#38bdf8" gridSize={26} />
+              </div>
+
+              <header className="relative z-20 flex md:flex-col justify-between md:justify-start items-center md:items-start text-sm tracking-tight font-normal text-white/90 gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-yellow-400 animate-pulse" />
+                  <span className="font-bold tracking-widest text-yellow-400">QUANTUM CORE</span>
+                </div>
+                <span className="text-xs opacity-50 uppercase tracking-widest font-mono">Sector.03</span>
+              </header>
+
+              <main className="relative z-20 mt-auto md:mt-0 md:self-end md:text-right max-w-md w-full">
+                <h3 className="text-4xl md:text-5xl tracking-tight leading-[1.05] font-normal mb-4 uppercase font-mono text-white">
+                  Sample Project 03.<br />Interactive Web.
+                </h3>
+                <p className="text-xs leading-relaxed text-white/70 md:ml-auto md:max-w-[260px] font-mono">
+                  Custom GPU shader computations rendering volumetric wave fields and interactive particle physics.
+                </p>
+                <div className="mt-4 flex items-center gap-2 text-xs font-mono font-bold text-yellow-400 md:justify-end hover:text-white transition-colors cursor-pointer">
+                  <span>Run WebGL Simulation</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </div>
+              </main>
+            </article>
+
+          </div>
+        </section>
+
+        {/* --------------------------------------------------------- */}
+        {/* SECTION 4: JOURNEY                                        */}
+        {/* --------------------------------------------------------- */}
+        <section id="journey" className="py-28 max-w-7xl mx-auto px-6 md:px-12 font-mono">
+          <div className="max-w-2xl mb-16">
+            <span className="text-xs font-mono uppercase tracking-widest text-purple-400">03 / Trajectory</span>
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mt-2 text-white font-sans">The Journey</h2>
+            <p className="text-sm font-mono text-slate-400 mt-3">
+              Academic milestones, computer science foundation, and evolving interests.
+            </p>
+          </div>
+
+          <div className="space-y-8 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-gradient-to-b before:from-orange-500 before:via-purple-500 before:to-transparent">
+
+            <div className="relative pl-12 group">
+              <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-orange-400 ring-4 ring-orange-500/20 group-hover:scale-125 transition-transform" />
+              <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-orange-500/30 transition-all font-sans">
+                <span className="text-xs font-mono text-orange-400 block mb-1">2026 • Present</span>
+                <h3 className="text-xl font-bold text-white">4th Year Undergrad — AI & Software Engineering</h3>
+                <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
+                  Final year of Computer Science. Deepening skills in software engineering, applied AI, and building full-stack applications.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative pl-12 group">
+              <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-purple-400 ring-4 ring-purple-500/20 group-hover:scale-125 transition-transform" />
+              <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-purple-500/30 transition-all font-sans">
+                <span className="text-xs font-mono text-purple-400 block mb-1">Academic Core</span>
+                <h3 className="text-xl font-bold text-white">Computer Science Fundamentals</h3>
+                <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
+                  Coursework in Data Structures, Algorithms, Operating Systems, Computer Networks, and Database Management Systems.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative pl-12 group">
+              <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-teal-400 ring-4 ring-teal-500/20 group-hover:scale-125 transition-transform" />
+              <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-teal-500/30 transition-all font-sans">
+                <span className="text-xs font-mono text-teal-400 block mb-1">Genesis</span>
+                <h3 className="text-xl font-bold text-white">Starting the Coding Journey</h3>
+                <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
+                  Writing my first programs, discovering a love for problem solving, and building initial software projects.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* --------------------------------------------------------- */}
+        {/* SECTION 5: GRAVITATIONAL HORIZON (BLACK HOLE AT BOTTOM)    */}
+        {/* --------------------------------------------------------- */}
+        <section id="contact" className="pt-28 pb-0 relative font-mono overflow-hidden flex flex-col items-center">
+
+          <div className="text-center max-w-xl mx-auto px-6 mb-6 relative z-20">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-mono mb-4">
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+              <span>Gargantua Singularity • Horizon Boundary</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-bold text-white tracking-tight font-sans">
+              <a
+                href="mailto:debojitnath9674@gmail.com"
+                className="hover:text-purple-300 transition-colors inline-flex items-center gap-2"
+              >
+                <span>debojitnath9674@gmail.com</span>
+                <ArrowUpRight className="w-5 h-5 text-purple-400" />
+              </a>
+            </h2>
+            <p className="text-xs text-slate-400 mt-2 font-mono">
+              Open to graduate developer roles, software internships, and tech collaborations.
+            </p>
+          </div>
+
+          {/* Colossal Edge-to-Edge Half-Circle Black Hole Peeking From Below */}
+          <div className="w-full relative z-10">
+            <GravitationalArc />
+          </div>
+        </section>
+
+      </div>
 
       {/* ========================================================= */}
       {/* FOOTER                                                    */}
       {/* ========================================================= */}
-      <footer className="relative z-30 max-w-7xl mx-auto w-full px-6 py-6 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5 text-xs font-mono">
+      <footer className="relative z-30 max-w-7xl mx-auto w-full px-6 py-8 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5 text-xs font-mono bg-black/40">
         <div className={world === 'focus' ? 'text-slate-400' : 'text-stone-600'}>
-          © {new Date().getFullYear()} Debojit Nath • <span className="font-semibold">debojit.tech</span>
+          © {new Date().getFullYear()} Debojit Nath • 4th Year CS Undergrad
         </div>
 
         <div className="flex items-center gap-6">
-          <a 
-            href="https://github.com/DebojitNath" 
-            target="_blank" 
+          <a
+            href="https://github.com/DebojitNath"
+            target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center gap-1.5 transition-colors ${
-              world === 'focus' ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-black'
-            }`}
+            className={`flex items-center gap-1.5 transition-colors ${world === 'focus' ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-black'
+              }`}
           >
             <Github className="w-4 h-4" />
             <span>GitHub</span>
           </a>
-          <a 
-            href="https://linkedin.com" 
-            target="_blank" 
+          <a
+            href="https://linkedin.com"
+            target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center gap-1.5 transition-colors ${
-              world === 'focus' ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-black'
-            }`}
+            className={`flex items-center gap-1.5 transition-colors ${world === 'focus' ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-black'
+              }`}
           >
             <Linkedin className="w-4 h-4" />
             <span>LinkedIn</span>
           </a>
-          <a 
-            href="#contact"
-            className={`flex items-center gap-1.5 transition-colors ${
-              world === 'focus' ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-black'
-            }`}
+          <a
+            href="mailto:debojitnath9674@gmail.com"
+            className={`flex items-center gap-1.5 transition-colors ${world === 'focus' ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-black'
+              }`}
           >
             <Mail className="w-4 h-4" />
             <span>Contact</span>
