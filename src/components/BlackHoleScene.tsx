@@ -169,3 +169,4 @@ export default function BlackHoleScene() {
 }
 
 useGLTF.preload(MODEL_URL);
+
