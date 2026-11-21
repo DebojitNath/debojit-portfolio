@@ -1,7 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, useAnimations } from '@react-three/drei';
-import { useLenis } from 'lenis/react';
 import * as THREE from 'three';
 
 const MODEL_URL = '/models/blackhole.glb';
@@ -50,10 +49,9 @@ class BlackHoleErrorBoundary extends Component<
 interface BlackHoleModelProps {
   reducedMotion: boolean;
   mouseRef: React.RefObject<{ x: number; y: number }>;
-  scrollFactorRef: React.RefObject<number>;
 }
 
-function BlackHoleModel({ reducedMotion, mouseRef, scrollFactorRef }: BlackHoleModelProps) {
+function BlackHoleModel({ reducedMotion, mouseRef }: BlackHoleModelProps) {
   const group = useRef<THREE.Group>(null);
   const tiltGroup = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF(MODEL_URL);
@@ -69,13 +67,12 @@ function BlackHoleModel({ reducedMotion, mouseRef, scrollFactorRef }: BlackHoleM
     }
   }, [actions, reducedMotion]);
 
-  // Compute bounding box and normalize scale to fit the stage perfectly
+  // Compute bounding box and normalize scale to fit the stage perfectly (original default diameter)
   const { scale, offset } = useMemo(() => {
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    // Scale so the full black hole circle & razor-sharp accretion disk span the viewport
     const targetDiameter = 12.5;
     const s = targetDiameter / maxDim;
     return {
@@ -84,39 +81,33 @@ function BlackHoleModel({ reducedMotion, mouseRef, scrollFactorRef }: BlackHoleM
     };
   }, [scene]);
 
-  // Dynamic interactive tilt:
-  // 1. While above: slightly tilted towards us (basePitch = 0.20)
-  // 2. In the bottom section: perfectly straight (basePitch = 0.0), matching the screenshot!
-  // 3. Cursor actively controls 3D rotation across the entire page
+  // Original first default setup, rotated 180 deg (Math.PI) to face front towards the audience,
+  // with gentle, smoothed cursor sensitivity
   useFrame((state, delta) => {
     const g = tiltGroup.current;
     if (!g) return;
 
-    // Read real-time scroll factor (0 = above, 1 = scrolled to bottom)
-    const factor = scrollFactorRef.current ?? 1;
+    const t = state.clock.getElapsedTime();
+    // Gentle celestial breathing drift
+    const driftY = Math.sin(t * 0.25) * 0.04;
+    const driftX = Math.cos(t * 0.2) * 0.02;
 
-    // Upward (0.20) to Straight (0.0)
-    const basePitch = THREE.MathUtils.lerp(0.20, 0.0, factor);
-
-    // Active cursor tilt anywhere on the screen
+    // Smooth, gentle cursor influence (not oversensitive)
     const mouse = mouseRef.current || { x: 0, y: 0 };
-    const pointerX = !reducedMotion ? mouse.x * 0.38 : 0;
-    const pointerY = !reducedMotion ? mouse.y * 0.26 : 0;
+    const pointerX = !reducedMotion ? mouse.x * 0.14 : 0;
+    const pointerY = !reducedMotion ? mouse.y * 0.08 : 0;
 
-    const targetPitch = basePitch - pointerY;
-    const targetYaw = pointerX;
+    // Original default pitch: -0.38
+    const targetPitch = -0.38 - pointerY + driftX;
+    // Flipped 180° around Y (Math.PI) to face audience from the other side
+    const targetYaw = Math.PI + pointerX + driftY;
 
-    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 3.2, delta);
-    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 3.2, delta);
-
-    // Camera drops level with the equator (y = 0) at the bottom to form the razor-sharp straight line
-    const targetCamY = THREE.MathUtils.lerp(0.9, 0.0, factor);
-    state.camera.position.y = THREE.MathUtils.damp(state.camera.position.y, targetCamY, 2.8, delta);
-    state.camera.lookAt(0, 0, 0);
+    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.0, delta);
+    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.0, delta);
   });
 
   return (
-    <group ref={tiltGroup} position={[0, 0, 0]}>
+    <group ref={tiltGroup} position={[0, -0.6, 0]}>
       <group ref={group} scale={scale} position={offset} dispose={null}>
         <primitive object={scene} />
       </group>
@@ -128,12 +119,11 @@ export interface BlackHoleSceneProps {
   scrollProgress?: number;
 }
 
-export default function BlackHoleScene({ scrollProgress }: BlackHoleSceneProps) {
+export default function BlackHoleScene({}: BlackHoleSceneProps) {
   const [webglSupported, setWebglSupported] = useState(true);
   const reducedMotion = usePrefersReducedMotion();
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Global cursor position tracking (-1 to 1) so mouse actively rotates the 3D model
+  // Smooth global cursor tracking
   const mouseRef = useRef({ x: 0, y: 0 });
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
@@ -145,39 +135,6 @@ export default function BlackHoleScene({ scrollProgress }: BlackHoleSceneProps) 
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', onMouseMove);
   }, []);
-
-  // Precise scroll tracking:
-  // factor = 0 when above, factor = 1 when scrolled down into the bottom section
-  const scrollFactorRef = useRef(1);
-
-  // 1. Lenis reactive update
-  useLenis(({ progress }) => {
-    const factor = THREE.MathUtils.clamp((progress - 0.70) / 0.28, 0, 1);
-    scrollFactorRef.current = factor;
-  });
-
-  // 2. Viewport rect fallback update (works with or without Lenis)
-  useEffect(() => {
-    const onScroll = () => {
-      const el = containerRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const windowH = window.innerHeight;
-      // 0 when container is lower down, 1 when reached bottom of page
-      const factor = THREE.MathUtils.clamp((windowH - rect.top) / (rect.height * 0.95), 0, 1);
-      scrollFactorRef.current = factor;
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // If explicit scrollProgress prop passed, keep synced
-  useEffect(() => {
-    if (typeof scrollProgress === 'number') {
-      scrollFactorRef.current = THREE.MathUtils.clamp((scrollProgress - 0.70) / 0.28, 0, 1);
-    }
-  }, [scrollProgress]);
 
   useEffect(() => {
     setWebglSupported(hasWebGL());
@@ -192,41 +149,34 @@ export default function BlackHoleScene({ scrollProgress }: BlackHoleSceneProps) 
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-[540px] sm:h-[660px] md:h-[780px] relative overflow-hidden flex items-center justify-center select-none"
-    >
+    <div className="w-full h-[500px] sm:h-[620px] md:h-[720px] relative overflow-hidden flex items-center justify-center select-none">
       {/* Radiant atmospheric accretion glow behind the 3D model */}
       <div
         className="absolute inset-0 pointer-events-none z-0"
         style={{
-          background: 'radial-gradient(ellipse 65% 50% at 50% 50%, rgba(147, 51, 234, 0.22) 0%, rgba(56, 189, 248, 0.12) 35%, rgba(244, 63, 94, 0.06) 60%, transparent 85%)',
+          background: 'radial-gradient(ellipse 65% 50% at 50% 60%, rgba(147, 51, 234, 0.22) 0%, rgba(56, 189, 248, 0.12) 35%, rgba(244, 63, 94, 0.06) 60%, transparent 85%)',
         }}
       />
 
-      {/* Interactive 3D Canvas centered on equatorial plane */}
+      {/* Interactive 3D Canvas matching the first default framing */}
       <div className="w-full h-full relative z-10">
         <BlackHoleErrorBoundary>
           <Canvas
-            camera={{ position: [0, 0.9, 8.2], fov: 42 }}
+            camera={{ position: [0, 1.8, 8.5], fov: 42 }}
             gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
             dpr={[1, 2]}
           >
             {/* Ambient starlight */}
-            <ambientLight intensity={1.5} />
+            <ambientLight intensity={1.4} />
 
             {/* Accretion Disk Rim Lights */}
-            <pointLight position={[0, 4, 6]} intensity={3.8} color="#e0e7ff" />
-            <pointLight position={[-8, -2, -4]} intensity={4.2} color="#c084fc" />
-            <pointLight position={[8, 3, 2]} intensity={4.2} color="#38bdf8" />
-            <pointLight position={[0, -6, 4]} intensity={2.8} color="#fb923c" />
+            <pointLight position={[0, 4, 6]} intensity={3.5} color="#e0e7ff" />
+            <pointLight position={[-8, -2, -4]} intensity={4.0} color="#c084fc" />
+            <pointLight position={[8, 3, 2]} intensity={4.0} color="#38bdf8" />
+            <pointLight position={[0, -6, 4]} intensity={2.5} color="#fb923c" />
 
             <Suspense fallback={null}>
-              <BlackHoleModel
-                reducedMotion={reducedMotion}
-                mouseRef={mouseRef}
-                scrollFactorRef={scrollFactorRef}
-              />
+              <BlackHoleModel reducedMotion={reducedMotion} mouseRef={mouseRef} />
             </Suspense>
           </Canvas>
         </BlackHoleErrorBoundary>
