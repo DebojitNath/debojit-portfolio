@@ -721,7 +721,7 @@ export default function App() {
         <section
           id="contact"
           ref={contactRef}
-          className="relative h-[280vh] w-full font-mono"
+          className="relative h-[450vh] w-full font-mono"
         >
           {/* Sticky Fullscreen Viewport: stays locked on screen while scrolling */}
           <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-black">
@@ -734,7 +734,8 @@ export default function App() {
               />
             </div>
 
-            {/* Immersive Singularity Contact Screen: Appears on the completely dark screen once black hole covers view */}
+            {/* Contact text overlay disabled for now per user request to focus purely on the transition */}
+            {false && (
             <div
               className="relative z-30 max-w-2xl mx-auto px-6 text-center flex flex-col items-center justify-center transition-all duration-500"
               style={{
@@ -792,6 +793,7 @@ export default function App() {
                 </a>
               </div>
             </div>
+            )}
 
           </div>
         </section>

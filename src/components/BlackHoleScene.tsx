@@ -146,23 +146,24 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.2, delta);
     g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.2, delta);
 
-    // ---- PURE SCALE ZOOM (no position change, no Z drift) ----
-    // Model position is LOCKED. Only scale grows.
-    // y = 1.2 pushes model UP so the accretion disk fills the full canvas
-    // (previously at -0.6 the bottom was transparent → starfield showed through)
-    modelGroup.scale.setScalar(baseScale * growth);
-    g.position.set(0, 1.2, 0); // Pushed up — eliminates the cut line at bottom
+    // ---- PURE SCALE ZOOM CENTERED IN MIDDLE OF SCREEN ----
+    // Model position is locked dead center at [0, 0, 0]
+    // Middle group scales outward symmetrically from (0, 0, 0)
+    modelGroup.scale.setScalar(growth);
+    g.position.set(0, 0, 0); // Locked dead center in the middle of screen
 
-    // ---- CAMERA: fully fixed, no movement ----
-    // lookAt matches the model's Y so it stays perfectly centered on screen
-    state.camera.position.set(0, 1.8, 8.5);
-    state.camera.lookAt(0, 1.2, 0);
+    // ---- CAMERA: fully fixed, dead center ----
+    // Eye level at y = 0 looking straight at (0, 0, 0)
+    state.camera.position.set(0, 0, 8.5);
+    state.camera.lookAt(0, 0, 0);
   });
 
   return (
-    <group ref={tiltGroup} position={[0, 1.2, 0]}>
-      <group ref={group} scale={baseScale} position={offset} dispose={null}>
-        <primitive object={scene} />
+    <group ref={tiltGroup} position={[0, 0, 0]}>
+      <group ref={group}>
+        <group scale={baseScale} position={offset} dispose={null}>
+          <primitive object={scene} />
+        </group>
       </group>
     </group>
   );
@@ -216,7 +217,7 @@ export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleScenePr
       <div className="w-full h-full relative z-10">
         <BlackHoleErrorBoundary>
           <Canvas
-            camera={{ position: [0, 1.8, 8.5], fov: 42, near: 0.001, far: 2000 }}
+            camera={{ position: [0, 0, 8.5], fov: 42, near: 0.001, far: 2000 }}
             gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
             dpr={[1, 2]}
           >
