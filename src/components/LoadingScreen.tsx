@@ -272,16 +272,43 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
     return () => cancelAnimationFrame(animId);
   }, [onComplete]);
 
-  // Lock body scroll while loading
+  // Lock all scroll mechanisms (wheel, touch, keyboard, overflow) while loading
   useEffect(() => {
     if (!isDone) {
+      const preventScroll = (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      };
+
+      const preventKeyScroll = (e: KeyboardEvent) => {
+        const blockedKeys = [
+          'Space', 'PageUp', 'PageDown', 'End', 'Home',
+          'ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'
+        ];
+        if (blockedKeys.includes(e.code) || blockedKeys.includes(e.key)) {
+          e.preventDefault();
+          return false;
+        }
+      };
+
+      window.addEventListener('wheel', preventScroll, { passive: false });
+      window.addEventListener('touchmove', preventScroll, { passive: false });
+      window.addEventListener('keydown', preventKeyScroll, { passive: false });
+
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      const originalBodyOverflow = document.body.style.overflow;
+      document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+
+      return () => {
+        window.removeEventListener('wheel', preventScroll);
+        window.removeEventListener('touchmove', preventScroll);
+        window.removeEventListener('keydown', preventKeyScroll);
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.style.overflow = originalBodyOverflow;
+      };
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, [isDone]);
 
   if (isDone) return null;

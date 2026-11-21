@@ -27,11 +27,22 @@ import {
 } from 'lucide-react';
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const [world, setWorld] = useState<'focus' | 'drift'>('focus');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [scrollProgress, setScrollProgress] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const lenis = useLenis();
+
+  // Disable smooth scroll during loading screen and ensure page stays pinned to top
+  useEffect(() => {
+    if (isLoading) {
+      lenis?.stop();
+      window.scrollTo(0, 0);
+    } else {
+      lenis?.start();
+    }
+  }, [isLoading, lenis]);
 
   // Smooth mouse parallax tracking
   useEffect(() => {
@@ -85,7 +96,7 @@ export default function App() {
         }`}
     >
       {/* Sci-Fi Terminal Uplink Loading Screen */}
-      <LoadingScreen />
+      <LoadingScreen onComplete={() => setIsLoading(false)} />
 
       {/* ========================================================= */}
       {/* BACKGROUND LAYERS                                         */}
