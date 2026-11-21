@@ -49,10 +49,10 @@ class BlackHoleErrorBoundary extends Component<
 interface BlackHoleModelProps {
   reducedMotion: boolean;
   mouseRef: React.RefObject<{ x: number; y: number }>;
-  scrollProgress: number;
+  contactProgress: number;
 }
 
-function BlackHoleModel({ reducedMotion, mouseRef, scrollProgress }: BlackHoleModelProps) {
+function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleModelProps) {
   const group = useRef<THREE.Group>(null);
   const tiltGroup = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF(MODEL_URL);
@@ -64,12 +64,12 @@ function BlackHoleModel({ reducedMotion, mouseRef, scrollProgress }: BlackHoleMo
     const action = actions['Take 001'] || actions[Object.keys(actions)[0]];
     if (action) {
       action.reset().fadeIn(0.6).play();
-      action.timeScale = reducedMotion ? 0.2 : 0.75; // Majestic, hypnotic swirl rate
+      action.timeScale = reducedMotion ? 0.2 : 0.75;
     }
   }, [actions, reducedMotion]);
 
-  // Compute bounding box and normalize scale to fit the stage perfectly (original default diameter)
-  const { scale, offset } = useMemo(() => {
+  // Compute base bounding box and normalize scale
+  const { baseScale, offset } = useMemo(() => {
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
@@ -77,41 +77,58 @@ function BlackHoleModel({ reducedMotion, mouseRef, scrollProgress }: BlackHoleMo
     const targetDiameter = 12.5;
     const s = targetDiameter / maxDim;
     return {
-      scale: s,
+      baseScale: s,
       offset: [-center.x * s, -center.y * s, -center.z * s] as [number, number, number],
     };
   }, [scene]);
 
-  // Original first default setup, rotated 180 deg (Math.PI) to face front towards the audience,
-  // with gentle, smoothed cursor sensitivity
   useFrame((state, delta) => {
     const g = tiltGroup.current;
-    if (!g) return;
+    const modelGroup = group.current;
+    if (!g || !modelGroup) return;
 
     const t = state.clock.getElapsedTime();
     // Gentle celestial breathing drift
     const driftY = Math.sin(t * 0.25) * 0.04;
     const driftX = Math.cos(t * 0.2) * 0.02;
 
-    // Smooth, gentle cursor influence (not oversensitive)
+    // Cursor influence (fades out gracefully during final immersion so text is easy to read)
+    const mouseActiveFactor = Math.max(0, 1 - contactProgress * 1.5);
     const mouse = mouseRef.current || { x: 0, y: 0 };
-    const pointerX = !reducedMotion ? mouse.x * 0.14 : 0;
-    const pointerY = !reducedMotion ? mouse.y * 0.18 : 0;
+    const pointerX = !reducedMotion ? mouse.x * 0.14 * mouseActiveFactor : 0;
+    const pointerY = !reducedMotion ? mouse.y * 0.18 * mouseActiveFactor : 0;
 
-    // Scroll flattening transition (tweak these numbers)
-    const factor = THREE.MathUtils.clamp((scrollProgress - 0.70) / 0.25, 0, 1);
-    const basePitch = THREE.MathUtils.lerp(0.22, -0.12, factor);
+    // =========================================================================
+    // 1. TILT TO TOP VIEW:
+    //    Starts at your preferred -0.12, then tilts up to full top-down (Math.PI / 2 ≈ 1.57 rad)
+    // =========================================================================
+    const tiltRate = THREE.MathUtils.clamp((contactProgress - 0.05) / 0.60, 0, 1);
+    const basePitch = THREE.MathUtils.lerp(-0.12, Math.PI / 2, tiltRate);
     const targetPitch = basePitch - pointerY + driftX;
-    // Flipped 180° around Y (Math.PI) to face audience from the other side
     const targetYaw = Math.PI + pointerX + driftY;
 
-    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.0, delta);
-    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.0, delta);
+    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.2, delta);
+    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.2, delta);
+
+    // =========================================================================
+    // 2. EXPANSION:
+    //    Scales up and camera flies closer to engulf the entire viewport
+    // =========================================================================
+    const expandRate = THREE.MathUtils.clamp((contactProgress - 0.15) / 0.70, 0, 1);
+    const scaleFactor = THREE.MathUtils.lerp(1.0, 3.8, expandRate);
+    modelGroup.scale.setScalar(baseScale * scaleFactor);
+
+    // Camera zooms forward into the singularity core (8.5 down to 3.2)
+    const targetCamZ = THREE.MathUtils.lerp(8.5, 3.2, expandRate);
+    const targetCamY = THREE.MathUtils.lerp(1.8, 0.4, expandRate);
+    state.camera.position.z = THREE.MathUtils.damp(state.camera.position.z, targetCamZ, 2.5, delta);
+    state.camera.position.y = THREE.MathUtils.damp(state.camera.position.y, targetCamY, 2.5, delta);
+    state.camera.lookAt(0, 0, 0);
   });
 
   return (
     <group ref={tiltGroup} position={[0, -0.6, 0]}>
-      <group ref={group} scale={scale} position={offset} dispose={null}>
+      <group ref={group} scale={baseScale} position={offset} dispose={null}>
         <primitive object={scene} />
       </group>
     </group>
@@ -120,9 +137,10 @@ function BlackHoleModel({ reducedMotion, mouseRef, scrollProgress }: BlackHoleMo
 
 export interface BlackHoleSceneProps {
   scrollProgress?: number;
+  contactProgress?: number;
 }
 
-export default function BlackHoleScene({ scrollProgress = 1.0 }: BlackHoleSceneProps) {
+export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleSceneProps) {
   const [webglSupported, setWebglSupported] = useState(true);
   const reducedMotion = usePrefersReducedMotion();
 
@@ -145,23 +163,27 @@ export default function BlackHoleScene({ scrollProgress = 1.0 }: BlackHoleSceneP
 
   if (!webglSupported) {
     return (
-      <div className="w-full h-[520px] flex items-center justify-center text-xs font-mono text-slate-500">
+      <div className="w-full h-full flex items-center justify-center text-xs font-mono text-slate-500">
         WebGL not supported on this device.
       </div>
     );
   }
 
+  // Fade to totally black as singularity core consumes the viewport (0.75 -> 0.92)
+  const blackoutOpacity = THREE.MathUtils.clamp((contactProgress - 0.72) / 0.20, 0, 1);
+
   return (
-    <div className="w-full h-[500px] sm:h-[620px] md:h-[720px] relative overflow-hidden flex items-center justify-center select-none">
+    <div className="w-full h-full relative overflow-hidden flex items-center justify-center select-none">
       {/* Radiant atmospheric accretion glow behind the 3D model */}
       <div
-        className="absolute inset-0 pointer-events-none z-0"
+        className="absolute inset-0 pointer-events-none z-0 transition-opacity duration-300"
         style={{
           background: 'radial-gradient(ellipse 65% 50% at 50% 60%, rgba(147, 51, 234, 0.22) 0%, rgba(56, 189, 248, 0.12) 35%, rgba(244, 63, 94, 0.06) 60%, transparent 85%)',
+          opacity: 1 - blackoutOpacity,
         }}
       />
 
-      {/* Interactive 3D Canvas matching the first default framing */}
+      {/* Interactive 3D Canvas */}
       <div className="w-full h-full relative z-10">
         <BlackHoleErrorBoundary>
           <Canvas
@@ -182,18 +204,18 @@ export default function BlackHoleScene({ scrollProgress = 1.0 }: BlackHoleSceneP
               <BlackHoleModel
                 reducedMotion={reducedMotion}
                 mouseRef={mouseRef}
-                scrollProgress={scrollProgress}
+                contactProgress={contactProgress}
               />
             </Suspense>
           </Canvas>
         </BlackHoleErrorBoundary>
       </div>
 
-      {/* Bottom gradient fade so the canvas blends into the dark page footer seamlessly */}
+      {/* Seamless event horizon blackout overlay: turns totally black once inside */}
       <div
-        className="absolute bottom-0 inset-x-0 h-28 pointer-events-none z-20"
+        className="absolute inset-0 bg-black pointer-events-none z-20"
         style={{
-          background: 'linear-gradient(to top, #000000 0%, rgba(0,0,0,0.85) 45%, transparent 100%)',
+          opacity: blackoutOpacity,
         }}
       />
     </div>

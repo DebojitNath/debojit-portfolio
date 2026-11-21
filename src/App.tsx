@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLenis } from 'lenis/react';
 import LoadingScreen from './components/LoadingScreen';
 import CosmicBackground from './components/CosmicBackground';
@@ -31,6 +31,8 @@ export default function App() {
   const [world, setWorld] = useState<'focus' | 'drift'>('focus');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [contactProgress, setContactProgress] = useState(0);
+  const contactRef = useRef<HTMLElement>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const lenis = useLenis();
 
@@ -73,10 +75,33 @@ export default function App() {
   const mountainY3 = MOUNTAIN_SPREAD.layer3 + scrollProgress * 300; // Sinks fastest behind layer 2 & 1
   const mountainY2 = MOUNTAIN_SPREAD.layer2 + scrollProgress * 100; // Sinks behind layer 1
   const mountainY1 = MOUNTAIN_SPREAD.layer1 - scrollProgress * 50;  // Foreground rises slightly for depth
-  // Track global scroll progress (0.0 at top, 1.0 at bottom) via Lenis
+  // Track global scroll progress and section 5 contact immersion progress
   useLenis(({ progress }) => {
     setScrollProgress(progress);
+    if (contactRef.current) {
+      const rect = contactRef.current.getBoundingClientRect();
+      const totalScroll = rect.height - window.innerHeight;
+      if (totalScroll > 0) {
+        const p = Math.max(0, Math.min(1, -rect.top / totalScroll));
+        setContactProgress(p);
+      }
+    }
   });
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (contactRef.current) {
+        const rect = contactRef.current.getBoundingClientRect();
+        const totalScroll = rect.height - window.innerHeight;
+        if (totalScroll > 0) {
+          const p = Math.max(0, Math.min(1, -rect.top / totalScroll));
+          setContactProgress(p);
+        }
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Butter-smooth section scroll
   const scrollTo = (targetId: string) => {
@@ -691,32 +716,103 @@ export default function App() {
         </section>
 
         {/* --------------------------------------------------------- */}
-        {/* SECTION 5: GRAVITATIONAL HORIZON (BLACK HOLE AT BOTTOM)    */}
+        {/* SECTION 5: GRAVITATIONAL HORIZON (BLACK HOLE IMMERSION)   */}
         {/* --------------------------------------------------------- */}
-        <section id="contact" className="pt-28 pb-0 relative font-mono overflow-hidden flex flex-col items-center">
+        <section
+          id="contact"
+          ref={contactRef}
+          className="relative h-[280vh] w-full font-mono"
+        >
+          {/* Sticky Fullscreen Viewport: stays locked on screen while scrolling */}
+          <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center">
 
-          <div className="text-center max-w-xl mx-auto px-6 mb-6 relative z-20">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-mono mb-4">
-              <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-              <span>Gargantua Singularity • Horizon Boundary</span>
+            {/* 3D Black Hole Background Canvas */}
+            <div className="absolute inset-0 z-10 w-full h-full">
+              <BlackHoleScene
+                scrollProgress={scrollProgress}
+                contactProgress={contactProgress}
+              />
             </div>
-            <h2 className="text-2xl sm:text-4xl font-bold text-white tracking-tight font-sans">
-              <a
-                href="mailto:debojitnath9674@gmail.com"
-                className="hover:text-purple-300 transition-colors inline-flex items-center gap-2"
-              >
-                <span>debojitnath9674@gmail.com</span>
-                <ArrowUpRight className="w-5 h-5 text-purple-400" />
-              </a>
-            </h2>
-            <p className="text-xs text-slate-400 mt-2 font-mono">
-              Open to graduate developer roles, software internships, and tech collaborations.
-            </p>
-          </div>
 
-          {/* Colossal 3D Animated Black Hole Peeking From Below */}
-          <div className="w-full relative z-10">
-            <BlackHoleScene scrollProgress={scrollProgress} />
+            {/* Teaser Header (Fades out as black hole expands and tilts into top view) */}
+            <div
+              className="absolute top-20 sm:top-28 text-center max-w-xl mx-auto px-6 z-20 pointer-events-none transition-opacity duration-300"
+              style={{
+                opacity: Math.max(0, 1 - contactProgress * 2.8),
+                transform: `translateY(${contactProgress * -40}px)`,
+              }}
+            >
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-mono mb-4">
+                <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+                <span>Gargantua Singularity • Horizon Boundary</span>
+              </div>
+              <h2 className="text-2xl sm:text-4xl font-bold text-white tracking-tight font-sans">
+                Descend into the Horizon
+              </h2>
+              <p className="text-xs text-slate-400 mt-2 font-mono">
+                Scroll to enter the singularity
+              </p>
+            </div>
+
+            {/* Immersive Singularity Contact Screen (Reveals inside the total black singularity) */}
+            <div
+              className="relative z-30 max-w-2xl mx-auto px-6 text-center flex flex-col items-center justify-center transition-all duration-500"
+              style={{
+                opacity: Math.max(0, (contactProgress - 0.72) / 0.28),
+                transform: `scale(${0.92 + Math.max(0, (contactProgress - 0.72) / 0.28) * 0.08})`,
+                pointerEvents: contactProgress > 0.75 ? 'auto' : 'none',
+              }}
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-400/40 text-purple-300 text-xs font-mono mb-6 backdrop-blur-md shadow-lg shadow-purple-900/40">
+                <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+                <span>Within the Singularity • Event Horizon Core</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight font-sans">
+                <a
+                  href="mailto:debojitnath9674@gmail.com"
+                  className="hover:text-purple-300 transition-colors inline-flex items-center gap-3 group"
+                >
+                  <span className="underline decoration-purple-500/40 underline-offset-8">
+                    debojitnath9674@gmail.com
+                  </span>
+                  <ArrowUpRight className="w-6 h-6 text-purple-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                </a>
+              </h2>
+
+              <p className="text-sm sm:text-base text-slate-300/90 mt-5 font-mono max-w-lg leading-relaxed">
+                Open to graduate developer roles, software engineering internships, and AI collaborations.
+              </p>
+
+              <div className="flex flex-wrap items-center justify-center gap-4 mt-8 font-mono">
+                <a
+                  href="mailto:debojitnath9674@gmail.com"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs tracking-wider uppercase shadow-xl shadow-purple-600/30 hover:scale-105 active:scale-95 transition-all"
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Send Transmission</span>
+                </a>
+                <a
+                  href="https://github.com/DebojitNath"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-medium text-xs tracking-wider uppercase backdrop-blur-md hover:scale-105 active:scale-95 transition-all"
+                >
+                  <Github className="w-4 h-4" />
+                  <span>GitHub</span>
+                </a>
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-medium text-xs tracking-wider uppercase backdrop-blur-md hover:scale-105 active:scale-95 transition-all"
+                >
+                  <Linkedin className="w-4 h-4" />
+                  <span>LinkedIn</span>
+                </a>
+              </div>
+            </div>
+
           </div>
         </section>
 
