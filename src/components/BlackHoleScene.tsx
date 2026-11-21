@@ -82,25 +82,25 @@ function BlackHoleModel({ reducedMotion, scrollProgress }: BlackHoleModelProps) 
     };
   }, [scene]);
 
-  // Front of ring tilted downward and back side tilted upward, reversing the previous orientation
+  // Subtle tilt: while above it is slightly tilted towards us, and while scrolling down in the last section it becomes straight
   useFrame((state, delta) => {
     const g = tiltGroup.current;
     if (!g) return;
 
     const t = state.clock.getElapsedTime();
     // Gentle celestial breathing drift
-    const driftY = Math.sin(t * 0.22) * 0.04;
-    const driftX = Math.cos(t * 0.18) * 0.02;
+    const driftY = Math.sin(t * 0.22) * 0.02;
+    const driftX = Math.cos(t * 0.18) * 0.01;
 
-    const pointerX = !reducedMotion ? state.pointer.x * 0.22 : 0;
-    const pointerY = !reducedMotion ? state.pointer.y * 0.12 : 0;
+    const pointerX = !reducedMotion ? state.pointer.x * 0.12 : 0;
+    const pointerY = !reducedMotion ? state.pointer.y * 0.06 : 0;
 
     // Normalize progress as the user descends into the bottom contact / singularity section (0 -> 1)
-    const bottomFactor = THREE.MathUtils.clamp((scrollProgress - 0.45) / 0.55, 0, 1);
+    const bottomFactor = THREE.MathUtils.clamp((scrollProgress - 0.7) / 0.3, 0, 1);
 
-    // Reversed orientation: positive pitch pitches the front rim downward and back side upward
-    // Dynamically responds as the user scrolls down (smoothly from +0.22 to +0.40)
-    const basePitch = THREE.MathUtils.lerp(0.22, 0.40, bottomFactor);
+    // "while scrolling down in the below last section it is straight, and while above it is slightly titled towards us"
+    // "the first one was down to straight, make it up to straight"
+    const basePitch = THREE.MathUtils.lerp(0.14, 0.0, bottomFactor);
     const targetPitch = basePitch - pointerY + driftX;
     const targetYaw = pointerX + driftY;
 
@@ -109,7 +109,7 @@ function BlackHoleModel({ reducedMotion, scrollProgress }: BlackHoleModelProps) 
   });
 
   return (
-    <group ref={tiltGroup} position={[0, -0.4, 0]}>
+    <group ref={tiltGroup} position={[0, -0.6, 0]}>
       <group ref={group} scale={scale} position={offset} dispose={null}>
         <primitive object={scene} />
       </group>
@@ -147,22 +147,22 @@ export default function BlackHoleScene({ scrollProgress = 1.0 }: BlackHoleSceneP
         }}
       />
 
-      {/* Interactive 3D Canvas with cinematic eye-level framing matching the original view */}
+      {/* Interactive 3D Canvas with the first black hole's framing */}
       <div className="w-full h-full relative z-10">
         <BlackHoleErrorBoundary>
           <Canvas
-            camera={{ position: [0, 1.6, 8.5], fov: 42 }}
+            camera={{ position: [0, 1.8, 8.5], fov: 42 }}
             gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
             dpr={[1, 2]}
           >
             {/* Ambient starlight */}
-            <ambientLight intensity={1.5} />
+            <ambientLight intensity={1.4} />
 
             {/* Accretion Disk Rim Lights */}
-            <pointLight position={[0, 4, 6]} intensity={3.8} color="#e0e7ff" />
-            <pointLight position={[-8, -2, -4]} intensity={4.2} color="#c084fc" />
-            <pointLight position={[8, 3, 2]} intensity={4.2} color="#38bdf8" />
-            <pointLight position={[0, -6, 4]} intensity={2.8} color="#fb923c" />
+            <pointLight position={[0, 4, 6]} intensity={3.5} color="#e0e7ff" />
+            <pointLight position={[-8, -2, -4]} intensity={4.0} color="#c084fc" />
+            <pointLight position={[8, 3, 2]} intensity={4.0} color="#38bdf8" />
+            <pointLight position={[0, -6, 4]} intensity={2.5} color="#fb923c" />
 
             <Suspense fallback={null}>
               <BlackHoleModel reducedMotion={reducedMotion} scrollProgress={scrollProgress} />
