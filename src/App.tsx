@@ -345,7 +345,7 @@ export default function App() {
                 <img
                   src="/shapes/mountain3.png"
                   alt="Alien Mountain Layer 3"
-                  className="absolute inset-x-0 -bottom-24 w-full h-[calc(100%+96px)] object-cover object-bottom pointer-events-none select-none z-10 transition-transform duration-300 ease-out"
+                  className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-10 transition-transform duration-300 ease-out"
                   style={{
                     transform: `translate3d(0, ${mountainY3}px, 0)`
                   }}
@@ -356,7 +356,7 @@ export default function App() {
                 <img
                   src="/shapes/mountain2.png"
                   alt="Alien Mountain Layer 2"
-                  className="absolute inset-x-0 -bottom-24 w-full h-[calc(100%+96px)] object-cover object-bottom pointer-events-none select-none z-20 transition-transform duration-300 ease-out"
+                  className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-20 transition-transform duration-300 ease-out"
                   style={{
                     transform: `translate3d(0, ${mountainY2}px, 0)`
                   }}
@@ -367,18 +367,18 @@ export default function App() {
                 <img
                   src="/shapes/mountain1.png"
                   alt="Alien Mountain Layer 1"
-                  className="absolute inset-x-0 -bottom-24 w-full h-[calc(100%+96px)] object-cover object-bottom pointer-events-none select-none z-30 transition-transform duration-300 ease-out"
+                  className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-30 transition-transform duration-300 ease-out"
                   style={{
                     transform: `translate3d(0, ${mountainY1}px, 0)`
                   }}
                   draggable={false}
                 />
 
-                {/* Mountain Bottom Base Blend: Seamlessly fades mountain bottom into solid black */}
+                {/* Mountain Bottom Base Blend: Seamlessly fades mountain bottom into black */}
                 <div
-                  className="absolute -bottom-1 inset-x-0 h-32 sm:h-44 pointer-events-none z-35"
+                  className="absolute bottom-0 inset-x-0 h-20 sm:h-28 pointer-events-none z-35"
                   style={{
-                    background: 'linear-gradient(to top, #000000 0%, #000000 35%, rgba(0,0,0,0.85) 65%, transparent 100%)'
+                    background: 'linear-gradient(to top, #000000 0%, rgba(0,0,0,0.85) 45%, transparent 100%)'
                   }}
                 />
               </div>
@@ -424,12 +424,12 @@ export default function App() {
           )}
         </section>
 
-        {/* SOLID BLACK BEDROCK: Overlaps the bottom of mountain PNGs so the cut line is completely eliminated */}
+        {/* GRADIENT BEDROCK: Overlaps the bottom of mountain PNGs so the cut line is completely eliminated */}
         {world === 'focus' && (
           <div
-            className="w-full h-36 sm:h-44 md:h-52 relative z-20 pointer-events-none -mt-20 sm:-mt-24 md:-mt-28"
+            className="w-full h-40 sm:h-48 md:h-56 relative z-20 pointer-events-none -mt-16 sm:-mt-20 md:-mt-24"
             style={{
-              background: 'linear-gradient(to bottom, #000000 0%, #000000 45%, transparent 100%)'
+              background: 'linear-gradient(to bottom, transparent 0%, #000000 28%, #000000 78%, transparent 100%)'
             }}
           />
         )}
