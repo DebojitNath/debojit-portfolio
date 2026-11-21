@@ -58,6 +58,15 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
   const { scene, animations } = useGLTF(MODEL_URL);
   const { actions } = useAnimations(animations, group);
 
+  // Disable frustum culling so large scaling never clips geometry prematurely
+  useEffect(() => {
+    scene.traverse((obj) => {
+      if ((obj as THREE.Mesh).isMesh) {
+        obj.frustumCulled = false;
+      }
+    });
+  }, [scene]);
+
   // Auto-play the built-in accretion disk swirling animation loop
   useEffect(() => {
     if (!actions) return;
@@ -100,10 +109,10 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
 
     // =========================================================================
     // 1. TILT TO TOP VIEW:
-    //    Starts at your preferred -0.12, then tilts up to full top-down (Math.PI / 2 ≈ 1.57 rad)
+    //    Starts at your preferred -0.12, then tilts into a top-down vortex view (~1.25 rad)
     // =========================================================================
-    const tiltRate = THREE.MathUtils.clamp((contactProgress - 0.05) / 0.60, 0, 1);
-    const basePitch = THREE.MathUtils.lerp(-0.12, Math.PI / 2, tiltRate);
+    const tiltRate = THREE.MathUtils.clamp((contactProgress - 0.05) / 0.65, 0, 1);
+    const basePitch = THREE.MathUtils.lerp(-0.12, 1.25, tiltRate);
     const targetPitch = basePitch - pointerY + driftX;
     const targetYaw = Math.PI + pointerX + driftY;
 
@@ -111,19 +120,25 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.2, delta);
 
     // =========================================================================
-    // 2. EXPANSION:
-    //    Scales up and camera flies closer to engulf the entire viewport
+    // 2. ZERO-CLIPPING EXPANSION:
+    //    Scales up smoothly while pushing back along Z so the front rim NEVER
+    //    intersects or gets sliced by the camera near clipping plane.
     // =========================================================================
     const expandRate = THREE.MathUtils.clamp((contactProgress - 0.15) / 0.70, 0, 1);
-    const scaleFactor = THREE.MathUtils.lerp(1.0, 3.8, expandRate);
+    const scaleFactor = THREE.MathUtils.lerp(1.0, 2.8, expandRate);
     modelGroup.scale.setScalar(baseScale * scaleFactor);
 
-    // Camera zooms forward into the singularity core (8.5 down to 3.2)
-    const targetCamZ = THREE.MathUtils.lerp(8.5, 3.2, expandRate);
-    const targetCamY = THREE.MathUtils.lerp(1.8, 0.4, expandRate);
-    state.camera.position.z = THREE.MathUtils.damp(state.camera.position.z, targetCamZ, 2.5, delta);
+    // Push Z backwards proportionally to counteract expansion and prevent camera clipping line
+    const targetPosZ = THREE.MathUtils.lerp(0, -14.0, expandRate);
+    const targetPosY = THREE.MathUtils.lerp(-0.6, 0.0, expandRate);
+    g.position.z = THREE.MathUtils.damp(g.position.z, targetPosZ, 2.5, delta);
+    g.position.y = THREE.MathUtils.damp(g.position.y, targetPosY, 2.5, delta);
+
+    // Keep camera at safe distance
+    const targetCamY = THREE.MathUtils.lerp(1.8, 0.8, expandRate);
     state.camera.position.y = THREE.MathUtils.damp(state.camera.position.y, targetCamY, 2.5, delta);
-    state.camera.lookAt(0, 0, 0);
+    state.camera.position.z = 10.5;
+    state.camera.lookAt(0, g.position.y * 0.5, g.position.z * 0.5);
   });
 
   return (
@@ -169,8 +184,8 @@ export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleScenePr
     );
   }
 
-  // Fade to totally black as singularity core consumes the viewport (0.75 -> 0.92)
-  const blackoutOpacity = THREE.MathUtils.clamp((contactProgress - 0.72) / 0.20, 0, 1);
+  // Fade to totally black as singularity core consumes the viewport (0.72 -> 0.90)
+  const blackoutOpacity = THREE.MathUtils.clamp((contactProgress - 0.72) / 0.18, 0, 1);
 
   return (
     <div className="w-full h-full relative overflow-hidden flex items-center justify-center select-none">
@@ -183,22 +198,22 @@ export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleScenePr
         }}
       />
 
-      {/* Interactive 3D Canvas */}
+      {/* Interactive 3D Canvas with safe near clipping plane to eliminate any sliced lines */}
       <div className="w-full h-full relative z-10">
         <BlackHoleErrorBoundary>
           <Canvas
-            camera={{ position: [0, 1.8, 8.5], fov: 42 }}
+            camera={{ position: [0, 1.8, 10.5], fov: 42, near: 0.05, far: 2000 }}
             gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
             dpr={[1, 2]}
           >
             {/* Ambient starlight */}
-            <ambientLight intensity={1.4} />
+            <ambientLight intensity={1.5} />
 
             {/* Accretion Disk Rim Lights */}
-            <pointLight position={[0, 4, 6]} intensity={3.5} color="#e0e7ff" />
-            <pointLight position={[-8, -2, -4]} intensity={4.0} color="#c084fc" />
-            <pointLight position={[8, 3, 2]} intensity={4.0} color="#38bdf8" />
-            <pointLight position={[0, -6, 4]} intensity={2.5} color="#fb923c" />
+            <pointLight position={[0, 4, 6]} intensity={3.8} color="#e0e7ff" />
+            <pointLight position={[-8, -2, -4]} intensity={4.2} color="#c084fc" />
+            <pointLight position={[8, 3, 2]} intensity={4.2} color="#38bdf8" />
+            <pointLight position={[0, -6, 4]} intensity={2.8} color="#fb923c" />
 
             <Suspense fallback={null}>
               <BlackHoleModel
