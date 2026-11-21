@@ -110,28 +110,32 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     const p = contactProgress;
 
     // =========================================================================
-    // 1. TILT & SIZE PROGRESSION (User Specification):
-    //    Stage 1 (p <= 0.35): Behind ring goes down, frontal ring tilts up
-    //                         until they lie on the same plane cutting horizon straight (pitch = 0).
-    //                         Size stays at initial size (growth = 1.0).
-    //    Stage 2 (p > 0.35):  Starts growing bigger from the straight horizon point
-    //                         while frontal ring tilts further up into top view.
+    // SATURN ANALOGY TRANSITION:
+    //   Stage 1 (p 0→0.35): Top-slightly-side view → edge-on (ring cuts horizon)
+    //                        pitch: +0.28 → 0.0  |  growth: 1.0 (no scaling yet)
+    //   Stage 2 (p 0.35→0.85): Edge-on → bottom view AND black hole grows
+    //                        pitch: 0.0 → -1.10  |  growth: 1.0 → 3.8
+    //   Stage 3 (p > 0.85):  Fully engulfs screen
+    //                        pitch: -1.10, growth: 3.8
+    //
+    // ZOOM METHOD: Pure FOV compression (camera stays fixed, FOV narrows = zoom in)
+    // No Z push-back, no position shift — avoids model drifting up the screen.
     // =========================================================================
     let basePitch = 0;
     let growth = 1.0;
 
     if (p <= 0.35) {
-      // Reversed: tilts to horizon plane (pitch +0.28 -> 0.0)
+      // Stage 1: tilt to horizon (no size change)
       const stage1 = p / 0.35;
       basePitch = THREE.MathUtils.lerp(0.28, 0.0, stage1);
       growth = 1.0;
     } else if (p <= 0.85) {
-      // Reversed: tilts into top-view (0.0 -> -1.10 rad) AND size grows (1.0 -> 3.8)
+      // Stage 2: tilt past edge-on to bottom view + zoom in
       const stage2 = (p - 0.35) / 0.50;
       basePitch = THREE.MathUtils.lerp(0.0, -1.10, stage2);
       growth = THREE.MathUtils.lerp(1.0, 3.8, stage2);
     } else {
-      // Fully engulfs screen
+      // Stage 3: fully engulfed
       basePitch = -1.10;
       growth = 3.8;
     }
@@ -142,17 +146,15 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.2, delta);
     g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.2, delta);
 
-    // Apply scale growth
+    // ---- PURE SCALE ZOOM (no position change, no Z drift) ----
+    // Model position is LOCKED. Only scale grows.
     modelGroup.scale.setScalar(baseScale * growth);
+    g.position.set(0, -0.6, 0); // Absolutely locked — no drift whatsoever
 
-    // Push Z backwards as it grows to maintain clearance and prevent camera clipping line
-    const targetPosZ = - (growth - 1.0) * 5.5;
-    g.position.z = THREE.MathUtils.damp(g.position.z, targetPosZ, 2.5, delta);
-    g.position.y = THREE.MathUtils.damp(g.position.y, -0.6, 2.5, delta);
-
-    // Keep camera stable at original initial viewpoint
+    // ---- CAMERA: fully fixed, no movement ----
+    // Camera position and lookAt never change — prevents model from sliding up/down
     state.camera.position.set(0, 1.8, 8.5);
-    state.camera.lookAt(0, 0, g.position.z * 0.4);
+    state.camera.lookAt(0, 0, 0);
   });
 
   return (
@@ -198,63 +200,43 @@ export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleScenePr
     );
   }
 
-  // Fade to totally black once the black hole covers the entire screen (0.80 -> 0.86)
-  const blackoutOpacity = THREE.MathUtils.clamp((contactProgress - 0.80) / 0.08, 0, 1);
-  const isBlackholeRemoved = blackoutOpacity >= 1;
-
   return (
     <div className="w-full h-full relative overflow-hidden flex items-center justify-center select-none bg-black">
       {/* Radiant atmospheric accretion glow behind the 3D model */}
-      {!isBlackholeRemoved && (
-        <div
-          className="absolute inset-0 pointer-events-none z-0 transition-opacity duration-300"
-          style={{
-            background: 'radial-gradient(ellipse 65% 50% at 50% 60%, rgba(147, 51, 234, 0.22) 0%, rgba(56, 189, 248, 0.12) 35%, rgba(244, 63, 94, 0.06) 60%, transparent 85%)',
-            opacity: 1 - blackoutOpacity,
-          }}
-        />
-      )}
-
-      {/* Interactive 3D Canvas (removed/hidden once screen is completely dark) */}
-      {!isBlackholeRemoved && (
-        <div
-          className="w-full h-full relative z-10 transition-opacity duration-300"
-          style={{ opacity: 1 - blackoutOpacity }}
-        >
-          <BlackHoleErrorBoundary>
-            <Canvas
-              camera={{ position: [0, 1.8, 8.5], fov: 42, near: 0.05, far: 2000 }}
-              gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
-              dpr={[1, 2]}
-            >
-              {/* Ambient starlight */}
-              <ambientLight intensity={1.4} />
-
-              {/* Accretion Disk Rim Lights */}
-              <pointLight position={[0, 4, 6]} intensity={3.5} color="#e0e7ff" />
-              <pointLight position={[-8, -2, -4]} intensity={4.0} color="#c084fc" />
-              <pointLight position={[8, 3, 2]} intensity={4.0} color="#38bdf8" />
-              <pointLight position={[0, -6, 4]} intensity={2.5} color="#fb923c" />
-
-              <Suspense fallback={null}>
-                <BlackHoleModel
-                  reducedMotion={reducedMotion}
-                  mouseRef={mouseRef}
-                  contactProgress={contactProgress}
-                />
-              </Suspense>
-            </Canvas>
-          </BlackHoleErrorBoundary>
-        </div>
-      )}
-
-      {/* Completely dark background screen: replaces black hole once it covers the screen */}
       <div
-        className="absolute inset-0 bg-black pointer-events-none z-20"
+        className="absolute inset-0 pointer-events-none z-0"
         style={{
-          opacity: blackoutOpacity,
+          background: 'radial-gradient(ellipse 65% 50% at 50% 60%, rgba(147, 51, 234, 0.22) 0%, rgba(56, 189, 248, 0.12) 35%, rgba(244, 63, 94, 0.06) 60%, transparent 85%)',
         }}
       />
+
+      {/* Interactive 3D Canvas — always rendered */}
+      <div className="w-full h-full relative z-10">
+        <BlackHoleErrorBoundary>
+          <Canvas
+            camera={{ position: [0, 1.8, 8.5], fov: 42, near: 0.001, far: 2000 }}
+            gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
+            dpr={[1, 2]}
+          >
+            {/* Ambient starlight */}
+            <ambientLight intensity={1.4} />
+
+            {/* Accretion Disk Rim Lights */}
+            <pointLight position={[0, 4, 6]} intensity={3.5} color="#e0e7ff" />
+            <pointLight position={[-8, -2, -4]} intensity={4.0} color="#c084fc" />
+            <pointLight position={[8, 3, 2]} intensity={4.0} color="#38bdf8" />
+            <pointLight position={[0, -6, 4]} intensity={2.5} color="#fb923c" />
+
+            <Suspense fallback={null}>
+              <BlackHoleModel
+                reducedMotion={reducedMotion}
+                mouseRef={mouseRef}
+                contactProgress={contactProgress}
+              />
+            </Suspense>
+          </Canvas>
+        </BlackHoleErrorBoundary>
+      </div>
     </div>
   );
 }
