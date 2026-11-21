@@ -373,6 +373,14 @@ export default function App() {
                   }}
                   draggable={false}
                 />
+
+                {/* Mountain Bottom Base Blend: Seamlessly fades mountain bottom into black */}
+                <div
+                  className="absolute bottom-0 inset-x-0 h-20 sm:h-28 pointer-events-none z-35"
+                  style={{
+                    background: 'linear-gradient(to top, #000000 0%, rgba(0,0,0,0.85) 45%, transparent 100%)'
+                  }}
+                />
               </div>
             </>
           ) : (
@@ -416,12 +424,12 @@ export default function App() {
           )}
         </section>
 
-        {/* GRADIENT BEDROCK: Smooth feathering from transparent -> black -> transparent with zero harsh lines */}
+        {/* GRADIENT BEDROCK: Overlaps the bottom of mountain PNGs so the cut line is completely eliminated */}
         {world === 'focus' && (
           <div
-            className="w-full h-32 sm:h-36 md:h-44 relative z-20 pointer-events-none -mt-6 sm:-mt-8"
+            className="w-full h-40 sm:h-48 md:h-56 relative z-20 pointer-events-none -mt-16 sm:-mt-20 md:-mt-24"
             style={{
-              background: 'linear-gradient(to bottom, transparent 0%, #000000 25%, #000000 75%, transparent 100%)'
+              background: 'linear-gradient(to bottom, transparent 0%, #000000 28%, #000000 78%, transparent 100%)'
             }}
           />
         )}
