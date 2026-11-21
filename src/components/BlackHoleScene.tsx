@@ -77,7 +77,7 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     }
   }, [actions, reducedMotion]);
 
-  // Compute base bounding box and normalize scale
+  // Restore the exact previous initial size (targetDiameter = 12.5)
   const { baseScale, offset } = useMemo(() => {
     const box = new THREE.Box3().setFromObject(scene);
     const size = box.getSize(new THREE.Vector3());
@@ -101,44 +101,58 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     const driftY = Math.sin(t * 0.25) * 0.04;
     const driftX = Math.cos(t * 0.2) * 0.02;
 
-    // Cursor influence (fades out gracefully during final immersion so text is easy to read)
-    const mouseActiveFactor = Math.max(0, 1 - contactProgress * 1.5);
+    // Smooth, gentle cursor tracking (fades out as black hole engulfs the screen)
+    const mouseActiveFactor = Math.max(0, 1 - contactProgress * 1.6);
     const mouse = mouseRef.current || { x: 0, y: 0 };
     const pointerX = !reducedMotion ? mouse.x * 0.14 * mouseActiveFactor : 0;
     const pointerY = !reducedMotion ? mouse.y * 0.18 * mouseActiveFactor : 0;
 
+    const p = contactProgress;
+
     // =========================================================================
-    // 1. TILT TO TOP VIEW:
-    //    Starts at your preferred -0.12, then tilts into a top-down vortex view (~1.25 rad)
+    // 1. TILT & SIZE PROGRESSION (User Specification):
+    //    Stage 1 (p <= 0.35): Behind ring goes down, frontal ring tilts up
+    //                         until they lie on the same plane cutting horizon straight (pitch = 0).
+    //                         Size stays at initial size (growth = 1.0).
+    //    Stage 2 (p > 0.35):  Starts growing bigger from the straight horizon point
+    //                         while frontal ring tilts further up into top view.
     // =========================================================================
-    const tiltRate = THREE.MathUtils.clamp((contactProgress - 0.05) / 0.65, 0, 1);
-    const basePitch = THREE.MathUtils.lerp(-0.12, 1.25, tiltRate);
+    let basePitch = 0;
+    let growth = 1.0;
+
+    if (p <= 0.35) {
+      // Behind ring goes down, front ring tilts up to horizon plane (pitch -0.28 -> 0.0)
+      const stage1 = p / 0.35;
+      basePitch = THREE.MathUtils.lerp(-0.28, 0.0, stage1);
+      growth = 1.0;
+    } else if (p <= 0.85) {
+      // Ring tilts into top-view (0.0 -> 1.10 rad) AND size grows (1.0 -> 3.8)
+      const stage2 = (p - 0.35) / 0.50;
+      basePitch = THREE.MathUtils.lerp(0.0, 1.10, stage2);
+      growth = THREE.MathUtils.lerp(1.0, 3.8, stage2);
+    } else {
+      // Fully engulfs screen
+      basePitch = 1.10;
+      growth = 3.8;
+    }
+
     const targetPitch = basePitch - pointerY + driftX;
     const targetYaw = Math.PI + pointerX + driftY;
 
     g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.2, delta);
     g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.2, delta);
 
-    // =========================================================================
-    // 2. ZERO-CLIPPING EXPANSION:
-    //    Scales up smoothly while pushing back along Z so the front rim NEVER
-    //    intersects or gets sliced by the camera near clipping plane.
-    // =========================================================================
-    const expandRate = THREE.MathUtils.clamp((contactProgress - 0.15) / 0.70, 0, 1);
-    const scaleFactor = THREE.MathUtils.lerp(1.0, 2.8, expandRate);
-    modelGroup.scale.setScalar(baseScale * scaleFactor);
+    // Apply scale growth
+    modelGroup.scale.setScalar(baseScale * growth);
 
-    // Push Z backwards proportionally to counteract expansion and prevent camera clipping line
-    const targetPosZ = THREE.MathUtils.lerp(0, -14.0, expandRate);
-    const targetPosY = THREE.MathUtils.lerp(-0.6, 0.0, expandRate);
+    // Push Z backwards as it grows to maintain clearance and prevent camera clipping line
+    const targetPosZ = - (growth - 1.0) * 5.5;
     g.position.z = THREE.MathUtils.damp(g.position.z, targetPosZ, 2.5, delta);
-    g.position.y = THREE.MathUtils.damp(g.position.y, targetPosY, 2.5, delta);
+    g.position.y = THREE.MathUtils.damp(g.position.y, -0.6, 2.5, delta);
 
-    // Keep camera at safe distance
-    const targetCamY = THREE.MathUtils.lerp(1.8, 0.8, expandRate);
-    state.camera.position.y = THREE.MathUtils.damp(state.camera.position.y, targetCamY, 2.5, delta);
-    state.camera.position.z = 10.5;
-    state.camera.lookAt(0, g.position.y * 0.5, g.position.z * 0.5);
+    // Keep camera stable at original initial viewpoint
+    state.camera.position.set(0, 1.8, 8.5);
+    state.camera.lookAt(0, 0, g.position.z * 0.4);
   });
 
   return (
@@ -184,49 +198,57 @@ export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleScenePr
     );
   }
 
-  // Fade to totally black as singularity core consumes the viewport (0.72 -> 0.90)
-  const blackoutOpacity = THREE.MathUtils.clamp((contactProgress - 0.72) / 0.18, 0, 1);
+  // Fade to totally black once the black hole covers the entire screen (0.80 -> 0.86)
+  const blackoutOpacity = THREE.MathUtils.clamp((contactProgress - 0.80) / 0.08, 0, 1);
+  const isBlackholeRemoved = blackoutOpacity >= 1;
 
   return (
-    <div className="w-full h-full relative overflow-hidden flex items-center justify-center select-none">
+    <div className="w-full h-full relative overflow-hidden flex items-center justify-center select-none bg-black">
       {/* Radiant atmospheric accretion glow behind the 3D model */}
-      <div
-        className="absolute inset-0 pointer-events-none z-0 transition-opacity duration-300"
-        style={{
-          background: 'radial-gradient(ellipse 65% 50% at 50% 60%, rgba(147, 51, 234, 0.22) 0%, rgba(56, 189, 248, 0.12) 35%, rgba(244, 63, 94, 0.06) 60%, transparent 85%)',
-          opacity: 1 - blackoutOpacity,
-        }}
-      />
+      {!isBlackholeRemoved && (
+        <div
+          className="absolute inset-0 pointer-events-none z-0 transition-opacity duration-300"
+          style={{
+            background: 'radial-gradient(ellipse 65% 50% at 50% 60%, rgba(147, 51, 234, 0.22) 0%, rgba(56, 189, 248, 0.12) 35%, rgba(244, 63, 94, 0.06) 60%, transparent 85%)',
+            opacity: 1 - blackoutOpacity,
+          }}
+        />
+      )}
 
-      {/* Interactive 3D Canvas with safe near clipping plane to eliminate any sliced lines */}
-      <div className="w-full h-full relative z-10">
-        <BlackHoleErrorBoundary>
-          <Canvas
-            camera={{ position: [0, 1.8, 10.5], fov: 42, near: 0.05, far: 2000 }}
-            gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
-            dpr={[1, 2]}
-          >
-            {/* Ambient starlight */}
-            <ambientLight intensity={1.5} />
+      {/* Interactive 3D Canvas (removed/hidden once screen is completely dark) */}
+      {!isBlackholeRemoved && (
+        <div
+          className="w-full h-full relative z-10 transition-opacity duration-300"
+          style={{ opacity: 1 - blackoutOpacity }}
+        >
+          <BlackHoleErrorBoundary>
+            <Canvas
+              camera={{ position: [0, 1.8, 8.5], fov: 42, near: 0.05, far: 2000 }}
+              gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
+              dpr={[1, 2]}
+            >
+              {/* Ambient starlight */}
+              <ambientLight intensity={1.4} />
 
-            {/* Accretion Disk Rim Lights */}
-            <pointLight position={[0, 4, 6]} intensity={3.8} color="#e0e7ff" />
-            <pointLight position={[-8, -2, -4]} intensity={4.2} color="#c084fc" />
-            <pointLight position={[8, 3, 2]} intensity={4.2} color="#38bdf8" />
-            <pointLight position={[0, -6, 4]} intensity={2.8} color="#fb923c" />
+              {/* Accretion Disk Rim Lights */}
+              <pointLight position={[0, 4, 6]} intensity={3.5} color="#e0e7ff" />
+              <pointLight position={[-8, -2, -4]} intensity={4.0} color="#c084fc" />
+              <pointLight position={[8, 3, 2]} intensity={4.0} color="#38bdf8" />
+              <pointLight position={[0, -6, 4]} intensity={2.5} color="#fb923c" />
 
-            <Suspense fallback={null}>
-              <BlackHoleModel
-                reducedMotion={reducedMotion}
-                mouseRef={mouseRef}
-                contactProgress={contactProgress}
-              />
-            </Suspense>
-          </Canvas>
-        </BlackHoleErrorBoundary>
-      </div>
+              <Suspense fallback={null}>
+                <BlackHoleModel
+                  reducedMotion={reducedMotion}
+                  mouseRef={mouseRef}
+                  contactProgress={contactProgress}
+                />
+              </Suspense>
+            </Canvas>
+          </BlackHoleErrorBoundary>
+        </div>
+      )}
 
-      {/* Seamless event horizon blackout overlay: turns totally black once inside */}
+      {/* Completely dark background screen: replaces black hole once it covers the screen */}
       <div
         className="absolute inset-0 bg-black pointer-events-none z-20"
         style={{

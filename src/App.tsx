@@ -724,7 +724,7 @@ export default function App() {
           className="relative h-[280vh] w-full font-mono"
         >
           {/* Sticky Fullscreen Viewport: stays locked on screen while scrolling */}
-          <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center">
+          <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-black">
 
             {/* 3D Black Hole Background Canvas */}
             <div className="absolute inset-0 z-10 w-full h-full">
@@ -734,38 +734,18 @@ export default function App() {
               />
             </div>
 
-            {/* Teaser Header (Fades out as black hole expands and tilts into top view) */}
-            <div
-              className="absolute top-20 sm:top-28 text-center max-w-xl mx-auto px-6 z-20 pointer-events-none transition-opacity duration-300"
-              style={{
-                opacity: Math.max(0, 1 - contactProgress * 2.8),
-                transform: `translateY(${contactProgress * -40}px)`,
-              }}
-            >
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-mono mb-4">
-                <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-                <span>Gargantua Singularity • Horizon Boundary</span>
-              </div>
-              <h2 className="text-2xl sm:text-4xl font-bold text-white tracking-tight font-sans">
-                Descend into the Horizon
-              </h2>
-              <p className="text-xs text-slate-400 mt-2 font-mono">
-                Scroll to enter the singularity
-              </p>
-            </div>
-
-            {/* Immersive Singularity Contact Screen (Reveals inside the total black singularity) */}
+            {/* Immersive Singularity Contact Screen: Appears on the completely dark screen once black hole covers view */}
             <div
               className="relative z-30 max-w-2xl mx-auto px-6 text-center flex flex-col items-center justify-center transition-all duration-500"
               style={{
-                opacity: Math.max(0, (contactProgress - 0.72) / 0.28),
-                transform: `scale(${0.92 + Math.max(0, (contactProgress - 0.72) / 0.28) * 0.08})`,
-                pointerEvents: contactProgress > 0.75 ? 'auto' : 'none',
+                opacity: Math.max(0, (contactProgress - 0.82) / 0.12),
+                transform: `scale(${0.92 + Math.max(0, (contactProgress - 0.82) / 0.12) * 0.08})`,
+                pointerEvents: contactProgress >= 0.85 ? 'auto' : 'none',
               }}
             >
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-400/40 text-purple-300 text-xs font-mono mb-6 backdrop-blur-md shadow-lg shadow-purple-900/40">
                 <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-                <span>Within the Singularity • Event Horizon Core</span>
+                <span>Gargantua Singularity • Event Horizon Core</span>
               </div>
 
               <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight font-sans">
@@ -781,7 +761,7 @@ export default function App() {
               </h2>
 
               <p className="text-sm sm:text-base text-slate-300/90 mt-5 font-mono max-w-lg leading-relaxed">
-                Open to graduate developer roles, software engineering internships, and AI collaborations.
+                4th Year Computer Science Undergrad • Open to graduate developer roles, software engineering internships, and AI collaborations.
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4 mt-8 font-mono">
