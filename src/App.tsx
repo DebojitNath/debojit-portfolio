@@ -76,31 +76,110 @@ export default function App() {
   const mountainY2 = MOUNTAIN_SPREAD.layer2 + scrollProgress * 100; // Sinks behind layer 1
   const mountainY1 = MOUNTAIN_SPREAD.layer1 - scrollProgress * 50;  // Foreground rises slightly for depth
   // Track global scroll progress and section 5 contact immersion progress
+  const contactProgressRef = useRef(0);
+
   useLenis(({ progress }) => {
     setScrollProgress(progress);
-    if (contactRef.current) {
-      const rect = contactRef.current.getBoundingClientRect();
-      const totalScroll = rect.height - window.innerHeight;
-      if (totalScroll > 0) {
-        const p = Math.max(0, Math.min(1, -rect.top / totalScroll));
-        setContactProgress(p);
-      }
-    }
   });
 
+  // When user reaches the black hole section at the bottom of the page,
+  // the page stays in a static position (no extra space below), and
+  // scrolling down directly controls the black hole growth and tilt.
   useEffect(() => {
-    const handleScroll = () => {
-      if (contactRef.current) {
-        const rect = contactRef.current.getBoundingClientRect();
-        const totalScroll = rect.height - window.innerHeight;
-        if (totalScroll > 0) {
-          const p = Math.max(0, Math.min(1, -rect.top / totalScroll));
-          setContactProgress(p);
+    let touchStartY = 0;
+
+    const onWheel = (e: WheelEvent) => {
+      if (!contactRef.current) return;
+      const rect = contactRef.current.getBoundingClientRect();
+      // When the black hole is in static position occupying the screen
+      const isInView = rect.top <= 15;
+
+      if (isInView) {
+        if (e.deltaY > 0) {
+          // Scrolling DOWN: increase size and advance transition
+          if (contactProgressRef.current < 1) {
+            e.preventDefault();
+            const step = Math.min(0.08, Math.max(0.015, Math.abs(e.deltaY) * 0.0009));
+            const next = Math.min(1, contactProgressRef.current + step);
+            contactProgressRef.current = next;
+            setContactProgress(next);
+          }
+        } else if (e.deltaY < 0) {
+          // Scrolling UP: decrease size back towards initial
+          if (contactProgressRef.current > 0) {
+            e.preventDefault();
+            const step = Math.min(0.08, Math.max(0.015, Math.abs(e.deltaY) * 0.0009));
+            const next = Math.max(0, contactProgressRef.current - step);
+            contactProgressRef.current = next;
+            setContactProgress(next);
+          }
         }
       }
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!contactRef.current) return;
+      const rect = contactRef.current.getBoundingClientRect();
+      const isInView = rect.top <= 15;
+      if (!isInView) return;
+
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchStartY - touchY; // positive = swipe up = scroll down
+      touchStartY = touchY;
+
+      if (deltaY > 0 && contactProgressRef.current < 1) {
+        if (e.cancelable) e.preventDefault();
+        const step = Math.min(0.06, Math.max(0.01, deltaY * 0.002));
+        const next = Math.min(1, contactProgressRef.current + step);
+        contactProgressRef.current = next;
+        setContactProgress(next);
+      } else if (deltaY < 0 && contactProgressRef.current > 0) {
+        if (e.cancelable) e.preventDefault();
+        const step = Math.min(0.06, Math.max(0.01, Math.abs(deltaY) * 0.002));
+        const next = Math.max(0, contactProgressRef.current - step);
+        contactProgressRef.current = next;
+        setContactProgress(next);
+      }
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!contactRef.current) return;
+      const rect = contactRef.current.getBoundingClientRect();
+      const isInView = rect.top <= 15;
+      if (!isInView) return;
+
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        if (contactProgressRef.current < 1) {
+          e.preventDefault();
+          const next = Math.min(1, contactProgressRef.current + 0.05);
+          contactProgressRef.current = next;
+          setContactProgress(next);
+        }
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        if (contactProgressRef.current > 0) {
+          e.preventDefault();
+          const next = Math.max(0, contactProgressRef.current - 0.05);
+          contactProgressRef.current = next;
+          setContactProgress(next);
+        }
+      }
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('keydown', onKeyDown);
+    };
   }, []);
 
   // Butter-smooth section scroll
@@ -721,124 +800,18 @@ export default function App() {
         <section
           id="contact"
           ref={contactRef}
-          className="relative h-[450vh] w-full font-mono"
+          className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-black font-mono"
         >
-          {/* Sticky Fullscreen Viewport: stays locked on screen while scrolling */}
-          <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-black">
-
-            {/* 3D Black Hole Background Canvas */}
-            <div className="absolute inset-0 z-10 w-full h-full">
-              <BlackHoleScene
-                scrollProgress={scrollProgress}
-                contactProgress={contactProgress}
-              />
-            </div>
-
-            {/* Contact text overlay disabled for now per user request to focus purely on the transition */}
-            {false && (
-            <div
-              className="relative z-30 max-w-2xl mx-auto px-6 text-center flex flex-col items-center justify-center transition-all duration-500"
-              style={{
-                opacity: Math.max(0, (contactProgress - 0.82) / 0.12),
-                transform: `scale(${0.92 + Math.max(0, (contactProgress - 0.82) / 0.12) * 0.08})`,
-                pointerEvents: contactProgress >= 0.85 ? 'auto' : 'none',
-              }}
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-400/40 text-purple-300 text-xs font-mono mb-6 backdrop-blur-md shadow-lg shadow-purple-900/40">
-                <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-                <span>Gargantua Singularity • Event Horizon Core</span>
-              </div>
-
-              <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight font-sans">
-                <a
-                  href="mailto:debojitnath9674@gmail.com"
-                  className="hover:text-purple-300 transition-colors inline-flex items-center gap-3 group"
-                >
-                  <span className="underline decoration-purple-500/40 underline-offset-8">
-                    debojitnath9674@gmail.com
-                  </span>
-                  <ArrowUpRight className="w-6 h-6 text-purple-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </a>
-              </h2>
-
-              <p className="text-sm sm:text-base text-slate-300/90 mt-5 font-mono max-w-lg leading-relaxed">
-                4th Year Computer Science Undergrad • Open to graduate developer roles, software engineering internships, and AI collaborations.
-              </p>
-
-              <div className="flex flex-wrap items-center justify-center gap-4 mt-8 font-mono">
-                <a
-                  href="mailto:debojitnath9674@gmail.com"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs tracking-wider uppercase shadow-xl shadow-purple-600/30 hover:scale-105 active:scale-95 transition-all"
-                >
-                  <Mail className="w-4 h-4" />
-                  <span>Send Transmission</span>
-                </a>
-                <a
-                  href="https://github.com/DebojitNath"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-medium text-xs tracking-wider uppercase backdrop-blur-md hover:scale-105 active:scale-95 transition-all"
-                >
-                  <Github className="w-4 h-4" />
-                  <span>GitHub</span>
-                </a>
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-medium text-xs tracking-wider uppercase backdrop-blur-md hover:scale-105 active:scale-95 transition-all"
-                >
-                  <Linkedin className="w-4 h-4" />
-                  <span>LinkedIn</span>
-                </a>
-              </div>
-            </div>
-            )}
-
+          {/* 3D Black Hole Background Canvas */}
+          <div className="absolute inset-0 z-10 w-full h-full">
+            <BlackHoleScene
+              scrollProgress={scrollProgress}
+              contactProgress={contactProgress}
+            />
           </div>
         </section>
 
       </div>
-
-      {/* ========================================================= */}
-      {/* FOOTER                                                    */}
-      {/* ========================================================= */}
-      <footer className="relative z-30 max-w-7xl mx-auto w-full px-6 py-8 md:px-12 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5 text-xs font-mono bg-black/40">
-        <div className={world === 'focus' ? 'text-slate-400' : 'text-stone-600'}>
-          © {new Date().getFullYear()} Debojit Nath • 4th Year CS Undergrad
-        </div>
-
-        <div className="flex items-center gap-6">
-          <a
-            href="https://github.com/DebojitNath"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`flex items-center gap-1.5 transition-colors ${world === 'focus' ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-black'
-              }`}
-          >
-            <Github className="w-4 h-4" />
-            <span>GitHub</span>
-          </a>
-          <a
-            href="https://linkedin.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`flex items-center gap-1.5 transition-colors ${world === 'focus' ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-black'
-              }`}
-          >
-            <Linkedin className="w-4 h-4" />
-            <span>LinkedIn</span>
-          </a>
-          <a
-            href="mailto:debojitnath9674@gmail.com"
-            className={`flex items-center gap-1.5 transition-colors ${world === 'focus' ? 'text-slate-400 hover:text-white' : 'text-stone-600 hover:text-black'
-              }`}
-          >
-            <Mail className="w-4 h-4" />
-            <span>Contact</span>
-          </a>
-        </div>
-      </footer>
 
     </div>
   );

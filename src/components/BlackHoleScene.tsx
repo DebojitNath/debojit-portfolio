@@ -125,19 +125,15 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     let growth = 1.0;
 
     if (p <= 0.35) {
-      // Stage 1: tilt to horizon (no size change)
+      // Stage 1: tilt to horizon (pitch +0.28 -> 0.0), size constant at 1.0
       const stage1 = p / 0.35;
       basePitch = THREE.MathUtils.lerp(0.28, 0.0, stage1);
       growth = 1.0;
-    } else if (p <= 0.85) {
-      // Stage 2: tilt past edge-on to bottom view + zoom in
-      const stage2 = (p - 0.35) / 0.50;
-      basePitch = THREE.MathUtils.lerp(0.0, -1.10, stage2);
-      growth = THREE.MathUtils.lerp(1.0, 3.8, stage2);
     } else {
-      // Stage 3: fully engulfed
-      basePitch = -1.10;
-      growth = 3.8;
+      // Stage 2: tilt past edge-on to bottom view (0.0 -> -1.10) AND black hole grows (1.0 -> 4.2)
+      const stage2 = (p - 0.35) / 0.65;
+      basePitch = THREE.MathUtils.lerp(0.0, -1.10, Math.min(1, stage2 * 1.3));
+      growth = THREE.MathUtils.lerp(1.0, 4.2, stage2);
     }
 
     const targetPitch = basePitch - pointerY + driftX;
