@@ -49,9 +49,10 @@ class BlackHoleErrorBoundary extends Component<
 interface BlackHoleModelProps {
   reducedMotion: boolean;
   mouseRef: React.RefObject<{ x: number; y: number }>;
+  scrollProgress: number;
 }
 
-function BlackHoleModel({ reducedMotion, mouseRef }: BlackHoleModelProps) {
+function BlackHoleModel({ reducedMotion, mouseRef, scrollProgress }: BlackHoleModelProps) {
   const group = useRef<THREE.Group>(null);
   const tiltGroup = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF(MODEL_URL);
@@ -95,10 +96,12 @@ function BlackHoleModel({ reducedMotion, mouseRef }: BlackHoleModelProps) {
     // Smooth, gentle cursor influence (not oversensitive)
     const mouse = mouseRef.current || { x: 0, y: 0 };
     const pointerX = !reducedMotion ? mouse.x * 0.14 : 0;
-    const pointerY = !reducedMotion ? mouse.y * 0.08 : 0;
+    const pointerY = !reducedMotion ? mouse.y * 0.18 : 0;
 
-    // Original default pitch: -0.38
-    const targetPitch = -0.38 - pointerY + driftX;
+    // Scroll flattening transition (tweak these numbers)
+    const factor = THREE.MathUtils.clamp((scrollProgress - 0.70) / 0.25, 0, 1);
+    const basePitch = THREE.MathUtils.lerp(0.22, 0.00, factor);
+    const targetPitch = basePitch - pointerY + driftX;
     // Flipped 180° around Y (Math.PI) to face audience from the other side
     const targetYaw = Math.PI + pointerX + driftY;
 
@@ -119,7 +122,7 @@ export interface BlackHoleSceneProps {
   scrollProgress?: number;
 }
 
-export default function BlackHoleScene({}: BlackHoleSceneProps) {
+export default function BlackHoleScene({ scrollProgress = 1.0 }: BlackHoleSceneProps) {
   const [webglSupported, setWebglSupported] = useState(true);
   const reducedMotion = usePrefersReducedMotion();
 
@@ -176,7 +179,11 @@ export default function BlackHoleScene({}: BlackHoleSceneProps) {
             <pointLight position={[0, -6, 4]} intensity={2.5} color="#fb923c" />
 
             <Suspense fallback={null}>
-              <BlackHoleModel reducedMotion={reducedMotion} mouseRef={mouseRef} />
+              <BlackHoleModel
+                reducedMotion={reducedMotion}
+                mouseRef={mouseRef}
+                scrollProgress={scrollProgress}
+              />
             </Suspense>
           </Canvas>
         </BlackHoleErrorBoundary>
