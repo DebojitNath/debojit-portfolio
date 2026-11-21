@@ -148,17 +148,19 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
 
     // ---- PURE SCALE ZOOM (no position change, no Z drift) ----
     // Model position is LOCKED. Only scale grows.
+    // y = 1.2 pushes model UP so the accretion disk fills the full canvas
+    // (previously at -0.6 the bottom was transparent → starfield showed through)
     modelGroup.scale.setScalar(baseScale * growth);
-    g.position.set(0, -0.6, 0); // Absolutely locked — no drift whatsoever
+    g.position.set(0, 1.2, 0); // Pushed up — eliminates the cut line at bottom
 
     // ---- CAMERA: fully fixed, no movement ----
-    // Camera position and lookAt never change — prevents model from sliding up/down
+    // lookAt matches the model's Y so it stays perfectly centered on screen
     state.camera.position.set(0, 1.8, 8.5);
-    state.camera.lookAt(0, 0, 0);
+    state.camera.lookAt(0, 1.2, 0);
   });
 
   return (
-    <group ref={tiltGroup} position={[0, -0.6, 0]}>
+    <group ref={tiltGroup} position={[0, 1.2, 0]}>
       <group ref={group} scale={baseScale} position={offset} dispose={null}>
         <primitive object={scene} />
       </group>
