@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLenis } from 'lenis/react';
+import LoadingScreen from './components/LoadingScreen';
 import CosmicBackground from './components/CosmicBackground';
 import FloatingAstronaut from './components/FloatingAstronaut';
 import WebGLLines from './components/WebGLLines';
@@ -83,6 +84,8 @@ export default function App() {
         : 'bg-[#e5e9d6] text-[#1b2018]'
         }`}
     >
+      {/* Sci-Fi Terminal Uplink Loading Screen */}
+      <LoadingScreen />
 
       {/* ========================================================= */}
       {/* BACKGROUND LAYERS                                         */}
@@ -212,29 +215,31 @@ export default function App() {
                 style={{
                   background: 'radial-gradient(ellipse 100% 90% at 50% -10%, rgba(138, 43, 226, 0.45) 0%, rgba(98, 25, 155, 0.35) 35%, rgba(55, 12, 95, 0.22) 65%, transparent 100%)',
                   opacity: Math.max(0, 1 - scrollProgress * 3.5),
-                  transition: 'opacity 0.25s ease-out'
+                  willChange: 'opacity'
                 }}
               />
 
               {/* SMOOTH ATMOSPHERIC SUNSET LIGHT (Shifted to right, brighter radiant sunset glow) */}
               <div
-                className="absolute inset-0 pointer-events-none transition-opacity duration-300 ease-out z-0"
+                className="absolute inset-0 pointer-events-none z-0"
                 style={{
                   background: 'radial-gradient(ellipse 80% 70% at 88% 34%, rgba(255, 115, 50, 0.55) 0%, rgba(244, 63, 94, 0.42) 28%, rgba(192, 38, 211, 0.28) 52%, rgba(107, 33, 168, 0.15) 72%, transparent 100%)',
                   WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
                   maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
                   opacity: Math.max(0, 1 - scrollProgress * 5.0),
+                  willChange: 'opacity'
                 }}
               />
 
               {/* SECONDARY INTENSE SUNSET CORE (Bright radiant corona along far right) */}
               <div
-                className="absolute inset-0 pointer-events-none transition-opacity duration-300 ease-out z-0"
+                className="absolute inset-0 pointer-events-none z-0"
                 style={{
                   background: 'radial-gradient(ellipse 50% 55% at 94% 32%, rgba(255, 145, 70, 0.45) 0%, rgba(244, 63, 94, 0.25) 35%, rgba(217, 70, 239, 0.14) 60%, transparent 100%)',
                   WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
                   maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
                   opacity: Math.max(0, 1 - scrollProgress * 5.0),
+                  willChange: 'opacity'
                 }}
               />
 
@@ -245,7 +250,7 @@ export default function App() {
                 className="absolute inset-0 pointer-events-none z-0 overflow-hidden"
                 style={{
                   opacity: Math.max(0, 1 - scrollProgress * 3.5),
-                  transition: 'opacity 0.2s ease-out'
+                  willChange: 'opacity'
                 }}
               >
                 {/* COLOSSAL CELESTIAL PLANET (Shifted slightly right for optimal composition) */}
