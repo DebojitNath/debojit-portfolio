@@ -100,7 +100,7 @@ function BlackHoleModel({ reducedMotion, mouseRef, scrollProgress }: BlackHoleMo
 
     // Scroll flattening transition (tweak these numbers)
     const factor = THREE.MathUtils.clamp((scrollProgress - 0.70) / 0.25, 0, 1);
-    const basePitch = THREE.MathUtils.lerp(0.22, 0.00, factor);
+    const basePitch = THREE.MathUtils.lerp(0.22, -0.12, factor);
     const targetPitch = basePitch - pointerY + driftX;
     // Flipped 180° around Y (Math.PI) to face audience from the other side
     const targetYaw = Math.PI + pointerX + driftY;
