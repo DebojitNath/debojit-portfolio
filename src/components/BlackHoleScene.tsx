@@ -121,18 +121,18 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     let growth = 1.0;
 
     if (p <= 0.35) {
-      // Behind ring goes down, front ring tilts up to horizon plane (pitch -0.28 -> 0.0)
+      // Reversed: tilts to horizon plane (pitch +0.28 -> 0.0)
       const stage1 = p / 0.35;
-      basePitch = THREE.MathUtils.lerp(-0.28, 0.0, stage1);
+      basePitch = THREE.MathUtils.lerp(0.28, 0.0, stage1);
       growth = 1.0;
     } else if (p <= 0.85) {
-      // Ring tilts into top-view (0.0 -> 1.10 rad) AND size grows (1.0 -> 3.8)
+      // Reversed: tilts into top-view (0.0 -> -1.10 rad) AND size grows (1.0 -> 3.8)
       const stage2 = (p - 0.35) / 0.50;
-      basePitch = THREE.MathUtils.lerp(0.0, 1.10, stage2);
+      basePitch = THREE.MathUtils.lerp(0.0, -1.10, stage2);
       growth = THREE.MathUtils.lerp(1.0, 3.8, stage2);
     } else {
       // Fully engulfs screen
-      basePitch = 1.10;
+      basePitch = -1.10;
       growth = 3.8;
     }
 
