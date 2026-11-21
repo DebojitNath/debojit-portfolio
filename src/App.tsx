@@ -716,7 +716,7 @@ export default function App() {
 
           {/* Colossal 3D Animated Black Hole Peeking From Below */}
           <div className="w-full relative z-10">
-            <BlackHoleScene />
+            <BlackHoleScene scrollProgress={scrollProgress} />
           </div>
         </section>
 

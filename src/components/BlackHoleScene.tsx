@@ -46,7 +46,12 @@ class BlackHoleErrorBoundary extends Component<
   }
 }
 
-function BlackHoleModel({ reducedMotion }: { reducedMotion: boolean }) {
+interface BlackHoleModelProps {
+  reducedMotion: boolean;
+  scrollProgress: number;
+}
+
+function BlackHoleModel({ reducedMotion, scrollProgress }: BlackHoleModelProps) {
   const group = useRef<THREE.Group>(null);
   const tiltGroup = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF(MODEL_URL);
@@ -69,7 +74,7 @@ function BlackHoleModel({ reducedMotion }: { reducedMotion: boolean }) {
     const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
     // Scale to a prominent cinematic diameter spanning the viewport
-    const targetDiameter = 12.5;
+    const targetDiameter = 12.8;
     const s = targetDiameter / maxDim;
     return {
       scale: s,
@@ -77,29 +82,41 @@ function BlackHoleModel({ reducedMotion }: { reducedMotion: boolean }) {
     };
   }, [scene]);
 
-  // Dynamic interactive tilt following the user cursor with fluid damping
+  // Dynamic high-angle top-down perspective that steepens as the user scrolls down
   useFrame((state, delta) => {
     const g = tiltGroup.current;
     if (!g) return;
 
     const t = state.clock.getElapsedTime();
     // Gentle celestial breathing drift
-    const driftY = Math.sin(t * 0.25) * 0.05;
-    const driftX = Math.cos(t * 0.2) * 0.03;
+    const driftY = Math.sin(t * 0.22) * 0.04;
+    const driftX = Math.cos(t * 0.18) * 0.02;
 
-    const pointerX = !reducedMotion ? state.pointer.x * 0.25 : 0;
-    const pointerY = !reducedMotion ? state.pointer.y * 0.15 : 0;
+    const pointerX = !reducedMotion ? state.pointer.x * 0.22 : 0;
+    const pointerY = !reducedMotion ? state.pointer.y * 0.12 : 0;
 
-    // Base tilt: -0.38 rad (~22 deg) forward pitch so the accretion disk rings & singularity core face viewer
-    const targetPitch = -0.38 - pointerY + driftX;
+    // Normalize progress as the user descends into the bottom contact / singularity section (0 -> 1)
+    const bottomFactor = THREE.MathUtils.clamp((scrollProgress - 0.45) / 0.55, 0, 1);
+
+    // Looking from UP towards it: pitch forward so the upper accretion disk faces camera from above
+    // Smoothly steepens from 0.38 rad (~22 deg) to 0.72 rad (~41 deg) as you scroll down
+    const basePitch = THREE.MathUtils.lerp(0.38, 0.72, bottomFactor);
+    const targetPitch = basePitch + pointerY + driftX;
     const targetYaw = pointerX + driftY;
 
-    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.0, delta);
-    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.0, delta);
+    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.2, delta);
+    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.2, delta);
+
+    // Elevate camera higher up as the user scrolls down, gazing down into the singularity
+    const targetCamY = THREE.MathUtils.lerp(3.8, 5.8, bottomFactor);
+    const targetCamZ = THREE.MathUtils.lerp(8.4, 7.2, bottomFactor);
+    state.camera.position.y = THREE.MathUtils.damp(state.camera.position.y, targetCamY, 2.2, delta);
+    state.camera.position.z = THREE.MathUtils.damp(state.camera.position.z, targetCamZ, 2.2, delta);
+    state.camera.lookAt(0, -0.85, 0);
   });
 
   return (
-    <group ref={tiltGroup} position={[0, -0.6, 0]}>
+    <group ref={tiltGroup} position={[0, -1.0, 0]}>
       <group ref={group} scale={scale} position={offset} dispose={null}>
         <primitive object={scene} />
       </group>
@@ -107,7 +124,11 @@ function BlackHoleModel({ reducedMotion }: { reducedMotion: boolean }) {
   );
 }
 
-export default function BlackHoleScene() {
+export interface BlackHoleSceneProps {
+  scrollProgress?: number;
+}
+
+export default function BlackHoleScene({ scrollProgress = 1.0 }: BlackHoleSceneProps) {
   const [webglSupported, setWebglSupported] = useState(true);
   const reducedMotion = usePrefersReducedMotion();
 
@@ -124,12 +145,12 @@ export default function BlackHoleScene() {
   }
 
   return (
-    <div className="w-full h-[500px] sm:h-[620px] md:h-[720px] relative overflow-hidden flex items-center justify-center select-none">
+    <div className="w-full h-[520px] sm:h-[640px] md:h-[750px] relative overflow-hidden flex items-center justify-center select-none">
       {/* Radiant atmospheric accretion glow behind the 3D model */}
       <div
         className="absolute inset-0 pointer-events-none z-0"
         style={{
-          background: 'radial-gradient(ellipse 65% 50% at 50% 60%, rgba(147, 51, 234, 0.22) 0%, rgba(56, 189, 248, 0.12) 35%, rgba(244, 63, 94, 0.06) 60%, transparent 85%)',
+          background: 'radial-gradient(ellipse 70% 55% at 50% 55%, rgba(147, 51, 234, 0.25) 0%, rgba(56, 189, 248, 0.14) 35%, rgba(244, 63, 94, 0.07) 60%, transparent 85%)',
         }}
       />
 
@@ -137,21 +158,21 @@ export default function BlackHoleScene() {
       <div className="w-full h-full relative z-10">
         <BlackHoleErrorBoundary>
           <Canvas
-            camera={{ position: [0, 1.8, 8.5], fov: 42 }}
+            camera={{ position: [0, 4.5, 7.8], fov: 42 }}
             gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
             dpr={[1, 2]}
           >
             {/* Ambient starlight */}
-            <ambientLight intensity={1.4} />
+            <ambientLight intensity={1.5} />
 
-            {/* Accretion Disk Rim Lights */}
-            <pointLight position={[0, 4, 6]} intensity={3.5} color="#e0e7ff" />
-            <pointLight position={[-8, -2, -4]} intensity={4.0} color="#c084fc" />
-            <pointLight position={[8, 3, 2]} intensity={4.0} color="#38bdf8" />
-            <pointLight position={[0, -6, 4]} intensity={2.5} color="#fb923c" />
+            {/* Accretion Disk Lights illuminating from high above and flanks */}
+            <pointLight position={[0, 6, 6]} intensity={4.0} color="#e0e7ff" />
+            <pointLight position={[-8, 2, -4]} intensity={4.5} color="#c084fc" />
+            <pointLight position={[8, 4, 3]} intensity={4.5} color="#38bdf8" />
+            <pointLight position={[0, -4, 4]} intensity={2.5} color="#fb923c" />
 
             <Suspense fallback={null}>
-              <BlackHoleModel reducedMotion={reducedMotion} />
+              <BlackHoleModel reducedMotion={reducedMotion} scrollProgress={scrollProgress} />
             </Suspense>
           </Canvas>
         </BlackHoleErrorBoundary>
@@ -159,9 +180,9 @@ export default function BlackHoleScene() {
 
       {/* Bottom gradient fade so the canvas blends into the dark page footer seamlessly */}
       <div
-        className="absolute bottom-0 inset-x-0 h-28 pointer-events-none z-20"
+        className="absolute bottom-0 inset-x-0 h-32 pointer-events-none z-20"
         style={{
-          background: 'linear-gradient(to top, #000000 0%, rgba(0,0,0,0.85) 45%, transparent 100%)',
+          background: 'linear-gradient(to top, #000000 0%, rgba(0,0,0,0.85) 50%, transparent 100%)',
         }}
       />
     </div>
@@ -169,4 +190,3 @@ export default function BlackHoleScene() {
 }
 
 useGLTF.preload(MODEL_URL);
-
