@@ -99,7 +99,7 @@ export default function App() {
           // Scrolling DOWN: increase size and advance transition
           if (contactProgressRef.current < 1) {
             e.preventDefault();
-            const step = Math.min(0.08, Math.max(0.015, Math.abs(e.deltaY) * 0.0009));
+            const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
             const next = Math.min(1, contactProgressRef.current + step);
             contactProgressRef.current = next;
             setContactProgress(next);
@@ -108,7 +108,7 @@ export default function App() {
           // Scrolling UP: decrease size back towards initial
           if (contactProgressRef.current > 0) {
             e.preventDefault();
-            const step = Math.min(0.08, Math.max(0.015, Math.abs(e.deltaY) * 0.0009));
+            const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
             const next = Math.max(0, contactProgressRef.current - step);
             contactProgressRef.current = next;
             setContactProgress(next);

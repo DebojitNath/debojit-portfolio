@@ -132,20 +132,23 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     } else {
       // Stage 2: tilt past edge-on to bottom view (0.0 -> -1.10) AND black hole grows (1.0 -> 4.2)
       const stage2 = (p - 0.35) / 0.65;
+      // Smoothstep easing so zoom begins seamlessly without an abrupt jump
+      const easeStage = stage2 * stage2 * (3 - 2 * stage2);
       basePitch = THREE.MathUtils.lerp(0.0, -1.10, Math.min(1, stage2 * 1.3));
-      growth = THREE.MathUtils.lerp(1.0, 4.2, stage2);
+      growth = THREE.MathUtils.lerp(1.0, 4.2, easeStage);
     }
 
     const targetPitch = basePitch - pointerY + driftX;
     const targetYaw = Math.PI + pointerX + driftY;
 
-    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.2, delta);
-    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.2, delta);
+    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.6, delta);
+    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.6, delta);
 
-    // ---- PURE SCALE ZOOM CENTERED IN MIDDLE OF SCREEN ----
-    // Model position is locked dead center at [0, 0, 0]
-    // Middle group scales outward symmetrically from (0, 0, 0)
-    modelGroup.scale.setScalar(growth);
+    // ---- PURE SCALE ZOOM CENTERED IN MIDDLE OF SCREEN WITH SPRING DAMPING ----
+    // Damp scale towards target growth so the zoom glides continuously like butter
+    const currentScale = modelGroup.scale.x || 1.0;
+    const nextScale = THREE.MathUtils.damp(currentScale, growth, 2.6, delta);
+    modelGroup.scale.setScalar(nextScale);
     g.position.set(0, 0, 0); // Locked dead center in the middle of screen
 
     // ---- CAMERA: fully fixed, dead center ----
