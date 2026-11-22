@@ -123,8 +123,6 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     // =========================================================================
     let basePitch = 0;
     let growth = 1.0;
-    let targetY = 0;
-    let targetZ = 0;
 
     if (p <= 0.35) {
       // Stage 1: tilt to horizon (pitch +0.28 -> 0.0), size constant at 1.0
@@ -132,20 +130,12 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
       basePitch = THREE.MathUtils.lerp(0.28, 0.0, stage1);
       growth = 1.0;
     } else {
-      // Stage 2: tilt past edge-on to bottom view (0.0 -> -1.10) AND black hole grows (1.0 -> 4.5)
+      // Stage 2: tilt past edge-on to bottom view (0.0 -> -1.10) AND black hole grows (1.0 -> 4.2)
       const stage2 = (p - 0.35) / 0.65;
       // Smoothstep easing so zoom begins seamlessly without an abrupt jump
       const easeStage = stage2 * stage2 * (3 - 2 * stage2);
       basePitch = THREE.MathUtils.lerp(0.0, -1.10, Math.min(1, stage2 * 1.3));
-      growth = THREE.MathUtils.lerp(1.0, 4.5, easeStage);
-
-      // Prevent camera near-plane clipping:
-      // As disk tilts towards the camera, push Z back so the front rim stays in front of the camera plane (z=8.5)
-      const forwardReach = (6.25 * growth) * Math.sin(Math.abs(basePitch));
-      targetZ = Math.min(0, 5.0 - forwardReach);
-
-      // Vertical compensation: as ring tilts upward, center the visual mass so it completely covers the bottom of viewport
-      targetY = THREE.MathUtils.lerp(0, -1.35, easeStage);
+      growth = THREE.MathUtils.lerp(1.0, 4.2, easeStage);
     }
 
     const targetPitch = basePitch - pointerY + driftX;
@@ -154,15 +144,12 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.6, delta);
     g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.6, delta);
 
-    // Smoothly damp position compensation so the bottom of the accretion disk never clips or reveals bottom gaps
-    g.position.y = THREE.MathUtils.damp(g.position.y, targetY, 2.6, delta);
-    g.position.z = THREE.MathUtils.damp(g.position.z, targetZ, 2.6, delta);
-
     // ---- PURE SCALE ZOOM CENTERED IN MIDDLE OF SCREEN WITH SPRING DAMPING ----
     // Damp scale towards target growth so the zoom glides continuously like butter
     const currentScale = modelGroup.scale.x || 1.0;
     const nextScale = THREE.MathUtils.damp(currentScale, growth, 2.6, delta);
     modelGroup.scale.setScalar(nextScale);
+    g.position.set(0, 0, 0); // Locked dead center in the middle of screen
 
     // ---- CAMERA: fully fixed, dead center ----
     // Eye level at y = 0 looking straight at (0, 0, 0)
