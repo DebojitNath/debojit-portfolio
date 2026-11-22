@@ -33,6 +33,7 @@ export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [contactProgress, setContactProgress] = useState(0);
   const contactRef = useRef<HTMLElement>(null);
+  const blackHoleContainerRef = useRef<HTMLDivElement>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const lenis = useLenis();
   const lenisRef = useRef(lenis);
@@ -94,10 +95,15 @@ export default function App() {
   useEffect(() => {
     let touchStartY = 0;
 
+    const checkIsAtBottom = () => {
+      const targetEl = blackHoleContainerRef.current || contactRef.current;
+      if (!targetEl) return false;
+      const rect = targetEl.getBoundingClientRect();
+      return rect.top <= 25 || (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 30);
+    };
+
     const onWheel = (e: WheelEvent) => {
-      if (!contactRef.current) return;
-      const rect = contactRef.current.getBoundingClientRect();
-      const isAtBottom = rect.top <= 25;
+      const isAtBottom = checkIsAtBottom();
       const isZoomed = contactProgressRef.current > 0;
 
       if (e.deltaY > 0) {
@@ -128,9 +134,7 @@ export default function App() {
     };
 
     const onTouchMove = (e: TouchEvent) => {
-      if (!contactRef.current) return;
-      const rect = contactRef.current.getBoundingClientRect();
-      const isAtBottom = rect.top <= 25;
+      const isAtBottom = checkIsAtBottom();
       const isZoomed = contactProgressRef.current > 0;
 
       const touchY = e.touches[0].clientY;
@@ -159,9 +163,7 @@ export default function App() {
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (!contactRef.current) return;
-      const rect = contactRef.current.getBoundingClientRect();
-      const isAtBottom = rect.top <= 25;
+      const isAtBottom = checkIsAtBottom();
       const isZoomed = contactProgressRef.current > 0;
 
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
@@ -202,7 +204,7 @@ export default function App() {
     contactProgressRef.current = 0;
     setContactProgress(0);
     if (lenis) {
-      lenis.scrollTo(targetId, { offset: targetId === '#contact' ? 0 : -80, duration: 1.8 });
+      lenis.scrollTo(targetId, { offset: targetId === '#contact' ? -40 : -80, duration: 1.8 });
     } else {
       const el = document.querySelector(targetId);
       el?.scrollIntoView({ behavior: 'smooth' });
@@ -817,43 +819,47 @@ export default function App() {
         <section
           id="contact"
           ref={contactRef}
-          className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-transparent font-mono"
+          className="relative min-h-[145vh] w-full flex flex-col items-center bg-transparent font-mono pt-20 sm:pt-28"
         >
           {/* Gargantua Singularity Header / Prompt above Black Hole */}
-          <div
-            className="absolute top-10 sm:top-14 z-20 flex flex-col items-center text-center px-6 pointer-events-none transition-all duration-300"
-            style={{
-              opacity: Math.max(0, 1 - contactProgress * 2.5),
-              transform: `translateY(${-contactProgress * 30}px)`
-            }}
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-300 text-xs font-mono mb-3 backdrop-blur-md shadow-lg shadow-purple-900/30">
+          <div className="relative z-20 flex flex-col items-center text-center px-6 max-w-2xl mx-auto mb-8 sm:mb-12 pointer-events-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-300 text-xs font-mono mb-4 backdrop-blur-md shadow-lg shadow-purple-900/30">
               <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
               <span>Gargantua Singularity • Horizon Boundary</span>
             </div>
 
-            <h2 className="text-xl sm:text-3xl font-bold text-white tracking-tight font-sans pointer-events-auto">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight font-sans">
               <a
                 href="mailto:debojitnath9674@gmail.com"
                 className="hover:text-purple-300 transition-colors inline-flex items-center gap-2 group"
               >
                 <span>debojitnath9674@gmail.com</span>
-                <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </a>
             </h2>
 
-            <p className="text-[11px] sm:text-xs text-slate-400 mt-1.5 font-mono max-w-md">
+            <p className="text-xs sm:text-sm text-slate-400 mt-2.5 font-mono max-w-md leading-relaxed">
               Open to graduate developer roles, software internships, and tech collaborations.
             </p>
 
-            <div className="mt-3.5 inline-flex items-center gap-2 text-xs font-mono text-purple-400/90 tracking-widest uppercase">
+            <button
+              onClick={() => {
+                if (blackHoleContainerRef.current) {
+                  lenis?.scrollTo(blackHoleContainerRef.current, { offset: 0, duration: 1.2 });
+                }
+              }}
+              className="mt-6 inline-flex items-center gap-2 text-xs font-mono text-purple-400 hover:text-purple-300 tracking-widest uppercase bg-purple-950/40 hover:bg-purple-900/50 px-4 py-2 rounded-full border border-purple-500/20 hover:border-purple-400/40 backdrop-blur-sm transition-all cursor-pointer"
+            >
               <span>Scroll towards Gargantua</span>
               <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
-            </div>
+            </button>
           </div>
 
-          {/* 3D Black Hole Background Canvas */}
-          <div className="absolute inset-0 z-10 w-full h-full">
+          {/* 3D Black Hole Background Canvas - Cleanly fitted below text */}
+          <div
+            ref={blackHoleContainerRef}
+            className="relative w-full h-screen z-10 overflow-hidden"
+          >
             <BlackHoleScene
               scrollProgress={scrollProgress}
               contactProgress={contactProgress}
