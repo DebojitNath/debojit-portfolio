@@ -33,7 +33,6 @@ export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [contactProgress, setContactProgress] = useState(0);
   const contactRef = useRef<HTMLElement>(null);
-  const blackHoleContainerRef = useRef<HTMLDivElement>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const lenis = useLenis();
   const lenisRef = useRef(lenis);
@@ -96,10 +95,9 @@ export default function App() {
     let touchStartY = 0;
 
     const checkIsAtBottom = () => {
-      const targetEl = blackHoleContainerRef.current || contactRef.current;
-      if (!targetEl) return false;
-      const rect = targetEl.getBoundingClientRect();
-      return rect.top <= 25 || (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 30);
+      if (!contactRef.current) return false;
+      const rect = contactRef.current.getBoundingClientRect();
+      return rect.top <= 25;
     };
 
     const onWheel = (e: WheelEvent) => {
@@ -204,7 +202,7 @@ export default function App() {
     contactProgressRef.current = 0;
     setContactProgress(0);
     if (lenis) {
-      lenis.scrollTo(targetId, { offset: targetId === '#contact' ? -40 : -80, duration: 1.8 });
+      lenis.scrollTo(targetId, { offset: targetId === '#contact' ? 0 : -80, duration: 1.8 });
     } else {
       const el = document.querySelector(targetId);
       el?.scrollIntoView({ behavior: 'smooth' });
@@ -819,14 +817,18 @@ export default function App() {
         <section
           id="contact"
           ref={contactRef}
-          className="relative min-h-[145vh] w-full flex flex-col items-center bg-transparent font-mono pt-20 sm:pt-28"
+          className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-between bg-transparent font-mono"
         >
           {/* Sleek Liquid Metal Pill Contact Dock */}
-          <div className="relative z-20 flex flex-col items-center justify-center px-4 w-full max-w-xl mx-auto mb-8 sm:mb-10 pointer-events-auto font-mono">
-            
+          <div
+            className="relative z-20 flex flex-col items-center justify-center px-4 w-full max-w-xl mx-auto pt-10 sm:pt-14 pointer-events-auto font-mono transition-opacity duration-300"
+            style={{
+              opacity: Math.max(0, 1 - contactProgress * 2.5),
+              transform: `translateY(${-contactProgress * 30}px)`
+            }}
+          >
             {/* Liquid Metal Capsule Dock */}
             <div className="inline-flex flex-wrap items-center justify-center gap-3 p-2 rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
-              
               {/* Email */}
               <a
                 href="mailto:debojitnath9674@gmail.com"
@@ -863,27 +865,11 @@ export default function App() {
                 <span className="group-hover:text-purple-200 transition-colors">GitHub</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </a>
-
             </div>
-
-            <button
-              onClick={() => {
-                if (blackHoleContainerRef.current) {
-                  lenis?.scrollTo(blackHoleContainerRef.current, { offset: 0, duration: 1.2 });
-                }
-              }}
-              className="mt-6 inline-flex items-center gap-2 text-xs font-mono text-purple-400 hover:text-purple-300 tracking-widest uppercase bg-purple-950/40 hover:bg-purple-900/50 px-4 py-2 rounded-full border border-purple-500/20 hover:border-purple-400/40 backdrop-blur-sm transition-all cursor-pointer"
-            >
-              <span>Scroll towards Gargantua</span>
-              <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
-            </button>
           </div>
 
-          {/* 3D Black Hole Background Canvas - Cleanly fitted below text */}
-          <div
-            ref={blackHoleContainerRef}
-            className="relative w-full h-screen z-10 overflow-hidden"
-          >
+          {/* 3D Black Hole Background Canvas - Static Fullscreen */}
+          <div className="absolute inset-0 z-10 w-full h-full">
             <BlackHoleScene
               scrollProgress={scrollProgress}
               contactProgress={contactProgress}
