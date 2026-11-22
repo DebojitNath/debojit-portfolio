@@ -841,7 +841,7 @@ export default function App() {
         <section
           id="contact"
           ref={contactRef}
-          className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-black font-mono"
+          className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-transparent font-mono"
         >
           {/* 3D Black Hole Background Canvas */}
           <div className="absolute inset-0 z-10 w-full h-full">

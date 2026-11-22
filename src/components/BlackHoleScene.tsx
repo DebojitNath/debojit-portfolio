@@ -203,16 +203,8 @@ export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleScenePr
   }
 
   return (
-    <div className="w-full h-full relative overflow-hidden flex items-center justify-center select-none bg-black">
-      {/* Radiant atmospheric accretion glow behind the 3D model */}
-      <div
-        className="absolute inset-0 pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(ellipse 65% 50% at 50% 60%, rgba(147, 51, 234, 0.22) 0%, rgba(56, 189, 248, 0.12) 35%, rgba(244, 63, 94, 0.06) 60%, transparent 85%)',
-        }}
-      />
-
-      {/* Interactive 3D Canvas — always rendered */}
+    <div className="w-full h-full relative overflow-hidden flex items-center justify-center select-none bg-transparent">
+      {/* Interactive 3D Canvas — transparent background showing starfield behind */}
       <div className="w-full h-full relative z-10">
         <BlackHoleErrorBoundary>
           <Canvas
