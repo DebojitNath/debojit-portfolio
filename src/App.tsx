@@ -224,7 +224,7 @@ export default function App() {
       {/* ========================================================= */}
       {world === 'focus' ? (
         /* THREE.JS INTERACTIVE COSMIC CANVAS (Deep 3D Starfield & Primary Amber Sun) */
-        <CosmicBackground scrollProgress={scrollProgress} mousePos={mousePos} />
+        <CosmicBackground scrollProgress={scrollProgress} contactProgress={contactProgress} mousePos={mousePos} />
       ) : (
         /* DRIFT WORLD: Uncanny Liminal Backrooms */
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">

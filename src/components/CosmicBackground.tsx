@@ -3,6 +3,7 @@ import * as THREE from 'three';
 
 interface CosmicBackgroundProps {
   scrollProgress: number; // 0 (top/hero) to 1 (bottom/contact)
+  contactProgress?: number; // 0 (initial size) to 1 (fully zoomed in black hole)
   mousePos: { x: number; y: number };
 }
 
@@ -31,14 +32,19 @@ function createCircleStarTexture(): THREE.Texture {
   return texture;
 }
 
-export default function CosmicBackground({ scrollProgress, mousePos }: CosmicBackgroundProps) {
+export default function CosmicBackground({ scrollProgress, contactProgress = 0, mousePos }: CosmicBackgroundProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef(scrollProgress);
+  const contactRef = useRef(contactProgress);
   const mouseRef = useRef(mousePos);
 
   useEffect(() => {
     scrollRef.current = scrollProgress;
   }, [scrollProgress]);
+
+  useEffect(() => {
+    contactRef.current = contactProgress;
+  }, [contactProgress]);
 
   useEffect(() => {
     mouseRef.current = mousePos;
@@ -116,6 +122,83 @@ export default function CosmicBackground({ scrollProgress, mousePos }: CosmicBac
       sizeAttenuation: true,
     });
 
+    // =========================================================
+    // GRAVITATIONAL LENSING SHADER (Bends background stars around black hole)
+    // =========================================================
+    const lensingUniforms = {
+      uLensingStrength: { value: 0 },
+      uLensingRadius: { value: 0.1 },
+    };
+
+    const attachLensingShader = (shader: { uniforms: Record<string, THREE.IUniform>; vertexShader: string; fragmentShader: string }) => {
+      shader.uniforms.uLensingStrength = lensingUniforms.uLensingStrength;
+      shader.uniforms.uLensingRadius = lensingUniforms.uLensingRadius;
+
+      shader.vertexShader =
+        'uniform float uLensingStrength;\nuniform float uLensingRadius;\nvarying float vLensingBoost;\n' +
+        shader.vertexShader;
+
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <project_vertex>',
+        `
+        vec4 mvPosition = vec4( transformed, 1.0 );
+        #ifdef USE_BATCHING
+          mvPosition = batchingMatrix * mvPosition;
+        #endif
+        #ifdef USE_INSTANCING
+          mvPosition = instanceMatrix * mvPosition;
+        #endif
+        mvPosition = modelViewMatrix * mvPosition;
+
+        // Gravitational lensing deflection around the black hole sphere
+        vLensingBoost = 0.0;
+        if (uLensingStrength > 0.001) {
+          float starDist = length(mvPosition.xy);
+          float shadowRadius = (-mvPosition.z) * uLensingRadius;
+
+          if (starDist > 0.001) {
+            vec2 radialDir = mvPosition.xy / starDist;
+            vec2 tangentDir = vec2(-radialDir.y, radialDir.x);
+
+            // Distance clamped so stars passing behind the horizon curve around the rim
+            float effectiveDist = max(starDist, shadowRadius * 0.85);
+            // General relativistic deflection falls off with distance
+            float deflection = (shadowRadius * shadowRadius) / (effectiveDist + shadowRadius * 0.32);
+
+            // Tangential curving around the perimeter + radial displacement away from singularity
+            vec2 curvedOffset = (radialDir * deflection * 1.15 + tangentDir * deflection * 0.48) * uLensingStrength;
+            mvPosition.xy += curvedOffset;
+
+            // Stars that bend around the event horizon flare up into luminous Einstein arcs
+            float proximity = 1.0 - smoothstep(shadowRadius * 0.85, shadowRadius * 2.5, starDist);
+            vLensingBoost = proximity * uLensingStrength;
+          }
+        }
+
+        gl_Position = projectionMatrix * mvPosition;
+        `
+      );
+
+      shader.vertexShader = shader.vertexShader.replace(
+        'gl_PointSize = size;',
+        'gl_PointSize = size * (1.0 + vLensingBoost * 2.2);'
+      );
+
+      shader.fragmentShader =
+        'varying float vLensingBoost;\n' + shader.fragmentShader;
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <color_fragment>',
+        `
+        #include <color_fragment>
+        // Relativistic blue-white stellar amplification along the Einstein ring
+        diffuseColor.rgb += vec3(0.25, 0.45, 0.95) * vLensingBoost * 0.65;
+        `
+      );
+    };
+
+    dustMat.onBeforeCompile = attachLensingShader;
+
     const dustPoints = new THREE.Points(dustGeo, dustMat);
     universeGroup.add(dustPoints);
 
@@ -152,6 +235,7 @@ export default function CosmicBackground({ scrollProgress, mousePos }: CosmicBac
       depthWrite: false,
       sizeAttenuation: true,
     });
+    radiantMat.onBeforeCompile = attachLensingShader;
 
     const radiantPoints = new THREE.Points(radiantGeo, radiantMat);
     universeGroup.add(radiantPoints);
@@ -165,11 +249,14 @@ export default function CosmicBackground({ scrollProgress, mousePos }: CosmicBac
     // --- ANIMATION LOOP ---
     let animationFrameId: number;
     const clock = new THREE.Clock();
+    let lensingStrength = 0;
+    let lensingRadius = 0.095;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
       const scroll = scrollRef.current;
+      const contact = contactRef.current || 0;
       const mouse = mouseRef.current;
 
       // 1. Dynamic Scroll-Based Star Count:
@@ -210,6 +297,19 @@ export default function CosmicBackground({ scrollProgress, mousePos }: CosmicBac
       camera.position.x += (mouse.x * 14 - camera.position.x) * 0.05;
       camera.position.y += (-mouse.y * 10 - camera.position.y) * 0.05;
       camera.lookAt(0, 0, -300);
+
+      // 4. Gravitational Lensing Parameter Updates
+      // Lensing strength ramps up as user approaches and engages with the black hole
+      const scrollFactor = Math.min(1, Math.max(0, (scroll - 0.72) / 0.24));
+      const targetStrength = Math.max(scrollFactor, contact > 0 ? 1.0 : 0);
+      lensingStrength += (targetStrength - lensingStrength) * 0.08;
+
+      // Event horizon lensing radius expands as black hole zooms in
+      const targetRadius = 0.095 * (1.0 + contact * 2.8);
+      lensingRadius += (targetRadius - lensingRadius) * 0.08;
+
+      lensingUniforms.uLensingStrength.value = lensingStrength;
+      lensingUniforms.uLensingRadius.value = lensingRadius;
 
       renderer.render(scene, camera);
     };
