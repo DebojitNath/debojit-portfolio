@@ -16,6 +16,7 @@ import {
   Linkedin,
   Mail,
   ArrowDown,
+  ArrowUp,
   Shield,
   Activity,
   Send,
@@ -819,16 +820,16 @@ export default function App() {
           ref={contactRef}
           className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-between bg-transparent font-mono"
         >
-          {/* Sleek Liquid Metal Pill Contact Dock */}
-          <div
-            className="relative z-20 flex flex-col items-center justify-center px-4 w-full max-w-xl mx-auto pt-10 sm:pt-14 pointer-events-auto font-mono transition-opacity duration-300"
-            style={{
-              opacity: Math.max(0, 1 - contactProgress * 2.5),
-              transform: `translateY(${-contactProgress * 30}px)`
-            }}
-          >
+          {/* Sleek Liquid Metal Pill Contact Dock & Gargantua Scroll Box */}
+          <div className="relative z-20 flex flex-col items-center justify-center px-4 w-full max-w-xl mx-auto pt-10 sm:pt-14 pointer-events-auto font-mono">
             {/* Liquid Metal Capsule Dock */}
-            <div className="inline-flex flex-wrap items-center justify-center gap-3 p-2 rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+            <div 
+              className="inline-flex flex-wrap items-center justify-center gap-3 p-2 rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] transition-opacity duration-300"
+              style={{
+                opacity: Math.max(0, 1 - contactProgress * 2.2),
+                pointerEvents: contactProgress > 0.4 ? 'none' : 'auto'
+              }}
+            >
               {/* Email */}
               <a
                 href="mailto:debojitnath9674@gmail.com"
@@ -865,6 +866,16 @@ export default function App() {
                 <span className="group-hover:text-purple-200 transition-colors">GitHub</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </a>
+            </div>
+
+            {/* Gargantua Scroll Prompt Box */}
+            <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-950/60 border border-purple-500/30 text-purple-300 text-xs font-mono backdrop-blur-md shadow-lg shadow-purple-950/50 select-none transition-all duration-300">
+              <span>{contactProgress > 0.2 ? 'Scroll up Gargantua' : 'Scroll towards Gargantua'}</span>
+              {contactProgress > 0.2 ? (
+                <ArrowUp className="w-3.5 h-3.5 animate-bounce text-purple-300" />
+              ) : (
+                <ArrowDown className="w-3.5 h-3.5 animate-bounce text-purple-400" />
+              )}
             </div>
           </div>
 
