@@ -18,6 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         smoothWheel: true,
         wheelMultiplier: 0.95,
         easing: easeOutExpo,
+        autoToggle: false, // Never hide or toggle root overflow style to prevent scrollbar disappearance
       }}
     >
       <App />

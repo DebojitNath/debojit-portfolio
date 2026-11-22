@@ -105,7 +105,6 @@ export default function App() {
         if (isAtBottom && contactProgressRef.current < 1) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          lenisRef.current?.stop();
           const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
           const next = Math.min(1, contactProgressRef.current + step);
           contactProgressRef.current = next;
@@ -116,19 +115,10 @@ export default function App() {
         if (isZoomed) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          lenisRef.current?.stop();
           const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
           const next = Math.max(0, contactProgressRef.current - step);
           contactProgressRef.current = next;
           setContactProgress(next);
-
-          // Once it has shrunk back to initial size, re-enable page scroll
-          if (next <= 0) {
-            lenisRef.current?.start();
-          }
-        } else {
-          // At initial size (0), allow normal upward page scrolling
-          lenisRef.current?.start();
         }
       }
     };
@@ -151,7 +141,6 @@ export default function App() {
         if (isAtBottom && contactProgressRef.current < 1) {
           if (e.cancelable) e.preventDefault();
           e.stopImmediatePropagation();
-          lenisRef.current?.stop();
           const step = Math.min(0.06, Math.max(0.01, deltaY * 0.002));
           const next = Math.min(1, contactProgressRef.current + step);
           contactProgressRef.current = next;
@@ -161,16 +150,10 @@ export default function App() {
         if (isZoomed) {
           if (e.cancelable) e.preventDefault();
           e.stopImmediatePropagation();
-          lenisRef.current?.stop();
           const step = Math.min(0.06, Math.max(0.01, Math.abs(deltaY) * 0.002));
           const next = Math.max(0, contactProgressRef.current - step);
           contactProgressRef.current = next;
           setContactProgress(next);
-          if (next <= 0) {
-            lenisRef.current?.start();
-          }
-        } else {
-          lenisRef.current?.start();
         }
       }
     };
@@ -185,7 +168,6 @@ export default function App() {
         if (isAtBottom && contactProgressRef.current < 1) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          lenisRef.current?.stop();
           const next = Math.min(1, contactProgressRef.current + 0.05);
           contactProgressRef.current = next;
           setContactProgress(next);
@@ -194,15 +176,9 @@ export default function App() {
         if (isZoomed) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          lenisRef.current?.stop();
           const next = Math.max(0, contactProgressRef.current - 0.05);
           contactProgressRef.current = next;
           setContactProgress(next);
-          if (next <= 0) {
-            lenisRef.current?.start();
-          }
-        } else {
-          lenisRef.current?.start();
         }
       }
     };
