@@ -821,84 +821,49 @@ export default function App() {
           ref={contactRef}
           className="relative min-h-[145vh] w-full flex flex-col items-center bg-transparent font-mono pt-20 sm:pt-28"
         >
-          {/* Sleek Glassmorphic Contact Box with Emojis */}
-          <div className="relative z-20 flex flex-col items-center text-center px-4 w-full max-w-xl mx-auto mb-8 sm:mb-12 pointer-events-auto font-mono">
+          {/* Sleek Liquid Metal Pill Contact Dock */}
+          <div className="relative z-20 flex flex-col items-center justify-center px-4 w-full max-w-xl mx-auto mb-8 sm:mb-10 pointer-events-auto font-mono">
             
-            <div className="w-full rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl p-6 sm:p-7 shadow-2xl shadow-purple-950/30 hover:border-purple-500/30 transition-all">
-              <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-5">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-base sm:text-lg">📡</span>
-                  <span className="text-xs sm:text-sm font-semibold tracking-wider uppercase text-white font-sans">
-                    Transmission & Uplinks
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Available for roles</span>
-                </div>
-              </div>
+            {/* Liquid Metal Capsule Dock */}
+            <div className="inline-flex flex-wrap items-center justify-center gap-3 p-2 rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+              
+              {/* Email */}
+              <a
+                href="mailto:debojitnath9674@gmail.com"
+                className="liquid-pill group"
+              >
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
+                <span className="text-base select-none">✉️</span>
+                <span className="group-hover:text-purple-200 transition-colors">Email</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </a>
 
-              <p className="text-xs text-slate-300/80 leading-relaxed text-left mb-5 font-mono">
-                Open to software engineering internships, graduate developer roles, and tech collaborations. Reach out via:
-              </p>
+              {/* LinkedIn */}
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="liquid-pill group"
+              >
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
+                <span className="text-base select-none">💼</span>
+                <span className="group-hover:text-purple-200 transition-colors">LinkedIn</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </a>
 
-              {/* Contact Links Grid with Emojis & Glass Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Email */}
-                <a
-                  href="mailto:debojitnath9674@gmail.com"
-                  className="group flex flex-col items-start p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-purple-500/30 transition-all text-left"
-                >
-                  <div className="flex items-center justify-between w-full mb-1.5">
-                    <span className="text-lg">✉️</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </div>
-                  <span className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors">
-                    Email
-                  </span>
-                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5" title="debojitnath9674@gmail.com">
-                    debojitnath9674
-                  </span>
-                </a>
+              {/* GitHub */}
+              <a
+                href="https://github.com/DebojitNath"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="liquid-pill group"
+              >
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
+                <span className="text-base select-none">💻</span>
+                <span className="group-hover:text-purple-200 transition-colors">GitHub</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </a>
 
-                {/* LinkedIn */}
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex flex-col items-start p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-purple-500/30 transition-all text-left"
-                >
-                  <div className="flex items-center justify-between w-full mb-1.5">
-                    <span className="text-lg">💼</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </div>
-                  <span className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors">
-                    LinkedIn
-                  </span>
-                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
-                    Connect Profile
-                  </span>
-                </a>
-
-                {/* GitHub */}
-                <a
-                  href="https://github.com/DebojitNath"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex flex-col items-start p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-purple-500/30 transition-all text-left"
-                >
-                  <div className="flex items-center justify-between w-full mb-1.5">
-                    <span className="text-lg">💻</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </div>
-                  <span className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors">
-                    GitHub
-                  </span>
-                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
-                    @DebojitNath
-                  </span>
-                </a>
-              </div>
             </div>
 
             <button
