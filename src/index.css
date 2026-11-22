@@ -6,9 +6,12 @@
   :root {
     color-scheme: dark;
   }
-  html, body {
+  html {
     overflow-x: hidden;
-    overflow-y: scroll !important;
+  }
+  body {
+    overflow-x: hidden;
+    overflow-y: visible;
     max-width: 100%;
     width: 100%;
   }
