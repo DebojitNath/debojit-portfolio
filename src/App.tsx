@@ -819,6 +819,39 @@ export default function App() {
           ref={contactRef}
           className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-transparent font-mono"
         >
+          {/* Gargantua Singularity Header / Prompt above Black Hole */}
+          <div
+            className="absolute top-10 sm:top-14 z-20 flex flex-col items-center text-center px-6 pointer-events-none transition-all duration-300"
+            style={{
+              opacity: Math.max(0, 1 - contactProgress * 2.5),
+              transform: `translateY(${-contactProgress * 30}px)`
+            }}
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-300 text-xs font-mono mb-3 backdrop-blur-md shadow-lg shadow-purple-900/30">
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+              <span>Gargantua Singularity • Horizon Boundary</span>
+            </div>
+
+            <h2 className="text-xl sm:text-3xl font-bold text-white tracking-tight font-sans pointer-events-auto">
+              <a
+                href="mailto:debojitnath9674@gmail.com"
+                className="hover:text-purple-300 transition-colors inline-flex items-center gap-2 group"
+              >
+                <span>debojitnath9674@gmail.com</span>
+                <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </a>
+            </h2>
+
+            <p className="text-[11px] sm:text-xs text-slate-400 mt-1.5 font-mono max-w-md">
+              Open to graduate developer roles, software internships, and tech collaborations.
+            </p>
+
+            <div className="mt-3.5 inline-flex items-center gap-2 text-xs font-mono text-purple-400/90 tracking-widest uppercase">
+              <span>Scroll towards Gargantua</span>
+              <ArrowDown className="w-3.5 h-3.5 animate-bounce" />
+            </div>
+          </div>
+
           {/* 3D Black Hole Background Canvas */}
           <div className="absolute inset-0 z-10 w-full h-full">
             <BlackHoleScene
