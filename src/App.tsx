@@ -836,7 +836,7 @@ export default function App() {
                 className="liquid-pill group"
               >
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
-                <span className="text-base select-none">✉️</span>
+                <Mail className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
                 <span className="group-hover:text-purple-200 transition-colors">Email</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </a>
@@ -849,7 +849,7 @@ export default function App() {
                 className="liquid-pill group"
               >
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
-                <span className="text-base select-none">💼</span>
+                <Linkedin className="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform" />
                 <span className="group-hover:text-purple-200 transition-colors">LinkedIn</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </a>
@@ -862,7 +862,7 @@ export default function App() {
                 className="liquid-pill group"
               >
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
-                <span className="text-base select-none">💻</span>
+                <Github className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
                 <span className="group-hover:text-purple-200 transition-colors">GitHub</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </a>
