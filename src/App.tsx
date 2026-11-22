@@ -35,6 +35,10 @@ export default function App() {
   const contactRef = useRef<HTMLElement>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const lenis = useLenis();
+  const lenisRef = useRef(lenis);
+  useEffect(() => {
+    lenisRef.current = lenis;
+  }, [lenis]);
 
   // Disable smooth scroll during loading screen and ensure page stays pinned to top
   useEffect(() => {
@@ -85,34 +89,46 @@ export default function App() {
   // When user reaches the black hole section at the bottom of the page,
   // the page stays in a static position (no extra space below), and
   // scrolling down directly controls the black hole growth and tilt.
+  // Scrolling up reverses the animation completely until default size,
+  // then seamlessly allows normal upward page scrolling.
   useEffect(() => {
     let touchStartY = 0;
 
     const onWheel = (e: WheelEvent) => {
       if (!contactRef.current) return;
       const rect = contactRef.current.getBoundingClientRect();
-      // When the black hole is in static position occupying the screen
-      const isInView = rect.top <= 15;
+      const isAtBottom = rect.top <= 25;
+      const isZoomed = contactProgressRef.current > 0;
 
-      if (isInView) {
-        if (e.deltaY > 0) {
-          // Scrolling DOWN: increase size and advance transition
-          if (contactProgressRef.current < 1) {
-            e.preventDefault();
-            const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
-            const next = Math.min(1, contactProgressRef.current + step);
-            contactProgressRef.current = next;
-            setContactProgress(next);
+      if (e.deltaY > 0) {
+        // Scrolling DOWN
+        if (isAtBottom && contactProgressRef.current < 1) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          lenisRef.current?.stop();
+          const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
+          const next = Math.min(1, contactProgressRef.current + step);
+          contactProgressRef.current = next;
+          setContactProgress(next);
+        }
+      } else if (e.deltaY < 0) {
+        // Scrolling UP: while zoomed in, keep black hole locked in place and reverse animation
+        if (isZoomed) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          lenisRef.current?.stop();
+          const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
+          const next = Math.max(0, contactProgressRef.current - step);
+          contactProgressRef.current = next;
+          setContactProgress(next);
+
+          // Once it has shrunk back to initial size, re-enable page scroll
+          if (next <= 0) {
+            lenisRef.current?.start();
           }
-        } else if (e.deltaY < 0) {
-          // Scrolling UP: decrease size back towards initial
-          if (contactProgressRef.current > 0) {
-            e.preventDefault();
-            const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
-            const next = Math.max(0, contactProgressRef.current - step);
-            contactProgressRef.current = next;
-            setContactProgress(next);
-          }
+        } else {
+          // At initial size (0), allow normal upward page scrolling
+          lenisRef.current?.start();
         }
       }
     };
@@ -124,68 +140,93 @@ export default function App() {
     const onTouchMove = (e: TouchEvent) => {
       if (!contactRef.current) return;
       const rect = contactRef.current.getBoundingClientRect();
-      const isInView = rect.top <= 15;
-      if (!isInView) return;
+      const isAtBottom = rect.top <= 25;
+      const isZoomed = contactProgressRef.current > 0;
 
       const touchY = e.touches[0].clientY;
       const deltaY = touchStartY - touchY; // positive = swipe up = scroll down
       touchStartY = touchY;
 
-      if (deltaY > 0 && contactProgressRef.current < 1) {
-        if (e.cancelable) e.preventDefault();
-        const step = Math.min(0.06, Math.max(0.01, deltaY * 0.002));
-        const next = Math.min(1, contactProgressRef.current + step);
-        contactProgressRef.current = next;
-        setContactProgress(next);
-      } else if (deltaY < 0 && contactProgressRef.current > 0) {
-        if (e.cancelable) e.preventDefault();
-        const step = Math.min(0.06, Math.max(0.01, Math.abs(deltaY) * 0.002));
-        const next = Math.max(0, contactProgressRef.current - step);
-        contactProgressRef.current = next;
-        setContactProgress(next);
+      if (deltaY > 0) {
+        if (isAtBottom && contactProgressRef.current < 1) {
+          if (e.cancelable) e.preventDefault();
+          e.stopImmediatePropagation();
+          lenisRef.current?.stop();
+          const step = Math.min(0.06, Math.max(0.01, deltaY * 0.002));
+          const next = Math.min(1, contactProgressRef.current + step);
+          contactProgressRef.current = next;
+          setContactProgress(next);
+        }
+      } else if (deltaY < 0) {
+        if (isZoomed) {
+          if (e.cancelable) e.preventDefault();
+          e.stopImmediatePropagation();
+          lenisRef.current?.stop();
+          const step = Math.min(0.06, Math.max(0.01, Math.abs(deltaY) * 0.002));
+          const next = Math.max(0, contactProgressRef.current - step);
+          contactProgressRef.current = next;
+          setContactProgress(next);
+          if (next <= 0) {
+            lenisRef.current?.start();
+          }
+        } else {
+          lenisRef.current?.start();
+        }
       }
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (!contactRef.current) return;
       const rect = contactRef.current.getBoundingClientRect();
-      const isInView = rect.top <= 15;
-      if (!isInView) return;
+      const isAtBottom = rect.top <= 25;
+      const isZoomed = contactProgressRef.current > 0;
 
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-        if (contactProgressRef.current < 1) {
+        if (isAtBottom && contactProgressRef.current < 1) {
           e.preventDefault();
+          e.stopImmediatePropagation();
+          lenisRef.current?.stop();
           const next = Math.min(1, contactProgressRef.current + 0.05);
           contactProgressRef.current = next;
           setContactProgress(next);
         }
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        if (contactProgressRef.current > 0) {
+        if (isZoomed) {
           e.preventDefault();
+          e.stopImmediatePropagation();
+          lenisRef.current?.stop();
           const next = Math.max(0, contactProgressRef.current - 0.05);
           contactProgressRef.current = next;
           setContactProgress(next);
+          if (next <= 0) {
+            lenisRef.current?.start();
+          }
+        } else {
+          lenisRef.current?.start();
         }
       }
     };
 
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: false });
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('wheel', onWheel, { passive: false, capture: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: true, capture: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+    window.addEventListener('keydown', onKeyDown, { capture: true });
 
     return () => {
-      window.removeEventListener('wheel', onWheel);
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('wheel', onWheel, { capture: true });
+      window.removeEventListener('touchstart', onTouchStart, { capture: true });
+      window.removeEventListener('touchmove', onTouchMove, { capture: true });
+      window.removeEventListener('keydown', onKeyDown, { capture: true });
     };
   }, []);
 
   // Butter-smooth section scroll
   const scrollTo = (targetId: string) => {
+    lenisRef.current?.start();
+    contactProgressRef.current = 0;
+    setContactProgress(0);
     if (lenis) {
-      lenis.scrollTo(targetId, { offset: -80, duration: 1.8 });
+      lenis.scrollTo(targetId, { offset: targetId === '#contact' ? 0 : -80, duration: 1.8 });
     } else {
       const el = document.querySelector(targetId);
       el?.scrollIntoView({ behavior: 'smooth' });
