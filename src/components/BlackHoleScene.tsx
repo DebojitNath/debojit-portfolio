@@ -149,7 +149,10 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     const currentScale = modelGroup.scale.x || 1.0;
     const nextScale = THREE.MathUtils.damp(currentScale, growth, 2.6, delta);
     modelGroup.scale.setScalar(nextScale);
-    g.position.set(0, 0, 0); // Locked dead center in the middle of screen
+    // Resting position is lowered (-0.55) to provide clear space below the contact dock & scroll box
+    // When zooming in, smoothly centers towards 0
+    const targetY = THREE.MathUtils.lerp(-0.55, 0, THREE.MathUtils.clamp(p * 2.5, 0, 1));
+    g.position.set(0, targetY, 0);
 
     // ---- CAMERA: fully fixed, dead center ----
     // Eye level at y = 0 looking straight at (0, 0, 0)
