@@ -821,26 +821,85 @@ export default function App() {
           ref={contactRef}
           className="relative min-h-[145vh] w-full flex flex-col items-center bg-transparent font-mono pt-20 sm:pt-28"
         >
-          {/* Gargantua Singularity Header / Prompt above Black Hole */}
-          <div className="relative z-20 flex flex-col items-center text-center px-6 max-w-2xl mx-auto mb-8 sm:mb-12 pointer-events-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-300 text-xs font-mono mb-4 backdrop-blur-md shadow-lg shadow-purple-900/30">
-              <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-              <span>Gargantua Singularity • Horizon Boundary</span>
+          {/* Sleek Glassmorphic Contact Box with Emojis */}
+          <div className="relative z-20 flex flex-col items-center text-center px-4 w-full max-w-xl mx-auto mb-8 sm:mb-12 pointer-events-auto font-mono">
+            
+            <div className="w-full rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl p-6 sm:p-7 shadow-2xl shadow-purple-950/30 hover:border-purple-500/30 transition-all">
+              <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-5">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base sm:text-lg">📡</span>
+                  <span className="text-xs sm:text-sm font-semibold tracking-wider uppercase text-white font-sans">
+                    Transmission & Uplinks
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Available for roles</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-300/80 leading-relaxed text-left mb-5 font-mono">
+                Open to software engineering internships, graduate developer roles, and tech collaborations. Reach out via:
+              </p>
+
+              {/* Contact Links Grid with Emojis & Glass Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Email */}
+                <a
+                  href="mailto:debojitnath9674@gmail.com"
+                  className="group flex flex-col items-start p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-purple-500/30 transition-all text-left"
+                >
+                  <div className="flex items-center justify-between w-full mb-1.5">
+                    <span className="text-lg">✉️</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
+                  <span className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors">
+                    Email
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5" title="debojitnath9674@gmail.com">
+                    debojitnath9674
+                  </span>
+                </a>
+
+                {/* LinkedIn */}
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex flex-col items-start p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-purple-500/30 transition-all text-left"
+                >
+                  <div className="flex items-center justify-between w-full mb-1.5">
+                    <span className="text-lg">💼</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
+                  <span className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors">
+                    LinkedIn
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                    Connect Profile
+                  </span>
+                </a>
+
+                {/* GitHub */}
+                <a
+                  href="https://github.com/DebojitNath"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex flex-col items-start p-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-purple-500/30 transition-all text-left"
+                >
+                  <div className="flex items-center justify-between w-full mb-1.5">
+                    <span className="text-lg">💻</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
+                  <span className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors">
+                    GitHub
+                  </span>
+                  <span className="text-[10px] text-slate-400 truncate w-full mt-0.5">
+                    @DebojitNath
+                  </span>
+                </a>
+              </div>
             </div>
-
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight font-sans">
-              <a
-                href="mailto:debojitnath9674@gmail.com"
-                className="hover:text-purple-300 transition-colors inline-flex items-center gap-2 group"
-              >
-                <span>debojitnath9674@gmail.com</span>
-                <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </a>
-            </h2>
-
-            <p className="text-xs sm:text-sm text-slate-400 mt-2.5 font-mono max-w-md leading-relaxed">
-              Open to graduate developer roles, software internships, and tech collaborations.
-            </p>
 
             <button
               onClick={() => {
