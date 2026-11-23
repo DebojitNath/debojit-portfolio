@@ -4,8 +4,8 @@ import { Environment, Float, useGLTF, useAnimations } from "@react-three/drei";
 import * as THREE from "three";
 
 const MODEL_URL = "/models/astronaut.glb";
-// Scaled so the 3D astronaut is bold, prominent, detailed, and cinematic
-const TARGET_HEIGHT = 3.5;
+// Scaled so the 3D astronaut fits comfortably in the scene
+const TARGET_HEIGHT = 2.0;
 // Exact user pose: Head in South-West (bottom-left), Legs in North-East (top-right), Back pointing below/down
 const BASE_ROTATION: [number, number, number] = [
   (-60 * Math.PI) / 180,    // X: Back pointing below/down, chest facing up toward viewer
