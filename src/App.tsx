@@ -6,6 +6,7 @@ import FloatingAstronaut from './components/FloatingAstronaut';
 import WebGLLines from './components/WebGLLines';
 import WebGLHalftone from './components/WebGLHalftone';
 import BlackHoleScene from './components/BlackHoleScene';
+import EnduranceScene from './components/EnduranceScene';
 import { FlipWords } from './components/ui/flip-words';
 import { activeHeroCopy } from './content/heroCopy';
 import {
@@ -789,41 +790,49 @@ export default function App() {
             </p>
           </div>
 
-          <div className="space-y-8 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-gradient-to-b before:from-orange-500 before:via-purple-500 before:to-transparent">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 xl:gap-16 items-center">
+            {/* Left Column: Timeline */}
+            <div className="lg:col-span-7 xl:col-span-7 space-y-8 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-gradient-to-b before:from-orange-500 before:via-purple-500 before:to-transparent">
 
-            <div className="relative pl-12 group">
-              <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-orange-400 ring-4 ring-orange-500/20 group-hover:scale-125 transition-transform" />
-              <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-orange-500/30 transition-all font-sans">
-                <span className="text-xs font-mono text-orange-400 block mb-1">Aug 2026 • Hackathon Win</span>
-                <h3 className="text-xl font-bold text-white">1st Place — U.S. Consulate AI Business Hackathon</h3>
-                <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
-                  Led a 3-member team to 1st place in an AI business hackathon, securing approval to advance the project to product development.
-                </p>
+              <div className="relative pl-12 group">
+                <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-orange-400 ring-4 ring-orange-500/20 group-hover:scale-125 transition-transform" />
+                <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-orange-500/30 transition-all font-sans">
+                  <span className="text-xs font-mono text-orange-400 block mb-1">Aug 2026 • Hackathon Win</span>
+                  <h3 className="text-xl font-bold text-white">1st Place — U.S. Consulate AI Business Hackathon</h3>
+                  <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
+                    Led a 3-member team to 1st place in an AI business hackathon, securing approval to advance the project to product development.
+                  </p>
+                </div>
               </div>
+
+              <div className="relative pl-12 group">
+                <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-purple-400 ring-4 ring-purple-500/20 group-hover:scale-125 transition-transform" />
+                <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-purple-500/30 transition-all font-sans">
+                  <span className="text-xs font-mono text-purple-400 block mb-1">Oct 2025 • Oracle Certifications</span>
+                  <h3 className="text-xl font-bold text-white">Data Science Professional & AI Foundations Associate</h3>
+                  <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
+                    Practiced end-to-end ML workflows on OCI (data prep, model training/evaluation, AutoML, basic MLOps) and Generative AI fundamentals.
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative pl-12 group">
+                <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-teal-400 ring-4 ring-teal-500/20 group-hover:scale-125 transition-transform" />
+                <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-teal-500/30 transition-all font-sans">
+                  <span className="text-xs font-mono text-teal-400 block mb-1">Aug 2023 – July 2027 • Academic Foundation</span>
+                  <h3 className="text-xl font-bold text-white">B.Tech in Computer Science Engineering (Class of 2027)</h3>
+                  <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
+                    RCC Institute of Information Technology, Kolkata. Core coursework in Data Structures & Algorithms, Database Management Systems, and Object-Oriented Programming.
+                  </p>
+                </div>
+              </div>
+
             </div>
 
-            <div className="relative pl-12 group">
-              <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-purple-400 ring-4 ring-purple-500/20 group-hover:scale-125 transition-transform" />
-              <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-purple-500/30 transition-all font-sans">
-                <span className="text-xs font-mono text-purple-400 block mb-1">Oct 2025 • Oracle Certifications</span>
-                <h3 className="text-xl font-bold text-white">Data Science Professional & AI Foundations Associate</h3>
-                <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
-                  Practiced end-to-end ML workflows on OCI (data prep, model training/evaluation, AutoML, basic MLOps) and Generative AI fundamentals.
-                </p>
-              </div>
+            {/* Right Column: 3D Interstellar Endurance Spacecraft */}
+            <div className="lg:col-span-5 xl:col-span-5 relative w-full h-[380px] sm:h-[460px] lg:h-[540px] flex items-center justify-center">
+              <EnduranceScene />
             </div>
-
-            <div className="relative pl-12 group">
-              <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-teal-400 ring-4 ring-teal-500/20 group-hover:scale-125 transition-transform" />
-              <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-teal-500/30 transition-all font-sans">
-                <span className="text-xs font-mono text-teal-400 block mb-1">Aug 2023 – July 2027 • Academic Foundation</span>
-                <h3 className="text-xl font-bold text-white">B.Tech in Computer Science Engineering (Class of 2027)</h3>
-                <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
-                  RCC Institute of Information Technology, Kolkata. Core coursework in Data Structures & Algorithms, Database Management Systems, and Object-Oriented Programming.
-                </p>
-              </div>
-            </div>
-
           </div>
         </section>
 
