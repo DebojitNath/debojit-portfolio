@@ -7,7 +7,7 @@ import WebGLLines from './components/WebGLLines';
 import WebGLHalftone from './components/WebGLHalftone';
 import BlackHoleScene from './components/BlackHoleScene';
 import EnduranceScene from './components/EnduranceScene';
-import { FocusCards } from './components/ui/focus-cards';
+import { JourneyTimeline, JourneyMilestone } from './components/ui/journey-timeline';
 import { FlipWords } from './components/ui/flip-words';
 import { activeHeroCopy } from './content/heroCopy';
 import {
@@ -44,32 +44,67 @@ export default function App() {
     lenisRef.current = lenis;
   }, [lenis]);
 
-  // Meaningful photographic proof & certified credentials for Journey FocusCards
-  const journeyFocusCards = [
+  // Chronological Journey Milestones with integrated photo slides and Focus effect
+  const journeyMilestones: JourneyMilestone[] = [
     {
-      title: "1st Place Trophy — U.S. Consulate Hackathon",
-      subtitle: "Aug 2026 • Kolkata",
-      src: "/images/us-consulate2.png",
+      id: 'hackathon-us-consulate',
+      date: 'Aug 2026',
+      category: 'Hackathon Win',
+      accent: 'orange',
+      title: '1st Place — U.S. Consulate AI Business Hackathon',
+      description:
+        'Led a 3-member team to 1st place in an AI business hackathon, securing official commendation and approval to advance the project to product development.',
+      images: [
+        {
+          src: '/images/us-consulate2.png',
+          caption: '1st Place Trophy & Team Presentation',
+        },
+        {
+          src: '/images/us-consulate1.png',
+          caption: 'Project Pitch to the Judges & Consulate Panel',
+        },
+        {
+          src: '/images/us-consulate3.png',
+          caption: 'Official Consulate Commendation & Award Ceremony',
+        },
+      ],
     },
     {
-      title: "Project Pitch & Presentation",
-      subtitle: "U.S. Consulate AI Business Hackathon",
-      src: "/images/us-consulate1.png",
+      id: 'oracle-certifications',
+      date: 'Oct 2025',
+      category: 'Oracle Certifications',
+      accent: 'purple',
+      title: 'Data Science Professional & AI Foundations Associate',
+      description:
+        'Practiced end-to-end ML workflows on OCI (data prep, model training/evaluation, AutoML, basic MLOps) and Generative AI fundamentals.',
+      images: [
+        {
+          src: '/images/oracle-cert-ai-foundation.png',
+          caption: 'Oracle Cloud Infrastructure 2025 Certified AI Foundations Associate',
+        },
+        {
+          src: '/images/oracle-cert-data-science.png',
+          caption: 'Oracle Cloud Infrastructure 2025 Certified Data Science Professional',
+        },
+      ],
     },
     {
-      title: "Official Award Ceremony & Commendation",
-      subtitle: "American Center • Consulate General",
-      src: "/images/us-consulate3.png",
+      id: 'open-source-contributions',
+      date: '2025',
+      category: 'Open Source',
+      accent: 'cyan',
+      title: 'Open-Source Contributions & Tooling',
+      description:
+        'Contributed bug fixes, documentation improvements, and performance enhancements across open-source Python, NLP, and machine learning repositories on GitHub.',
     },
     {
-      title: "Oracle Certified AI Foundations Associate",
-      subtitle: "Oct 2025 • OCI Certification",
-      src: "/images/oracle-cert-ai-foundation.png",
-    },
-    {
-      title: "Oracle Certified Data Science Professional",
-      subtitle: "Oct 2025 • OCI Certification",
-      src: "/images/oracle-cert-data-science.png",
+      id: 'academic-foundation',
+      date: 'Aug 2023 – July 2027',
+      category: 'Academic Foundation',
+      accent: 'teal',
+      title: 'B.Tech in Computer Science Engineering (Class of 2027)',
+      description:
+        'RCC Institute of Information Technology, Kolkata. Core coursework in Data Structures & Algorithms, Database Management Systems, and Object-Oriented Programming.',
     },
   ];
 
@@ -821,74 +856,15 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 xl:gap-16 items-center">
-            {/* Left Column: Timeline */}
-            <div className="lg:col-span-7 xl:col-span-7 space-y-8 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-gradient-to-b before:from-orange-500 before:via-purple-500 before:to-transparent">
-
-              <div className="relative pl-12 group">
-                <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-orange-400 ring-4 ring-orange-500/20 group-hover:scale-125 transition-transform" />
-                <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-orange-500/30 transition-all font-sans">
-                  <span className="text-xs font-mono text-orange-400 block mb-1">Aug 2026 • Hackathon Win</span>
-                  <h3 className="text-xl font-bold text-white">1st Place — U.S. Consulate AI Business Hackathon</h3>
-                  <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
-                    Led a 3-member team to 1st place in an AI business hackathon, securing approval to advance the project to product development.
-                  </p>
-                </div>
-              </div>
-
-              <div className="relative pl-12 group">
-                <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-purple-400 ring-4 ring-purple-500/20 group-hover:scale-125 transition-transform" />
-                <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-purple-500/30 transition-all font-sans">
-                  <span className="text-xs font-mono text-purple-400 block mb-1">Oct 2025 • Oracle Certifications</span>
-                  <h3 className="text-xl font-bold text-white">Data Science Professional & AI Foundations Associate</h3>
-                  <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
-                    Practiced end-to-end ML workflows on OCI (data prep, model training/evaluation, AutoML, basic MLOps) and Generative AI fundamentals.
-                  </p>
-                </div>
-              </div>
-
-              <div className="relative pl-12 group">
-                <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-cyan-400 ring-4 ring-cyan-500/20 group-hover:scale-125 transition-transform" />
-                <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-cyan-500/30 transition-all font-sans">
-                  <span className="text-xs font-mono text-cyan-400 block mb-1">2025 • Open Source</span>
-                  <h3 className="text-xl font-bold text-white">Open-Source Contributions & Tooling</h3>
-                  <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
-                    Contributed bug fixes, documentation improvements, and performance enhancements across open-source Python, NLP, and machine learning repositories on GitHub.
-                  </p>
-                </div>
-              </div>
-
-              <div className="relative pl-12 group">
-                <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-teal-400 ring-4 ring-teal-500/20 group-hover:scale-125 transition-transform" />
-                <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-teal-500/30 transition-all font-sans">
-                  <span className="text-xs font-mono text-teal-400 block mb-1">Aug 2023 – July 2027 • Academic Foundation</span>
-                  <h3 className="text-xl font-bold text-white">B.Tech in Computer Science Engineering (Class of 2027)</h3>
-                  <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
-                    RCC Institute of Information Technology, Kolkata. Core coursework in Data Structures & Algorithms, Database Management Systems, and Object-Oriented Programming.
-                  </p>
-                </div>
-              </div>
-
+            {/* Left Column: Timeline with Focus Cards and Category Photo Slider */}
+            <div className="lg:col-span-7 xl:col-span-7">
+              <JourneyTimeline milestones={journeyMilestones} />
             </div>
 
             {/* Right Column: 3D Interstellar Endurance Spacecraft */}
             <div className="lg:col-span-5 xl:col-span-5 relative w-full h-[380px] sm:h-[460px] lg:h-[540px] flex items-center justify-center">
               <EnduranceScene />
             </div>
-          </div>
-
-          {/* Interactive Proof & Credentials Gallery (Aceternity UI FocusCards) */}
-          <div className="mt-20 pt-16 border-t border-white/10">
-            <div className="max-w-2xl mb-10">
-              <span className="text-xs font-mono uppercase tracking-widest text-orange-400">04 / Verification</span>
-              <h3 className="text-2xl sm:text-4xl font-bold tracking-tight mt-1 text-white font-sans">
-                Proof of Work & Credentials
-              </h3>
-              <p className="text-sm font-mono text-slate-400 mt-2">
-                Real evidence from the U.S. Consulate AI Business Hackathon and verified Oracle Cloud certifications. Hover to focus, click to open full-screen view.
-              </p>
-            </div>
-
-            <FocusCards cards={journeyFocusCards} />
           </div>
         </section>
 

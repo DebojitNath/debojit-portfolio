@@ -148,3 +148,4 @@ export function FocusCards({ cards }: { cards: CardType[] }) {
   );
 }
 export default FocusCards;
+
