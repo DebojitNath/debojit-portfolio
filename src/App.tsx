@@ -71,9 +71,9 @@ export default function App() {
   // 1. Initial Landing Page Spread (Y offset in px when at top of page)
   //    Higher number = sits lower down on the screen.
   const MOUNTAIN_SPREAD = {
-    layer3: 80, // Background horizon (spread lowest)
-    layer2: 40,  // Midground ridges
-    layer1: 0,  // Foreground rocks
+    layer3: 50, // Background horizon (spread lowest)
+    layer2: 15,  // Midground ridges
+    layer1: -30,  // Foreground rocks
   };
 
   // 2. Scroll Convergence (how fast they sink and hide behind each other on scroll)
@@ -387,9 +387,9 @@ export default function App() {
                   willChange: 'opacity'
                 }}
               >
-                {/* COLOSSAL CELESTIAL PLANET (Shifted slightly right for optimal composition) */}
+                {/* COLOSSAL CELESTIAL PLANET (Shifted slightly upward & right for optimal composition) */}
                 <div
-                  className="absolute top-[-2%] sm:top-[-4%] md:top-[-6%] left-[2%] sm:left-[5%] md:left-[7%] w-[850px] sm:w-[1150px] md:w-[1450px] lg:w-[1650px] xl:w-[1800px] pointer-events-none transition-transform duration-500 ease-out"
+                  className="absolute top-[-5%] sm:top-[-7%] md:top-[-10%] left-[2%] sm:left-[5%] md:left-[7%] w-[850px] sm:w-[1150px] md:w-[1450px] lg:w-[1650px] xl:w-[1800px] pointer-events-none transition-transform duration-500 ease-out"
                   style={{
                     transform: `translate(${mousePos.x * 14}px, ${mousePos.y * 10}px)`
                   }}
@@ -561,7 +561,7 @@ export default function App() {
         {/* GRADIENT BEDROCK: Overlaps the bottom of mountain PNGs so the cut line is completely eliminated */}
         {world === 'focus' && (
           <div
-            className="w-full h-40 sm:h-48 md:h-56 relative z-20 pointer-events-none -mt-16 sm:-mt-20 md:-mt-24"
+            className="w-full h-44 sm:h-52 md:h-60 relative z-20 pointer-events-none -mt-20 sm:-mt-24 md:-mt-28"
             style={{
               background: 'linear-gradient(to bottom, transparent 0%, #000000 28%, #000000 78%, transparent 100%)'
             }}
