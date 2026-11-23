@@ -624,7 +624,7 @@ export default function App() {
                 <Compass className="w-8 h-8 text-amber-300 mb-4" />
                 <h3 className="text-lg font-bold text-white">Certifications & Interests</h3>
                 <p className="text-xs text-slate-300/80 mt-2 leading-relaxed font-mono">
-                  Oracle Data Science Professional & AI Foundations Associate (Oct 2025). AI/ML research, gaming, and chess.
+                  Oracle Data Science Professional & AI Foundations Associate (Oct 2025). AI/ML research, gaming, and open-source contribution.
                 </p>
               </div>
             </div>

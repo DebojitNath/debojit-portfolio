@@ -33,14 +33,14 @@ export const HERO_COPY_SETS: Record<HeroCopyKey, HeroCopySet> = {
       "CS student",
       "hackathon winner",
       "open-source contributor",
-      "chess player",
+      "Valorant player",
       "competitive gamer"
     ],
     lastLine: "from Kolkata.",
     paragraph:
       "I led a team of three to 1st place at a U.S. Consulate hackathon. I build projects in AI, NLP and distributed systems, mostly in Python.",
     srText:
-      "Hi, I'm Debojit. I'm a CS student, hackathon winner, open-source contributor, chess player and competitive gamer from Kolkata."
+      "Hi, I'm Debojit. I'm a CS student, hackathon winner, open-source contributor, Valorant player and competitive gamer from Kolkata."
   },
   C: {
     line1: "Hi, I'm Debojit",
@@ -67,3 +67,4 @@ export const HERO_COPY_SETS: Record<HeroCopyKey, HeroCopySet> = {
 export const ACTIVE_HERO_COPY_SET: HeroCopyKey = 'B';
 
 export const activeHeroCopy: HeroCopySet = HERO_COPY_SETS[ACTIVE_HERO_COPY_SET];
+
