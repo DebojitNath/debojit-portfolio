@@ -569,7 +569,7 @@ export default function App() {
               <div className="mt-8 flex flex-col gap-3 font-mono text-xs text-slate-400">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>B.Tech CSE, RCC Institute of Information Technology (Class of 2027)</span>
+                  <span>B.Tech CSE, RCC Institute of Information Technology (2023 - 2027)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
