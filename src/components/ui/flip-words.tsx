@@ -214,7 +214,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
         ))}
       </span>
 
-      {/* Futuristic Cosmic Glass Capsule (Replaces plain static white block) */}
+      {/* Futuristic Cosmic Glass Capsule (High-Contrast Obsidian Frosted Glass) */}
       <span
         tabIndex={0}
         role="button"
@@ -223,7 +223,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
         onMouseLeave={() => setIsHovered(false)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className={`group relative inline-flex items-center justify-center h-full rounded-2xl backdrop-blur-2xl bg-white/[0.09] hover:bg-white/[0.14] border border-white/20 hover:border-white/35 border-t-white/40 shadow-[0_8px_32px_0_rgba(168,85,247,0.28),inset_0_1px_1px_0_rgba(255,255,255,0.45)] text-white font-extrabold tracking-tight transform hover:scale-[1.015] hover:-rotate-0.5 transition-all duration-500 ease-out cursor-default select-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-[#030308] ${className}`}
+        className={`group relative inline-flex items-center justify-center h-full rounded-2xl backdrop-blur-3xl bg-black/65 hover:bg-black/75 border border-white/25 hover:border-white/40 border-t-white/40 shadow-[0_12px_40px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.3)] text-white font-extrabold tracking-tight transform hover:scale-[1.015] hover:-rotate-0.5 transition-all duration-500 ease-out cursor-default select-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-[#030308] ${className}`}
         style={{
           width: currentWordWidth ? `${currentWordWidth}px` : 'auto',
           transitionProperty: 'width, transform, background-color, border-color, box-shadow',
@@ -232,15 +232,15 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
         }}
       >
         {/* Ambient Cosmic Aura Glow behind the glass capsule */}
-        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-orange-500/20 via-purple-500/30 to-teal-400/20 blur-xl opacity-75 group-hover:opacity-100 transition-opacity -z-10 pointer-events-none" />
+        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-orange-500/25 via-purple-500/35 to-cyan-400/25 blur-xl opacity-80 group-hover:opacity-100 transition-opacity -z-10 pointer-events-none" />
 
         {/* Top Gloss Reflection for real glass depth */}
-        <div className="absolute inset-x-0 top-0 h-[45%] rounded-t-2xl bg-gradient-to-b from-white/15 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-[45%] rounded-t-2xl bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
 
         {/* Dynamic Glass Shimmer Light Sweep on each word change */}
         {isFlipping && (
           <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none z-10">
-            <div className="w-1/2 h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[glassShimmerSweep_0.65s_cubic-bezier(0.16,1,0.3,1)_forwards]" />
+            <div className="w-1/2 h-full bg-gradient-to-r from-transparent via-white/35 to-transparent animate-[glassShimmerSweep_0.65s_cubic-bezier(0.16,1,0.3,1)_forwards]" />
           </div>
         )}
 
@@ -254,11 +254,11 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
 
         {/* Word Container */}
         {prefersReducedMotion ? (
-          <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.35)] leading-none">
+          <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] leading-none">
             {words[0]}
           </span>
         ) : (
-          <span className="absolute inset-0 flex items-center justify-center overflow-visible z-20 text-white drop-shadow-[0_2px_14px_rgba(255,255,255,0.4)] leading-none">
+          <span className="absolute inset-0 flex items-center justify-center overflow-visible z-20 text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)] leading-none">
             {/* Outgoing word during transition */}
             <span
               key={`current-${currentIndex}`}
@@ -273,7 +273,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
             {isFlipping && nextIndex !== null && (
               <span
                 key={`next-${nextIndex}`}
-                className="whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 absolute"
+                className="whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 absolute text-white"
               >
                 {renderStaggeredLetters(words[nextIndex], true)}
               </span>

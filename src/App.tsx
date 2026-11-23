@@ -387,9 +387,9 @@ export default function App() {
                   willChange: 'opacity'
                 }}
               >
-                {/* COLOSSAL CELESTIAL PLANET (Shifted slightly upward & right for optimal composition) */}
+                {/* COLOSSAL CELESTIAL PLANET (Framing the left periphery naturally) */}
                 <div
-                  className="absolute top-[-5%] sm:top-[-7%] md:top-[-10%] left-[2%] sm:left-[5%] md:left-[7%] w-[850px] sm:w-[1150px] md:w-[1450px] lg:w-[1650px] xl:w-[1800px] pointer-events-none transition-transform duration-500 ease-out"
+                  className="absolute top-[-5%] sm:top-[-7%] md:top-[-10%] left-[-8%] sm:left-[-5%] md:left-[-3%] lg:left-[-1%] w-[850px] sm:w-[1150px] md:w-[1450px] lg:w-[1650px] xl:w-[1800px] pointer-events-none transition-transform duration-500 ease-out"
                   style={{
                     transform: `translate(${mousePos.x * 14}px, ${mousePos.y * 10}px)`
                   }}
@@ -408,10 +408,13 @@ export default function App() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
 
                   {/* Left Column: Bold Headline & Honest Student Bio */}
-                  <div className="lg:col-span-7 xl:col-span-6 flex flex-col items-start space-y-6 max-w-2xl xl:max-w-3xl">
-                    <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+                  <div className="lg:col-span-7 xl:col-span-6 flex flex-col items-start space-y-6 max-w-2xl xl:max-w-3xl relative">
+                    {/* Atmospheric contrast backing ensuring text is always 100% readable over celestial artwork */}
+                    <div className="absolute -inset-x-8 -inset-y-10 rounded-3xl bg-radial from-black/75 via-black/35 to-transparent blur-2xl -z-10 pointer-events-none" />
+
+                    <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-black/40 border border-white/15 backdrop-blur-md shadow-lg shadow-black/40">
                       <GraduationCap className="w-4 h-4 text-orange-400" />
-                      <span className="text-xs font-mono uppercase tracking-widest text-slate-300">
+                      <span className="text-xs font-mono uppercase tracking-widest text-slate-200">
                         B.Tech CSE · Class of 2027
                       </span>
                     </div>
@@ -424,12 +427,12 @@ export default function App() {
 
                       {/* Visual presentation */}
                       <span aria-hidden="true">
-                        <span>{activeHeroCopy.line1}</span>
-                        <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-300 mt-2">
+                        <span className="drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">{activeHeroCopy.line1}</span>
+                        <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-100 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] mt-2">
                           {activeHeroCopy.line2}
                         </span>
 
-                        {/* Animated Flip Words Pill in Fixed-Height Stage (Locks 'from Kolkata' firmly in place) */}
+                        {/* Animated Flip Words Pill in Fixed-Height Stage (Locks 'from India' firmly in place) */}
                         <span className="flex items-center my-2 sm:my-3 h-[52px] sm:h-[68px] md:h-[82px] lg:h-[90px]">
                           <FlipWords
                             words={activeHeroCopy.words}
@@ -437,13 +440,13 @@ export default function App() {
                           />
                         </span>
 
-                        <span className="block text-3xl sm:text-5xl md:text-6xl font-light text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-teal-200 mt-2">
+                        <span className="block text-3xl sm:text-5xl md:text-6xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-amber-200 drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)] mt-2">
                           {activeHeroCopy.lastLine}
                         </span>
                       </span>
                     </h1>
 
-                    <p className="text-base sm:text-lg text-slate-300/85 max-w-xl font-normal leading-relaxed pt-1">
+                    <p className="text-base sm:text-lg text-slate-200 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] max-w-xl font-normal leading-relaxed pt-1">
                       {activeHeroCopy.paragraph}
                     </p>
 
