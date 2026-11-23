@@ -7,6 +7,7 @@ import WebGLLines from './components/WebGLLines';
 import WebGLHalftone from './components/WebGLHalftone';
 import BlackHoleScene from './components/BlackHoleScene';
 import EnduranceScene from './components/EnduranceScene';
+import { FocusCards } from './components/ui/focus-cards';
 import { FlipWords } from './components/ui/flip-words';
 import { activeHeroCopy } from './content/heroCopy';
 import {
@@ -42,6 +43,35 @@ export default function App() {
   useEffect(() => {
     lenisRef.current = lenis;
   }, [lenis]);
+
+  // Meaningful photographic proof & certified credentials for Journey FocusCards
+  const journeyFocusCards = [
+    {
+      title: "1st Place Trophy — U.S. Consulate Hackathon",
+      subtitle: "Aug 2026 • Kolkata",
+      src: "/images/us-consulate2.png",
+    },
+    {
+      title: "Project Pitch & Presentation",
+      subtitle: "U.S. Consulate AI Business Hackathon",
+      src: "/images/us-consulate1.png",
+    },
+    {
+      title: "Official Award Ceremony & Commendation",
+      subtitle: "American Center • Consulate General",
+      src: "/images/us-consulate3.png",
+    },
+    {
+      title: "Oracle Certified AI Foundations Associate",
+      subtitle: "Oct 2025 • OCI Certification",
+      src: "/images/oracle-cert-ai-foundation.png",
+    },
+    {
+      title: "Oracle Certified Data Science Professional",
+      subtitle: "Oct 2025 • OCI Certification",
+      src: "/images/oracle-cert-data-science.png",
+    },
+  ];
 
   // Disable smooth scroll during loading screen and ensure page stays pinned to top
   useEffect(() => {
@@ -817,6 +847,17 @@ export default function App() {
               </div>
 
               <div className="relative pl-12 group">
+                <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-cyan-400 ring-4 ring-cyan-500/20 group-hover:scale-125 transition-transform" />
+                <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-cyan-500/30 transition-all font-sans">
+                  <span className="text-xs font-mono text-cyan-400 block mb-1">2025 • Open Source</span>
+                  <h3 className="text-xl font-bold text-white">Open-Source Contributions & Tooling</h3>
+                  <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
+                    Contributed bug fixes, documentation improvements, and performance enhancements across open-source Python, NLP, and machine learning repositories on GitHub.
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative pl-12 group">
                 <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-teal-400 ring-4 ring-teal-500/20 group-hover:scale-125 transition-transform" />
                 <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-teal-500/30 transition-all font-sans">
                   <span className="text-xs font-mono text-teal-400 block mb-1">Aug 2023 – July 2027 • Academic Foundation</span>
@@ -833,6 +874,21 @@ export default function App() {
             <div className="lg:col-span-5 xl:col-span-5 relative w-full h-[380px] sm:h-[460px] lg:h-[540px] flex items-center justify-center">
               <EnduranceScene />
             </div>
+          </div>
+
+          {/* Interactive Proof & Credentials Gallery (Aceternity UI FocusCards) */}
+          <div className="mt-20 pt-16 border-t border-white/10">
+            <div className="max-w-2xl mb-10">
+              <span className="text-xs font-mono uppercase tracking-widest text-orange-400">04 / Verification</span>
+              <h3 className="text-2xl sm:text-4xl font-bold tracking-tight mt-1 text-white font-sans">
+                Proof of Work & Credentials
+              </h3>
+              <p className="text-sm font-mono text-slate-400 mt-2">
+                Real evidence from the U.S. Consulate AI Business Hackathon and verified Oracle Cloud certifications. Hover to focus, click to open full-screen view.
+              </p>
+            </div>
+
+            <FocusCards cards={journeyFocusCards} />
           </div>
         </section>
 
