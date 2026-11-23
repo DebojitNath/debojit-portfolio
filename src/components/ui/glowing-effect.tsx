@@ -84,19 +84,24 @@ export const GlowingEffect: React.FC<GlowingEffectProps> = ({
     <div
       ref={containerRef}
       aria-hidden="true"
-      className={`pointer-events-none absolute -inset-[1px] rounded-[inherit] overflow-hidden transition-opacity duration-300 ease-out z-0 select-none ${className}`}
+      className={`pointer-events-none absolute -inset-[1px] rounded-[inherit] transition-opacity duration-300 ease-out z-20 select-none ${className}`}
       style={{
         opacity,
       }}
     >
-      {/* Ambient outer bloom glow */}
+      {/* Outer border glow bloom (strictly masked to border edge only, interior 100% untouched) */}
       {glow && (
         <div
-          className="absolute -inset-1 rounded-[inherit] pointer-events-none opacity-70"
+          className="absolute -inset-[2px] rounded-[inherit] pointer-events-none opacity-80"
           style={{
             background: gradientColor,
+            padding: `${borderWidth + 2}px`,
             filter: `blur(${blur}px)`,
-            transition: `opacity ${movementDuration}s ease-out`,
+            WebkitMask:
+              "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            WebkitMaskComposite: "xor",
+            mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            maskComposite: "exclude",
           }}
         />
       )}
