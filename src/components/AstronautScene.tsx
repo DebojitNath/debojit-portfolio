@@ -4,8 +4,8 @@ import { Environment, Float, useGLTF, useAnimations } from "@react-three/drei";
 import * as THREE from "three";
 
 const MODEL_URL = "/models/astronaut.glb";
-// Scaled so the 3D astronaut is prominent, detailed, and completely framed without clipping
-const TARGET_HEIGHT = 1.95;
+// Scaled so the 3D astronaut is bold, prominent, detailed, and cinematic
+const TARGET_HEIGHT = 3.5;
 // Exact user pose: Head in South-West (bottom-left), Legs in North-East (top-right), Back pointing below/down
 const BASE_ROTATION: [number, number, number] = [
   (-60 * Math.PI) / 180,    // X: Back pointing below/down, chest facing up toward viewer
@@ -164,7 +164,7 @@ function ThreeCanvasView({
     <Canvas
       frameloop={inView ? "always" : "never"}
       dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.35) : 1}
-      camera={{ position: [0, 0, 7.8], fov: 38 }}
+      camera={{ position: [0, 0, 7.0], fov: 45 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
       {/* Soft space ambient fill */}
