@@ -179,6 +179,23 @@ export interface BlackHoleSceneProps {
 export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleSceneProps) {
   const [webglSupported, setWebglSupported] = useState(true);
   const reducedMotion = usePrefersReducedMotion();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  // Pause render loop completely when user is not at or near Section 5
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { rootMargin: '300px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Smooth global cursor tracking
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -206,23 +223,24 @@ export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleScenePr
   }
 
   return (
-    <div className="w-full h-full relative overflow-hidden flex items-center justify-center select-none bg-transparent">
+    <div ref={containerRef} className="w-full h-full relative overflow-hidden flex items-center justify-center select-none bg-transparent">
       {/* Interactive 3D Canvas — transparent background showing starfield behind */}
       <div className="w-full h-full relative z-10">
         <BlackHoleErrorBoundary>
           <Canvas
+            frameloop={isInView || contactProgress > 0 ? 'always' : 'never'}
             camera={{ position: [0, 0, 8.5], fov: 42, near: 0.001, far: 2000 }}
             gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
-            dpr={[1, 2]}
+            dpr={typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 1.35) : 1}
           >
             {/* Ambient starlight */}
-            <ambientLight intensity={1.4} />
+            <ambientLight intensity={1.5} />
 
-            {/* Accretion Disk Rim Lights */}
-            <pointLight position={[0, 4, 6]} intensity={3.5} color="#e0e7ff" />
-            <pointLight position={[-8, -2, -4]} intensity={4.0} color="#c084fc" />
-            <pointLight position={[8, 3, 2]} intensity={4.0} color="#38bdf8" />
-            <pointLight position={[0, -6, 4]} intensity={2.5} color="#fb923c" />
+            {/* Accretion Disk Rim Lights - directional lights are far faster on software/integrated graphics */}
+            <directionalLight position={[0, 6, 8]} intensity={2.8} color="#e0e7ff" />
+            <directionalLight position={[-8, -2, -4]} intensity={3.0} color="#c084fc" />
+            <directionalLight position={[8, 3, 2]} intensity={3.0} color="#38bdf8" />
+            <directionalLight position={[0, -6, 4]} intensity={1.8} color="#fb923c" />
 
             <Suspense fallback={null}>
               <BlackHoleModel

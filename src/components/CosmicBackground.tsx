@@ -63,10 +63,11 @@ export default function CosmicBackground({ scrollProgress, contactProgress = 0, 
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true, 
       alpha: true, 
-      powerPreference: 'high-performance' 
+      powerPreference: 'high-performance',
+      precision: 'mediump'
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.35));
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
@@ -254,6 +255,7 @@ export default function CosmicBackground({ scrollProgress, contactProgress = 0, 
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
+      if (typeof document !== 'undefined' && document.hidden) return;
       const elapsed = clock.getElapsedTime();
       const scroll = scrollRef.current;
       const contact = contactRef.current || 0;

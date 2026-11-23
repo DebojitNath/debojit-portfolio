@@ -4,8 +4,8 @@ import { Environment, Float, useGLTF, useAnimations } from "@react-three/drei";
 import * as THREE from "three";
 
 const MODEL_URL = "/models/astronaut.glb";
-// Scaled bigger so the 3D astronaut is prominent, detailed, and cinematic
-const TARGET_HEIGHT = 2.15;
+// Scaled so the 3D astronaut is prominent, detailed, and completely framed without clipping
+const TARGET_HEIGHT = 1.95;
 // Exact user pose: Head in South-West (bottom-left), Legs in North-East (top-right), Back pointing below/down
 const BASE_ROTATION: [number, number, number] = [
   (-60 * Math.PI) / 180,    // X: Back pointing below/down, chest facing up toward viewer
@@ -55,6 +55,15 @@ function AstronautModel({ calm, followPointer }: ModelProps) {
     }
   }, [actions]);
 
+  // Disable frustum culling so rotation and skeletal bones never get clipped prematurely
+  useEffect(() => {
+    scene.traverse((obj) => {
+      if ((obj as THREE.Mesh).isMesh) {
+        obj.frustumCulled = false;
+      }
+    });
+  }, [scene]);
+
   // Scale and center the model once, whatever size/units it was exported in.
   const { scale, offset } = useMemo(() => {
     const box = new THREE.Box3().setFromObject(scene);
@@ -95,10 +104,10 @@ function AstronautModel({ calm, followPointer }: ModelProps) {
     <Float
       speed={calm ? 0 : 0.85}
       rotationIntensity={calm ? 0 : 0.2}
-      floatIntensity={calm ? 0 : 0.65}
-      floatingRange={[-0.12, 0.12]}
+      floatIntensity={calm ? 0 : 0.55}
+      floatingRange={[-0.08, 0.08]}
     >
-      <group ref={tilt} position={[0.12, 0.1, 0]}>
+      <group ref={tilt} position={[0, 0, 0]}>
         <group ref={group} rotation={BASE_ROTATION}>
           <primitive object={scene} scale={scale} position={offset} />
         </group>
@@ -142,15 +151,27 @@ type AstronautSceneProps = {
   className?: string;
 };
 
-function ThreeCanvasView({ calm, followPointer }: { calm: boolean; followPointer: boolean }) {
+function ThreeCanvasView({
+  calm,
+  followPointer,
+  inView,
+}: {
+  calm: boolean;
+  followPointer: boolean;
+  inView: boolean;
+}) {
   return (
     <Canvas
-      dpr={[1, 1.75]}
-      camera={{ position: [0, 0, 6.8], fov: 40 }}
-      gl={{ antialias: true, alpha: true }}
+      frameloop={inView ? "always" : "never"}
+      dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio, 1.35) : 1}
+      camera={{ position: [0, 0, 7.8], fov: 38 }}
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
       {/* Soft space ambient fill */}
-      <ambientLight intensity={0.42} color="#f8fafc" />
+      <ambientLight intensity={0.45} color="#f8fafc" />
+
+      {/* Atmospheric sunset hemisphere light for smooth suit and visor reflection without heavy HDR map */}
+      <hemisphereLight args={['#ffa07a', '#2e0854', 1.1]} />
 
       {/* Right Sunset Key: Brilliant magenta/rose beam from the bright right sky */}
       <directionalLight position={[5, 1.5, 2.5]} intensity={3.5} color="#ff3b77" />
@@ -160,9 +181,6 @@ function ThreeCanvasView({ calm, followPointer }: { calm: boolean; followPointer
 
       {/* Front-Left Neutral Space Fill: Keeps the suit's authentic white fabric crisp */}
       <directionalLight position={[-4.5, 1.2, 3.5]} intensity={1.5} color="#ffffff" />
-
-      {/* Warm Sunset Environment reflections for helmet visor and suit fittings */}
-      <Environment preset="sunset" environmentIntensity={0.8} />
 
       <Suspense fallback={null}>
         <AstronautModel calm={calm} followPointer={followPointer} />
@@ -174,18 +192,35 @@ function ThreeCanvasView({ calm, followPointer }: { calm: boolean; followPointer
 export default function AstronautScene({
   className = "",
 }: AstronautSceneProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const calm = usePrefersReducedMotion();
   const [webgl] = useState(hasWebGL);
+  const [inView, setInView] = useState(true);
   const followPointer =
     typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
+
+  // Pause render loop completely when scrolled away from Hero to preserve CPU/GPU
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+      },
+      { rootMargin: "150px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   if (!webgl) return null;
 
   return (
-    <div className={`relative w-full h-full flex items-center justify-center ${className}`}>
+    <div ref={containerRef} className={`relative w-full h-full flex items-center justify-center ${className}`}>
       <ModelErrorBoundary fallback={null}>
         <Suspense fallback={null}>
-          <ThreeCanvasView calm={calm} followPointer={followPointer} />
+          <ThreeCanvasView calm={calm} followPointer={followPointer} inView={inView} />
         </Suspense>
       </ModelErrorBoundary>
     </div>

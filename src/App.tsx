@@ -262,7 +262,7 @@ export default function App() {
           : 'bg-white/60 border-black/5 text-stone-900 shadow-sm'
           }`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="w-full max-w-[1850px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl md:text-2xl font-bold tracking-tight font-sans">
               Debojit <span className={world === 'focus' ? 'text-amber-400' : 'text-emerald-800'}>Nath</span>
@@ -403,12 +403,12 @@ export default function App() {
                 </div>
               </div>
 
-              {/* HERO MAIN CONTENT GRID (Centered in max-w-7xl) */}
-              <div className="max-w-7xl mx-auto w-full px-6 md:px-12 pt-16 sm:pt-20 pb-24 sm:pb-28 my-auto relative z-20">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              {/* HERO MAIN CONTENT GRID (Expands dynamically to fill big screens without empty side gaps) */}
+              <div className="w-full max-w-[1850px] mx-auto px-6 sm:px-10 md:px-14 lg:px-16 xl:px-20 2xl:px-24 pt-16 sm:pt-20 pb-20 sm:pb-28 my-auto relative z-20">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
 
                   {/* Left Column: Bold Headline & Honest Student Bio */}
-                  <div className="lg:col-span-7 flex flex-col items-start space-y-6">
+                  <div className="lg:col-span-7 xl:col-span-6 flex flex-col items-start space-y-6 max-w-2xl xl:max-w-3xl">
                     <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
                       <GraduationCap className="w-4 h-4 text-orange-400" />
                       <span className="text-xs font-mono uppercase tracking-widest text-slate-300">
@@ -466,7 +466,7 @@ export default function App() {
                   </div>
 
                   {/* Right Column: CLEAN SLEEK FLOATING ASTRONAUT */}
-                  <div className="lg:col-span-5 relative flex items-center justify-center min-h-[420px]">
+                  <div className="lg:col-span-5 xl:col-span-6 relative flex items-center justify-center w-full min-h-[460px] sm:min-h-[520px] lg:min-h-[620px] xl:min-h-[720px]">
                     <FloatingAstronaut mousePos={mousePos} />
                   </div>
 
@@ -571,7 +571,7 @@ export default function App() {
         {/* --------------------------------------------------------- */}
         {/* SECTION 2: ABOUT                                          */}
         {/* --------------------------------------------------------- */}
-        <section id="about" className="py-28 max-w-7xl mx-auto px-6 md:px-12 relative z-20">
+        <section id="about" className="py-28 max-w-[1700px] w-full mx-auto px-6 sm:px-10 md:px-14 lg:px-16 xl:px-20 relative z-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-5">
               <span className="text-xs font-mono uppercase tracking-widest text-amber-400">01 / Profile</span>
@@ -634,7 +634,7 @@ export default function App() {
         {/* --------------------------------------------------------- */}
         {/* SECTION 3: REAL BENCHMARK PROJECTS                        */}
         {/* --------------------------------------------------------- */}
-        <section id="projects" className="py-28 max-w-6xl mx-auto px-6 md:px-8">
+        <section id="projects" className="py-28 max-w-[1700px] w-full mx-auto px-6 sm:px-10 md:px-14 lg:px-16 xl:px-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
             <div>
               <span className="text-xs font-mono uppercase tracking-widest text-orange-400">02 / Portfolio</span>
@@ -777,7 +777,7 @@ export default function App() {
         {/* --------------------------------------------------------- */}
         {/* SECTION 4: JOURNEY                                        */}
         {/* --------------------------------------------------------- */}
-        <section id="journey" className="py-28 max-w-7xl mx-auto px-6 md:px-12 font-mono">
+        <section id="journey" className="py-28 max-w-[1700px] w-full mx-auto px-6 sm:px-10 md:px-14 lg:px-16 xl:px-20 font-mono">
           <div className="max-w-2xl mb-16">
             <span className="text-xs font-mono uppercase tracking-widest text-purple-400">03 / Trajectory</span>
             <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mt-2 text-white font-sans">The Journey</h2>
