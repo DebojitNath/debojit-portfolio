@@ -6,6 +6,8 @@ import FloatingAstronaut from './components/FloatingAstronaut';
 import WebGLLines from './components/WebGLLines';
 import WebGLHalftone from './components/WebGLHalftone';
 import BlackHoleScene from './components/BlackHoleScene';
+import { FlipWords } from './components/ui/flip-words';
+import { activeHeroCopy } from './content/heroCopy';
 import {
   Sparkles,
   Compass,
@@ -415,23 +417,34 @@ export default function App() {
                     </div>
 
                     <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08] font-sans">
-                      <span>Hi, I'm Debojit</span>
-                      <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-300 mt-2">
-                        I build AI models that
+                      {/* Visually hidden sentence for screen readers */}
+                      <span className="sr-only">
+                        {activeHeroCopy.srText}
                       </span>
 
-                      {/* The Signature Cutout White Pill */}
-                      <span className="inline-block mt-3 px-6 py-2 rounded-2xl bg-white text-[#0a0518] font-extrabold tracking-tight text-3xl sm:text-5xl md:text-6xl shadow-2xl shadow-purple-500/30 transform hover:-rotate-1 transition-transform cursor-default">
-                        keep learning
-                      </span>
+                      {/* Visual presentation */}
+                      <span aria-hidden="true">
+                        <span>{activeHeroCopy.line1}</span>
+                        <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-300 mt-2">
+                          {activeHeroCopy.line2}
+                        </span>
 
-                      <span className="block text-3xl sm:text-5xl md:text-6xl font-light text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-teal-200 mt-2">
-                        after they're deployed.
+                        {/* Animated Flip Words Pill */}
+                        <span className="block mt-3">
+                          <FlipWords
+                            words={activeHeroCopy.words}
+                            className="text-[clamp(1.15rem,5.2vw,1.875rem)] sm:text-5xl md:text-6xl"
+                          />
+                        </span>
+
+                        <span className="block text-3xl sm:text-5xl md:text-6xl font-light text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-teal-200 mt-2">
+                          {activeHeroCopy.lastLine}
+                        </span>
                       </span>
                     </h1>
 
                     <p className="text-base sm:text-lg text-slate-300/85 max-w-xl font-normal leading-relaxed pt-1">
-                      CSE undergrad building projects around AI agents, Neural Networks, NLP and active learning — models that improve from feedback instead of just sitting static.
+                      {activeHeroCopy.paragraph}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-4 pt-4 font-mono">
