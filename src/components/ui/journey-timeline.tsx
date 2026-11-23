@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, ZoomIn, X, ExternalLink } from "lucide-react";
+import { GlowingEffect } from "./glowing-effect";
 
 export interface JourneyImage {
   src: string;
@@ -219,27 +220,51 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ milestones }) 
                 }`}
               />
 
-              {/* Milestone Card with Focus & Slide Integration */}
-              <div
-                className={`p-6 sm:p-7 rounded-2xl bg-black/60 border border-white/10 backdrop-blur-xl transition-all duration-300 shadow-xl shadow-black/50 ${accent.border} ${accent.glow} ${
-                  isHovered ? "border-white/30 shadow-2xl scale-[1.01]" : ""
-                }`}
-              >
-                {hasImages ? (
-                  /* Two-column layout when card has photographic proof */
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                    {/* Left: Photo Slider with automatic slide animation */}
-                    <div className="md:col-span-5 w-full">
-                      <ImageSlider
-                        images={item.images!}
-                        title={item.title}
-                        isCardHovered={isHovered}
-                        onOpenLightbox={setLightboxImage}
-                      />
-                    </div>
+              {/* Milestone Card with Aceternity GlowingEffect & Focus Integration */}
+              <div className="relative rounded-2xl">
+                <GlowingEffect
+                  spread={45}
+                  glow={true}
+                  disabled={false}
+                  proximity={70}
+                  inactiveZone={0.01}
+                  borderWidth={1.5}
+                />
 
-                    {/* Right: Milestone Story & Details */}
-                    <div className="md:col-span-7 flex flex-col justify-center font-sans">
+                <div
+                  className={`relative z-10 p-6 sm:p-7 rounded-2xl bg-black/60 border border-white/10 backdrop-blur-xl transition-all duration-300 shadow-xl shadow-black/50 ${accent.border} ${accent.glow} ${
+                    isHovered ? "border-white/30 shadow-2xl scale-[1.01]" : ""
+                  }`}
+                >
+                  {hasImages ? (
+                    /* Two-column layout when card has photographic proof */
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                      {/* Left: Photo Slider with automatic slide animation */}
+                      <div className="md:col-span-5 w-full">
+                        <ImageSlider
+                          images={item.images!}
+                          title={item.title}
+                          isCardHovered={isHovered}
+                          onOpenLightbox={setLightboxImage}
+                        />
+                      </div>
+
+                      {/* Right: Milestone Story & Details */}
+                      <div className="md:col-span-7 flex flex-col justify-center font-sans">
+                        <span className={`text-xs font-mono uppercase tracking-wider block mb-1 font-semibold ${accent.tag}`}>
+                          {item.date} • {item.category}
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-slate-300/85 mt-2.5 leading-relaxed">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Text layout for milestones without photos */
+                    <div className="font-sans">
                       <span className={`text-xs font-mono uppercase tracking-wider block mb-1 font-semibold ${accent.tag}`}>
                         {item.date} • {item.category}
                       </span>
@@ -250,21 +275,8 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ milestones }) 
                         {item.description}
                       </p>
                     </div>
-                  </div>
-                ) : (
-                  /* Text layout for milestones without photos */
-                  <div className="font-sans">
-                    <span className={`text-xs font-mono uppercase tracking-wider block mb-1 font-semibold ${accent.tag}`}>
-                      {item.date} • {item.category}
-                    </span>
-                    <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-slate-300/85 mt-2.5 leading-relaxed">
-                      {item.description}
-                    </p>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -313,3 +325,4 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ milestones }) 
 };
 
 export default JourneyTimeline;
+
