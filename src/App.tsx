@@ -410,28 +410,28 @@ export default function App() {
                     <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
                       <GraduationCap className="w-4 h-4 text-orange-400" />
                       <span className="text-xs font-mono uppercase tracking-widest text-slate-300">
-                        4th Year Computer Science Undergrad
+                        B.Tech CSE · Class of 2027
                       </span>
                     </div>
 
                     <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08] font-sans">
                       <span>Hi, I'm Debojit</span>
                       <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-300 mt-2">
-                        A Developer Dedicated to Crafting
+                        I build AI models that
                       </span>
 
                       {/* The Signature Cutout White Pill */}
                       <span className="inline-block mt-3 px-6 py-2 rounded-2xl bg-white text-[#0a0518] font-extrabold tracking-tight text-3xl sm:text-5xl md:text-6xl shadow-2xl shadow-purple-500/30 transform hover:-rotate-1 transition-transform cursor-default">
-                        Interactive
+                        keep learning
                       </span>
 
                       <span className="block text-3xl sm:text-5xl md:text-6xl font-light text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-teal-200 mt-2">
-                        AI & Software Solutions
+                        after they're deployed.
                       </span>
                     </h1>
 
                     <p className="text-base sm:text-lg text-slate-300/85 max-w-xl font-normal leading-relaxed pt-1">
-                      Undergraduate CS student passionate about building intelligent systems, full-stack web applications, and creative digital experiences.
+                      CSE undergrad building projects around AI agents, Neural Networks, NLP and active learning — models that improve from feedback instead of just sitting static.
                     </p>
 
                     <div className="flex flex-wrap items-center gap-4 pt-4 font-mono">
@@ -564,20 +564,20 @@ export default function App() {
               <span className="text-xs font-mono uppercase tracking-widest text-amber-400">01 / Profile</span>
               <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mt-2 font-sans">About Debojit</h2>
               <p className="text-base text-slate-300/80 mt-6 leading-relaxed">
-                I am a 4th-year Computer Science undergraduate student preparing for software developer and AI engineer roles. I enjoy turning complex problem statements into clean code, practical web applications, and intuitive user experiences.
+                CSE undergrad building projects around AI agents, Neural Networks, NLP and active learning, models that improve from feedback instead of just sitting static. Led a team of three people to 1st place at a U.S. Consulate hackathon. Mostly Python, some Java, picking up backend along the way, and occasionally contributing docs/fixes/enhancements to open source.
               </p>
               <div className="mt-8 flex flex-col gap-3 font-mono text-xs text-slate-400">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>4th Year Computer Science Student</span>
+                  <span>B.Tech CSE, RCC Institute of Information Technology (Class of 2027)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Passionate about AI Engineering & Full-Stack</span>
+                  <span>1st Place — U.S. Consulate AI Business Hackathon</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Building real-world projects & learning daily</span>
+                  <span>Kolkata, West Bengal, India</span>
                 </div>
               </div>
             </div>
@@ -585,33 +585,33 @@ export default function App() {
             <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5 font-sans">
               <div className="p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md hover:border-orange-500/30 transition-all">
                 <Brain className="w-8 h-8 text-orange-400 mb-4" />
-                <h3 className="text-lg font-bold text-white">Machine Learning & AI</h3>
-                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed">
-                  Exploring LLM integration, agentic workflows, and applying machine learning algorithms to practical challenges.
+                <h3 className="text-lg font-bold text-white">Languages & Frameworks</h3>
+                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed font-mono">
+                  Python, Java, SQL, PyTorch, and FastAPI. Working with Pandas, NumPy, Scikit-Learn, and Matplotlib.
                 </p>
               </div>
 
               <div className="p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md hover:border-teal-500/30 transition-all">
                 <Layers className="w-8 h-8 text-teal-400 mb-4" />
-                <h3 className="text-lg font-bold text-white">Full-Stack Development</h3>
-                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed">
-                  Building responsive web applications with React, TypeScript, Tailwind CSS, and cloud backends.
+                <h3 className="text-lg font-bold text-white">Consensus & Feedback Systems</h3>
+                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed font-mono">
+                  Raft consensus engine with custom TCP RPCs, and active learning pipelines that retrain models from user feedback.
                 </p>
               </div>
 
               <div className="p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md hover:border-rose-500/30 transition-all">
                 <Terminal className="w-8 h-8 text-rose-400 mb-4" />
-                <h3 className="text-lg font-bold text-white">Computer Science Core</h3>
-                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed">
-                  Strong foundational grounding in Data Structures, Algorithms, Object-Oriented Design, and Databases.
+                <h3 className="text-lg font-bold text-white">Coursework & Tools</h3>
+                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed font-mono">
+                  DSA, DBMS, and OOP. Daily workflow in Git, GitHub, VS Code, MySQL, and Jupyter Notebook.
                 </p>
               </div>
 
               <div className="p-6 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md hover:border-amber-400/30 transition-all">
                 <Compass className="w-8 h-8 text-amber-300 mb-4" />
-                <h3 className="text-lg font-bold text-white">Creative Exploration</h3>
-                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed">
-                  Blending clean engineering rigor with personal creativity, gaming lore, and dynamic motion design.
+                <h3 className="text-lg font-bold text-white">Certifications & Interests</h3>
+                <p className="text-xs text-slate-300/80 mt-2 leading-relaxed font-mono">
+                  Oracle Data Science Professional & AI Foundations Associate (Oct 2025). AI/ML research, gaming, and chess.
                 </p>
               </div>
             </div>
@@ -619,18 +619,18 @@ export default function App() {
         </section>
 
         {/* --------------------------------------------------------- */}
-        {/* SECTION 3: AEGIS-REMIXED BENTO PROJECTS                   */}
+        {/* SECTION 3: REAL BENCHMARK PROJECTS                        */}
         {/* --------------------------------------------------------- */}
         <section id="projects" className="py-28 max-w-6xl mx-auto px-6 md:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
             <div>
               <span className="text-xs font-mono uppercase tracking-widest text-orange-400">02 / Portfolio</span>
               <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mt-2 font-mono text-white">
-                Selected Bento Projects
+                Featured Projects
               </h2>
             </div>
             <p className="text-xs font-mono text-slate-400 max-w-sm">
-              Sample project architectures featuring interactive WebGL shaders and clean engineering modules.
+              PyTorch model compression, distributed consensus in async Python, and active learning systems.
             </p>
           </div>
 
@@ -660,20 +660,20 @@ export default function App() {
               <header className="relative z-20 flex justify-between items-center text-sm tracking-tight font-normal">
                 <div className="flex items-center gap-1.5 font-bold">
                   <Shield className="w-5 h-5 text-black" />
-                  <span>Autonomous Agent Engine</span>
+                  <span>PyTorch • Optimization</span>
                 </div>
-                <span className="text-xs opacity-50 uppercase tracking-widest font-mono">Sector.01</span>
+                <span className="text-xs opacity-50 uppercase tracking-widest font-mono">Oct 2026</span>
               </header>
 
               <main className="relative z-20 mt-auto">
-                <h3 className="text-3xl md:text-4xl tracking-tight leading-[1.1] mb-4 font-mono font-bold text-black">
-                  Sample Project 01.<br />Agent Workflows.
+                <h3 className="text-2xl md:text-3xl tracking-tight leading-[1.1] mb-3 font-mono font-bold text-black">
+                  PyTorch Model<br />Compression Suite
                 </h3>
-                <p className="text-xs leading-relaxed font-sans max-w-[240px] text-black/70">
-                  Sample multi-agent coordination system with state machine orchestration and clean rollback logic.
+                <p className="text-xs leading-relaxed font-sans max-w-[280px] text-black/80 font-normal">
+                  PyTorch compression pipeline combining Knowledge Distillation, iterative pruning, and INT8 quantization. Improved inference latency by 1.8x and halved memory footprint (53% reduction) on benchmark models.
                 </p>
-                <div className="mt-4 flex items-center gap-2 text-xs font-mono font-bold text-black hover:text-orange-600 transition-colors cursor-pointer">
-                  <span>View Repository</span>
+                <div className="mt-4 flex items-center gap-2 text-xs font-mono font-bold text-black hover:text-orange-600 transition-colors">
+                  <span>Distillation • Pruning • INT8</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </div>
               </main>
@@ -706,20 +706,20 @@ export default function App() {
               <header className="relative z-20 flex justify-between items-center text-sm tracking-tight font-normal">
                 <div className="flex items-center gap-1.5 font-bold">
                   <Activity className="w-5 h-5 text-black" />
-                  <span>Cloud Telemetry Pipeline</span>
+                  <span>Async Python • Distributed</span>
                 </div>
-                <span className="text-xs opacity-50 uppercase tracking-widest font-mono">Sector.02</span>
+                <span className="text-xs opacity-50 uppercase tracking-widest font-mono">Aug – Sept 2026</span>
               </header>
 
               <main className="relative z-20 mt-auto">
-                <h3 className="text-3xl md:text-4xl tracking-tight leading-[1.1] font-mono font-bold text-black mb-3">
-                  Sample Project 02.<br />Backend Service.
+                <h3 className="text-2xl md:text-3xl tracking-tight leading-[1.1] font-mono font-bold text-black mb-3">
+                  Raft Distributed<br />Consensus Engine
                 </h3>
-                <p className="text-xs leading-relaxed font-sans max-w-[240px] text-black/80 font-medium">
-                  Distributed logging and event processing pipeline designed for cloud deployments.
+                <p className="text-xs leading-relaxed font-sans max-w-[280px] text-black/85 font-normal">
+                  A distributed Raft consensus engine in async Python with custom TCP RPCs. Implements paper-faithful replication, WAL disk persistence (fsync), and linearizable reads (ReadIndex).
                 </p>
-                <div className="mt-4 flex items-center gap-2 text-xs font-mono font-bold text-black hover:text-amber-800 transition-colors cursor-pointer">
-                  <span>Architecture Spec</span>
+                <div className="mt-4 flex items-center gap-2 text-xs font-mono font-bold text-black hover:text-amber-800 transition-colors">
+                  <span>Custom TCP RPCs • WAL fsync</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </div>
               </main>
@@ -739,20 +739,20 @@ export default function App() {
               <header className="relative z-20 flex md:flex-col justify-between md:justify-start items-center md:items-start text-sm tracking-tight font-normal text-white/90 gap-4">
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-yellow-400 animate-pulse" />
-                  <span className="font-bold tracking-widest text-yellow-400">QUANTUM CORE</span>
+                  <span className="font-bold tracking-widest text-yellow-400">ACTIVE LEARNING</span>
                 </div>
-                <span className="text-xs opacity-50 uppercase tracking-widest font-mono">Sector.03</span>
+                <span className="text-xs opacity-50 uppercase tracking-widest font-mono">July 2026</span>
               </header>
 
               <main className="relative z-20 mt-auto md:mt-0 md:self-end md:text-right max-w-md w-full">
-                <h3 className="text-4xl md:text-5xl tracking-tight leading-[1.05] font-normal mb-4 uppercase font-mono text-white">
-                  Sample Project 03.<br />Interactive Web.
+                <h3 className="text-3xl md:text-4xl tracking-tight leading-[1.08] font-normal mb-3 font-mono text-white">
+                  Voice Command<br />Intent Classifier
                 </h3>
-                <p className="text-xs leading-relaxed text-white/70 md:ml-auto md:max-w-[260px] font-mono">
-                  Custom GPU shader computations rendering volumetric wave fields and interactive particle physics.
+                <p className="text-xs leading-relaxed text-white/80 md:ml-auto md:max-w-[320px] font-mono">
+                  A React and Flask app that classifies voice commands into intents. Built from the motivation that models should keep improving after deployment, implementing an active learning pipeline that retrains from user feedback.
                 </p>
-                <div className="mt-4 flex items-center gap-2 text-xs font-mono font-bold text-yellow-400 md:justify-end hover:text-white transition-colors cursor-pointer">
-                  <span>Run WebGL Simulation</span>
+                <div className="mt-4 flex items-center gap-2 text-xs font-mono font-bold text-yellow-400 md:justify-end hover:text-white transition-colors">
+                  <span>React & Flask • Active Learning Retraining</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </div>
               </main>
@@ -778,10 +778,10 @@ export default function App() {
             <div className="relative pl-12 group">
               <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-orange-400 ring-4 ring-orange-500/20 group-hover:scale-125 transition-transform" />
               <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-orange-500/30 transition-all font-sans">
-                <span className="text-xs font-mono text-orange-400 block mb-1">2026 • Present</span>
-                <h3 className="text-xl font-bold text-white">4th Year Undergrad — AI & Software Engineering</h3>
+                <span className="text-xs font-mono text-orange-400 block mb-1">Aug 2026 • Hackathon Win</span>
+                <h3 className="text-xl font-bold text-white">1st Place — U.S. Consulate AI Business Hackathon</h3>
                 <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
-                  Final year of Computer Science. Deepening skills in software engineering, applied AI, and building full-stack applications.
+                  Led a 3-member team to 1st place in an AI business hackathon, securing approval to advance the project to product development.
                 </p>
               </div>
             </div>
@@ -789,10 +789,10 @@ export default function App() {
             <div className="relative pl-12 group">
               <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-purple-400 ring-4 ring-purple-500/20 group-hover:scale-125 transition-transform" />
               <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-purple-500/30 transition-all font-sans">
-                <span className="text-xs font-mono text-purple-400 block mb-1">Academic Core</span>
-                <h3 className="text-xl font-bold text-white">Computer Science Fundamentals</h3>
+                <span className="text-xs font-mono text-purple-400 block mb-1">Oct 2025 • Oracle Certifications</span>
+                <h3 className="text-xl font-bold text-white">Data Science Professional & AI Foundations Associate</h3>
                 <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
-                  Coursework in Data Structures, Algorithms, Operating Systems, Computer Networks, and Database Management Systems.
+                  Practiced end-to-end ML workflows on OCI (data prep, model training/evaluation, AutoML, basic MLOps) and Generative AI fundamentals.
                 </p>
               </div>
             </div>
@@ -800,10 +800,10 @@ export default function App() {
             <div className="relative pl-12 group">
               <div className="absolute left-2.5 top-1.5 w-3.5 h-3.5 rounded-full bg-teal-400 ring-4 ring-teal-500/20 group-hover:scale-125 transition-transform" />
               <div className="p-6 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl hover:border-teal-500/30 transition-all font-sans">
-                <span className="text-xs font-mono text-teal-400 block mb-1">Genesis</span>
-                <h3 className="text-xl font-bold text-white">Starting the Coding Journey</h3>
+                <span className="text-xs font-mono text-teal-400 block mb-1">Aug 2023 – July 2027 • Academic Foundation</span>
+                <h3 className="text-xl font-bold text-white">B.Tech in Computer Science Engineering (Class of 2027)</h3>
                 <p className="text-sm text-slate-300/80 mt-2 leading-relaxed">
-                  Writing my first programs, discovering a love for problem solving, and building initial software projects.
+                  RCC Institute of Information Technology, Kolkata. Core coursework in Data Structures & Algorithms, Database Management Systems, and Object-Oriented Programming.
                 </p>
               </div>
             </div>
@@ -820,7 +820,7 @@ export default function App() {
           className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-between bg-transparent font-mono"
         >
           {/* Sleek Liquid Metal Pill Contact Dock & Gargantua Scroll Box */}
-          <div 
+          <div
             className="relative z-20 flex flex-col items-center justify-center px-4 w-full max-w-xl mx-auto pt-4 sm:pt-6 pointer-events-auto font-mono transition-opacity duration-300"
             style={{
               opacity: Math.max(0, 1 - contactProgress * 3.0),
@@ -832,7 +832,7 @@ export default function App() {
             <div className="inline-flex flex-wrap items-center justify-center gap-2.5 p-1.5 rounded-full bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
               {/* Email */}
               <a
-                href="mailto:debojitnath9674@gmail.com"
+                href="mailto:debojitnathwork@gmail.com"
                 className="liquid-pill group"
               >
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
@@ -843,7 +843,7 @@ export default function App() {
 
               {/* LinkedIn */}
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/in/debojit-nath-cse/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="liquid-pill group"
