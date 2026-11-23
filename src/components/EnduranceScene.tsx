@@ -5,7 +5,7 @@ import * as THREE from "three";
 
 const MODEL_URL = "/models/endurance.glb";
 // Scaled so the Endurance ring is bold, prominent, and fits gracefully beside the timeline
-const TARGET_SIZE = 3.2;
+const TARGET_SIZE = 2.8;
 
 function hasWebGL(): boolean {
   if (typeof document === "undefined") return false;
