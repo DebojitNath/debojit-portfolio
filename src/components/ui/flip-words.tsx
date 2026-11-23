@@ -223,11 +223,9 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
         onMouseLeave={() => setIsHovered(false)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className={`group relative inline-flex items-center justify-center rounded-2xl backdrop-blur-2xl bg-white/[0.09] hover:bg-white/[0.14] border border-white/20 hover:border-white/35 border-t-white/40 shadow-[0_8px_32px_0_rgba(168,85,247,0.28),inset_0_1px_1px_0_rgba(255,255,255,0.45)] text-white font-extrabold tracking-tight transform hover:scale-[1.015] hover:-rotate-0.5 transition-all duration-500 ease-out cursor-default select-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-[#030308] ${className}`}
+        className={`group relative inline-flex items-center justify-center h-full rounded-2xl backdrop-blur-2xl bg-white/[0.09] hover:bg-white/[0.14] border border-white/20 hover:border-white/35 border-t-white/40 shadow-[0_8px_32px_0_rgba(168,85,247,0.28),inset_0_1px_1px_0_rgba(255,255,255,0.45)] text-white font-extrabold tracking-tight transform hover:scale-[1.015] hover:-rotate-0.5 transition-all duration-500 ease-out cursor-default select-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-[#030308] ${className}`}
         style={{
           width: currentWordWidth ? `${currentWordWidth}px` : 'auto',
-          height: maxHeight ? `${maxHeight}px` : 'auto',
-          minHeight: '1.4em',
           transitionProperty: 'width, transform, background-color, border-color, box-shadow',
           transitionDuration: '500ms',
           transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)'
@@ -246,18 +244,26 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
           </div>
         )}
 
+        {/* Permanent in-flow Ghost Spacer guaranteeing ZERO baseline or vertical height shifts */}
+        <span
+          className="invisible select-none pointer-events-none opacity-0 whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 leading-none"
+          aria-hidden="true"
+        >
+          {words[targetIndex]}
+        </span>
+
         {/* Word Container */}
         {prefersReducedMotion ? (
-          <span className="whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.35)]">
+          <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.35)] leading-none">
             {words[0]}
           </span>
         ) : (
-          <span className="relative w-full h-full flex items-center justify-center overflow-visible z-20 text-white drop-shadow-[0_2px_14px_rgba(255,255,255,0.4)]">
-            {/* Outgoing word during transition, or stationary active word */}
+          <span className="absolute inset-0 flex items-center justify-center overflow-visible z-20 text-white drop-shadow-[0_2px_14px_rgba(255,255,255,0.4)] leading-none">
+            {/* Outgoing word during transition */}
             <span
               key={`current-${currentIndex}`}
-              className={`whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 ${
-                isFlipping ? 'flip-word-out absolute' : 'inline-block'
+              className={`whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 absolute ${
+                isFlipping ? 'flip-word-out' : 'opacity-100'
               }`}
             >
               {renderStaggeredLetters(words[currentIndex], false)}

@@ -429,8 +429,8 @@ export default function App() {
                           {activeHeroCopy.line2}
                         </span>
 
-                        {/* Animated Flip Words Pill */}
-                        <span className="block mt-3">
+                        {/* Animated Flip Words Pill in Fixed-Height Stage (Locks 'from Kolkata' firmly in place) */}
+                        <span className="flex items-center my-2 sm:my-3 h-[52px] sm:h-[68px] md:h-[82px] lg:h-[90px]">
                           <FlipWords
                             words={activeHeroCopy.words}
                             className="text-[clamp(1.15rem,5.2vw,1.875rem)] sm:text-5xl md:text-6xl"
