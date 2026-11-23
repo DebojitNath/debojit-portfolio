@@ -114,43 +114,85 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
   const targetIndex = isFlipping && nextIndex !== null ? nextIndex : currentIndex;
   const currentWordWidth = wordWidths[targetIndex];
 
+  // Aceternity UI style letter-by-letter kinetic animation renderer
+  const renderStaggeredLetters = (text: string, isIncoming: boolean) => {
+    return (
+      <span className="inline-flex items-center">
+        {text.split(' ').map((wordPart, wordIdx, allWords) => (
+          <span key={`w-${wordIdx}`} className="inline-flex whitespace-nowrap">
+            {wordPart.split('').map((char, charIdx) => {
+              const delay = isIncoming
+                ? wordIdx * 0.12 + charIdx * 0.032
+                : 0;
+              return (
+                <span
+                  key={`c-${charIdx}`}
+                  className={`inline-block ${isIncoming ? 'letter-flip-in' : ''}`}
+                  style={
+                    isIncoming
+                      ? {
+                          animation: 'aceternityLetterIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) both',
+                          animationDelay: `${delay}s`
+                        }
+                      : undefined
+                  }
+                >
+                  {char}
+                </span>
+              );
+            })}
+            {wordIdx < allWords.length - 1 && (
+              <span className="inline-block">&nbsp;</span>
+            )}
+          </span>
+        ))}
+      </span>
+    );
+  };
+
   return (
     <>
-      {/* Dynamic Keyframes for smooth vertical 3D flip card rotation */}
+      {/* Aceternity UI Staggered Motion Blur & Glass Shimmer Keyframes */}
       <style>{`
-        @keyframes flipOutUp {
+        @keyframes aceternityWordOut {
           0% {
-            transform: rotateX(0deg);
             opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0px);
           }
           100% {
-            transform: rotateX(-90deg);
             opacity: 0;
+            transform: translateY(-24px) scale(0.96);
+            filter: blur(8px);
           }
         }
-        @keyframes flipInDown {
+        @keyframes aceternityLetterIn {
           0% {
-            transform: rotateX(90deg);
             opacity: 0;
+            transform: translateY(18px) scale(0.88);
+            filter: blur(8px);
           }
           100% {
-            transform: rotateX(0deg);
             opacity: 1;
+            transform: translateY(0) scale(1);
+            filter: blur(0px);
           }
         }
-        .flip-word-container {
-          perspective: 1000px;
-          transform-style: preserve-3d;
+        @keyframes glassShimmerSweep {
+          0% {
+            transform: translateX(-120%) skewX(-15deg);
+            opacity: 0;
+          }
+          20% {
+            opacity: 0.65;
+          }
+          100% {
+            transform: translateX(250%) skewX(-15deg);
+            opacity: 0;
+          }
         }
         .flip-word-out {
-          animation: flipOutUp 550ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          transform-origin: 50% 50% -0.5em;
-          backface-visibility: hidden;
-        }
-        .flip-word-in {
-          animation: flipInDown 550ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          transform-origin: 50% 50% -0.5em;
-          backface-visibility: hidden;
+          animation: aceternityWordOut 420ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
 
@@ -165,14 +207,14 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
             ref={(el) => {
               measureRefs.current[idx] = el;
             }}
-            className="inline-block px-4 sm:px-6 py-1.5 sm:py-2"
+            className="inline-block px-5 sm:px-7 py-2 sm:py-2.5"
           >
             {word}
           </span>
         ))}
       </span>
 
-      {/* Visible Flip Pill */}
+      {/* Futuristic Cosmic Glass Capsule (Replaces plain static white block) */}
       <span
         tabIndex={0}
         role="button"
@@ -181,40 +223,53 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
         onMouseLeave={() => setIsHovered(false)}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className={`flip-word-container relative inline-flex items-center justify-center rounded-2xl bg-white text-[#0a0518] font-extrabold tracking-tight shadow-2xl shadow-purple-500/30 transform hover:-rotate-1 transition-all duration-500 ease-out cursor-default select-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-[#0a0518] ${className}`}
+        className={`group relative inline-flex items-center justify-center rounded-2xl backdrop-blur-2xl bg-white/[0.09] hover:bg-white/[0.14] border border-white/20 hover:border-white/35 border-t-white/40 shadow-[0_8px_32px_0_rgba(168,85,247,0.28),inset_0_1px_1px_0_rgba(255,255,255,0.45)] text-white font-extrabold tracking-tight transform hover:scale-[1.015] hover:-rotate-0.5 transition-all duration-500 ease-out cursor-default select-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-[#030308] ${className}`}
         style={{
           width: currentWordWidth ? `${currentWordWidth}px` : 'auto',
           height: maxHeight ? `${maxHeight}px` : 'auto',
           minHeight: '1.4em',
-          transitionProperty: 'width, transform',
-          transitionDuration: '550ms',
+          transitionProperty: 'width, transform, background-color, border-color, box-shadow',
+          transitionDuration: '500ms',
           transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)'
         }}
       >
-        {/* If reduced motion is preferred, render the first word statically */}
+        {/* Ambient Cosmic Aura Glow behind the glass capsule */}
+        <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-orange-500/20 via-purple-500/30 to-teal-400/20 blur-xl opacity-75 group-hover:opacity-100 transition-opacity -z-10 pointer-events-none" />
+
+        {/* Top Gloss Reflection for real glass depth */}
+        <div className="absolute inset-x-0 top-0 h-[45%] rounded-t-2xl bg-gradient-to-b from-white/15 to-transparent pointer-events-none" />
+
+        {/* Dynamic Glass Shimmer Light Sweep on each word change */}
+        {isFlipping && (
+          <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none z-10">
+            <div className="w-1/2 h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[glassShimmerSweep_0.65s_cubic-bezier(0.16,1,0.3,1)_forwards]" />
+          </div>
+        )}
+
+        {/* Word Container */}
         {prefersReducedMotion ? (
-          <span className="whitespace-nowrap px-4 sm:px-6 py-1.5 sm:py-2">
+          <span className="whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 text-white drop-shadow-[0_2px_12px_rgba(255,255,255,0.35)]">
             {words[0]}
           </span>
         ) : (
-          <span className="relative w-full h-full flex items-center justify-center overflow-visible">
-            {/* Outgoing word during flipping, or stationary active word */}
+          <span className="relative w-full h-full flex items-center justify-center overflow-visible z-20 text-white drop-shadow-[0_2px_14px_rgba(255,255,255,0.4)]">
+            {/* Outgoing word during transition, or stationary active word */}
             <span
               key={`current-${currentIndex}`}
-              className={`whitespace-nowrap px-4 sm:px-6 py-1.5 sm:py-2 ${
+              className={`whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 ${
                 isFlipping ? 'flip-word-out absolute' : 'inline-block'
               }`}
             >
-              {words[currentIndex]}
+              {renderStaggeredLetters(words[currentIndex], false)}
             </span>
 
-            {/* Incoming word during flipping */}
+            {/* Incoming word with Aceternity UI kinetic letter blur slide-in */}
             {isFlipping && nextIndex !== null && (
               <span
                 key={`next-${nextIndex}`}
-                className="whitespace-nowrap px-4 sm:px-6 py-1.5 sm:py-2 flip-word-in absolute"
+                className="whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 absolute"
               >
-                {words[nextIndex]}
+                {renderStaggeredLetters(words[nextIndex], true)}
               </span>
             )}
           </span>
