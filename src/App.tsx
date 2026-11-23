@@ -433,10 +433,10 @@ export default function App() {
                         </span>
 
                         {/* Animated Flip Words Pill in Fixed-Height Stage (Locks 'from India' firmly in place) */}
-                        <span className="flex items-center my-2 sm:my-3 h-[52px] sm:h-[68px] md:h-[82px] lg:h-[90px]">
+                        <span className="flex items-center my-2 sm:my-3 h-12 sm:h-16 md:h-20 lg:h-[5.25rem]">
                           <FlipWords
                             words={activeHeroCopy.words}
-                            className="text-[clamp(1.15rem,5.2vw,1.875rem)] sm:text-5xl md:text-6xl"
+                            className="text-[clamp(1.05rem,4.5vw,1.75rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem]"
                           />
                         </span>
 

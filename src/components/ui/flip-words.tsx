@@ -199,7 +199,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
       {/* Hidden Measurer layer to accurately calculate natural pixel sizes */}
       <span
         aria-hidden="true"
-        className="fixed -left-[9999px] -top-[9999px] invisible pointer-events-none opacity-0 select-none whitespace-nowrap font-extrabold tracking-tight text-[clamp(1.15rem,5.2vw,1.875rem)] sm:text-5xl md:text-6xl"
+        className="fixed -left-[9999px] -top-[9999px] invisible pointer-events-none opacity-0 select-none whitespace-nowrap font-extrabold tracking-tight text-[clamp(1.05rem,4.5vw,1.75rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem]"
       >
         {words.map((word, idx) => (
           <span
@@ -207,7 +207,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
             ref={(el) => {
               measureRefs.current[idx] = el;
             }}
-            className="inline-block px-5 sm:px-7 py-2 sm:py-2.5"
+            className="inline-block px-4 sm:px-6 py-1.5 sm:py-2"
           >
             {word}
           </span>
@@ -246,7 +246,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
 
         {/* Permanent in-flow Ghost Spacer guaranteeing ZERO baseline or vertical height shifts */}
         <span
-          className="invisible select-none pointer-events-none opacity-0 whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 leading-none"
+          className="invisible select-none pointer-events-none opacity-0 whitespace-nowrap px-4 sm:px-6 py-1.5 sm:py-2 leading-none"
           aria-hidden="true"
         >
           {words[targetIndex]}
@@ -254,7 +254,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
 
         {/* Word Container */}
         {prefersReducedMotion ? (
-          <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] leading-none">
+          <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap px-4 sm:px-6 py-1.5 sm:py-2 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] leading-none">
             {words[0]}
           </span>
         ) : (
@@ -262,7 +262,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
             {/* Outgoing word during transition */}
             <span
               key={`current-${currentIndex}`}
-              className={`whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 absolute ${
+              className={`whitespace-nowrap px-4 sm:px-6 py-1.5 sm:py-2 absolute ${
                 isFlipping ? 'flip-word-out' : 'opacity-100'
               }`}
             >
@@ -273,7 +273,7 @@ export const FlipWords: React.FC<FlipWordsProps> = ({
             {isFlipping && nextIndex !== null && (
               <span
                 key={`next-${nextIndex}`}
-                className="whitespace-nowrap px-5 sm:px-7 py-2 sm:py-2.5 absolute text-white"
+                className="whitespace-nowrap px-4 sm:px-6 py-1.5 sm:py-2 absolute text-white"
               >
                 {renderStaggeredLetters(words[nextIndex], true)}
               </span>
