@@ -191,7 +191,7 @@ export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleScenePr
       ([entry]) => {
         setIsInView(entry.isIntersecting);
       },
-      { rootMargin: '300px' }
+      { rootMargin: '800px' }
     );
     observer.observe(el);
     return () => observer.disconnect();
