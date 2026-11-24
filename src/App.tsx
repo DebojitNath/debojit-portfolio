@@ -165,7 +165,7 @@ export default function App() {
     const checkIsAtBottom = () => {
       if (!contactRef.current) return false;
       const rect = contactRef.current.getBoundingClientRect();
-      return rect.top <= 25;
+      return rect.top <= 8;
     };
 
     const onWheel = (e: WheelEvent) => {
@@ -177,17 +177,17 @@ export default function App() {
         if (isAtBottom && contactProgressRef.current < 1) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
+          const step = Math.min(0.04, Math.max(0.006, Math.abs(e.deltaY) * 0.00035));
           const next = Math.min(1, contactProgressRef.current + step);
           contactProgressRef.current = next;
           setContactProgress(next);
         }
       } else if (e.deltaY < 0) {
-        // Scrolling UP: while zoomed in, keep black hole locked in place and reverse animation
+        // Scrolling UP: while zoomed in, keep black hole locked in place and reverse animation smoothly
         if (isZoomed) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
+          const step = Math.min(0.04, Math.max(0.006, Math.abs(e.deltaY) * 0.00035));
           const next = Math.max(0, contactProgressRef.current - step);
           contactProgressRef.current = next;
           setContactProgress(next);

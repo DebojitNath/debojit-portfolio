@@ -141,18 +141,21 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     const targetPitch = basePitch - pointerY + driftX;
     const targetYaw = Math.PI + pointerX + driftY;
 
-    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, 2.6, delta);
-    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, 2.6, delta);
+    const DAMP_RATE = 4.2;
+    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetPitch, DAMP_RATE, delta);
+    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetYaw, DAMP_RATE, delta);
 
     // ---- PURE SCALE ZOOM CENTERED IN MIDDLE OF SCREEN WITH SPRING DAMPING ----
     // Damp scale towards target growth so the zoom glides continuously like butter
     const currentScale = modelGroup.scale.x || 1.0;
-    const nextScale = THREE.MathUtils.damp(currentScale, growth, 2.6, delta);
+    const nextScale = THREE.MathUtils.damp(currentScale, growth, DAMP_RATE, delta);
     modelGroup.scale.setScalar(nextScale);
     // Resting position is lowered (-0.55) to provide clear space below the contact dock & scroll box
-    // When zooming in, smoothly centers towards 0
+    // When zooming in, smoothly centers towards 0 with matching damping to eliminate vertical jitter
     const targetY = THREE.MathUtils.lerp(-0.55, 0, THREE.MathUtils.clamp(p * 2.5, 0, 1));
-    g.position.set(0, targetY, 0);
+    g.position.y = THREE.MathUtils.damp(g.position.y, targetY, DAMP_RATE, delta);
+    g.position.x = 0;
+    g.position.z = 0;
 
     // ---- CAMERA: fully fixed, dead center ----
     // Eye level at y = 0 looking straight at (0, 0, 0)
