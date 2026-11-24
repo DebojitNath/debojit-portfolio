@@ -646,22 +646,8 @@ export default function App() {
               <span className="text-xs font-mono uppercase tracking-widest text-amber-400">01 / Profile</span>
               <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mt-2 font-sans">About Debojit</h2>
               <p className="text-base text-slate-300/80 mt-6 leading-relaxed">
-                CSE undergrad building projects around AI agents, Neural Networks, NLP and active learning, models that improve from feedback instead of just sitting static. Led a team of three people to 1st place at a U.S. Consulate hackathon. Mostly Python, some Java, picking up backend along the way, and occasionally contributing docs/fixes/enhancements to open source.
+                I'm an undergrad exploring the frontier of deep learning and agentic systems. As a fresher, my philosophy is simple: build cool, ambitious projects to truly understand how intelligent systems think, reason, and take action. Right now, I'm deep into autonomous AI agents, neural network architectures, and hands-on ML experimentation.
               </p>
-              <div className="mt-8 flex flex-col gap-3 font-mono text-xs text-slate-400">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>B.Tech CSE, RCC Institute of Information Technology (2023 - 2027)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>1st Place — U.S. Consulate AI Business Hackathon</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Kolkata, West Bengal, India</span>
-                </div>
-              </div>
             </div>
 
             <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5 font-sans">

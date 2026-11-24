@@ -38,7 +38,7 @@ export const HERO_COPY_SETS: Record<HeroCopyKey, HeroCopySet> = {
     ],
     lastLine: "from India.",
     paragraph:
-      "I led a team of three to 1st place at a U.S. Consulate hackathon. I build projects in AI, NLP and distributed systems, mostly in Python.",
+      "CS undergrad exploring deep learning and agentic systems. I build ambitious projects in AI agents, neural nets, and distributed Python to understand how intelligent systems think and act.",
     srText:
       "Hi, I'm Debojit. I'm a CS student, Fresher, hackathon winner, open-source contributor and competitive gamer from India."
   },
