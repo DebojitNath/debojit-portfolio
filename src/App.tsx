@@ -149,42 +149,10 @@ export default function App() {
   const mountainY1 = MOUNTAIN_SPREAD.layer1 - scrollProgress * 50;  // Foreground rises slightly for depth
   // Track global scroll progress and section 5 contact immersion progress
   const contactProgressRef = useRef(0);
-  const targetContactProgressRef = useRef(0);
 
   useLenis(({ progress }) => {
     setScrollProgress(progress);
   });
-
-  // Butter-smooth spring interpolation for black hole contact zoom
-  useEffect(() => {
-    let animId: number;
-    let lastTime = performance.now();
-
-    const loop = (now: number) => {
-      const delta = Math.min((now - lastTime) / 1000, 0.1);
-      lastTime = now;
-
-      const target = targetContactProgressRef.current;
-      const current = contactProgressRef.current;
-      const diff = target - current;
-
-      if (Math.abs(diff) > 0.0003) {
-        // Butter smooth exponential damping
-        const step = diff * Math.min(1, 10 * delta);
-        const next = current + step;
-        contactProgressRef.current = next;
-        setContactProgress(next);
-      } else if (current !== target) {
-        contactProgressRef.current = target;
-        setContactProgress(target);
-      }
-
-      animId = requestAnimationFrame(loop);
-    };
-
-    animId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animId);
-  }, []);
 
   // When user reaches the black hole section at the bottom of the page,
   // the page stays in a static position (no extra space below), and
@@ -197,34 +165,32 @@ export default function App() {
     const checkIsAtBottom = () => {
       if (!contactRef.current) return false;
       const rect = contactRef.current.getBoundingClientRect();
-      // True bottom alignment: only activate once the contact section has cleanly settled into view
-      return rect.top <= 2;
+      return rect.top <= 25;
     };
 
     const onWheel = (e: WheelEvent) => {
       const isAtBottom = checkIsAtBottom();
-      const isZoomed = targetContactProgressRef.current > 0;
+      const isZoomed = contactProgressRef.current > 0;
 
       if (e.deltaY > 0) {
         // Scrolling DOWN
-        if (isAtBottom && targetContactProgressRef.current < 1) {
+        if (isAtBottom && contactProgressRef.current < 1) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          lenisRef.current?.stop();
-          const step = Math.min(0.08, Math.max(0.012, Math.abs(e.deltaY) * 0.0006));
-          targetContactProgressRef.current = Math.min(1, targetContactProgressRef.current + step);
+          const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
+          const next = Math.min(1, contactProgressRef.current + step);
+          contactProgressRef.current = next;
+          setContactProgress(next);
         }
       } else if (e.deltaY < 0) {
         // Scrolling UP: while zoomed in, keep black hole locked in place and reverse animation
         if (isZoomed) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          const step = Math.min(0.08, Math.max(0.012, Math.abs(e.deltaY) * 0.0006));
-          const next = Math.max(0, targetContactProgressRef.current - step);
-          targetContactProgressRef.current = next;
-          if (next === 0) {
-            lenisRef.current?.start();
-          }
+          const step = Math.min(0.05, Math.max(0.008, Math.abs(e.deltaY) * 0.00045));
+          const next = Math.max(0, contactProgressRef.current - step);
+          contactProgressRef.current = next;
+          setContactProgress(next);
         }
       }
     };
@@ -235,54 +201,52 @@ export default function App() {
 
     const onTouchMove = (e: TouchEvent) => {
       const isAtBottom = checkIsAtBottom();
-      const isZoomed = targetContactProgressRef.current > 0;
+      const isZoomed = contactProgressRef.current > 0;
 
       const touchY = e.touches[0].clientY;
       const deltaY = touchStartY - touchY; // positive = swipe up = scroll down
       touchStartY = touchY;
 
       if (deltaY > 0) {
-        if (isAtBottom && targetContactProgressRef.current < 1) {
+        if (isAtBottom && contactProgressRef.current < 1) {
           if (e.cancelable) e.preventDefault();
           e.stopImmediatePropagation();
-          lenisRef.current?.stop();
-          const step = Math.min(0.08, Math.max(0.01, deltaY * 0.0025));
-          targetContactProgressRef.current = Math.min(1, targetContactProgressRef.current + step);
+          const step = Math.min(0.06, Math.max(0.01, deltaY * 0.002));
+          const next = Math.min(1, contactProgressRef.current + step);
+          contactProgressRef.current = next;
+          setContactProgress(next);
         }
       } else if (deltaY < 0) {
         if (isZoomed) {
           if (e.cancelable) e.preventDefault();
           e.stopImmediatePropagation();
-          const step = Math.min(0.08, Math.max(0.01, Math.abs(deltaY) * 0.0025));
-          const next = Math.max(0, targetContactProgressRef.current - step);
-          targetContactProgressRef.current = next;
-          if (next === 0) {
-            lenisRef.current?.start();
-          }
+          const step = Math.min(0.06, Math.max(0.01, Math.abs(deltaY) * 0.002));
+          const next = Math.max(0, contactProgressRef.current - step);
+          contactProgressRef.current = next;
+          setContactProgress(next);
         }
       }
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
       const isAtBottom = checkIsAtBottom();
-      const isZoomed = targetContactProgressRef.current > 0;
+      const isZoomed = contactProgressRef.current > 0;
 
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-        if (isAtBottom && targetContactProgressRef.current < 1) {
+        if (isAtBottom && contactProgressRef.current < 1) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          lenisRef.current?.stop();
-          targetContactProgressRef.current = Math.min(1, targetContactProgressRef.current + 0.08);
+          const next = Math.min(1, contactProgressRef.current + 0.05);
+          contactProgressRef.current = next;
+          setContactProgress(next);
         }
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         if (isZoomed) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          const next = Math.max(0, targetContactProgressRef.current - 0.08);
-          targetContactProgressRef.current = next;
-          if (next === 0) {
-            lenisRef.current?.start();
-          }
+          const next = Math.max(0, contactProgressRef.current - 0.05);
+          contactProgressRef.current = next;
+          setContactProgress(next);
         }
       }
     };
