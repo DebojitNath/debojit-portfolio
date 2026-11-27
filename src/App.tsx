@@ -164,9 +164,9 @@ export default function App() {
   // 1. Initial Landing Page Spread (Y offset in px when at top of page)
   //    Higher number = sits lower down on the screen.
   const MOUNTAIN_SPREAD = {
-    layer3: 85, // Background horizon (slightly lower at rest)
-    layer2: 20, // Midground ridges
-    layer1: 0,  // Foreground rocks (flush with bottom edge, no cut line)
+    layer3: 150, // Background horizon
+    layer2: 85, // Midground ridges
+    layer1: 60,  // Foreground rocks (flush with bottom edge, no cut line)
   };
 
   // 2. Hero Scroll Exit (0 at top -> 1 over 110vh sticky range, zero-rerender 60fps ref animation)
@@ -575,7 +575,7 @@ export default function App() {
               >
                 {/* COLOSSAL CELESTIAL PLANET (Framing the left periphery naturally) */}
                 <div
-                  className="absolute top-[-5%] sm:top-[-7%] md:top-[-10%] left-[-8%] sm:left-[-5%] md:left-[-3%] lg:left-[-1%] w-[850px] sm:w-[1150px] md:w-[1450px] lg:w-[1650px] xl:w-[1800px] pointer-events-none transition-transform duration-500 ease-out"
+                  className="absolute top-[-16%] sm:top-[-20%] md:top-[-24%] left-[-8%] sm:left-[-5%] md:left-[-3%] lg:left-[-1%] w-[850px] sm:w-[1150px] md:w-[1450px] lg:w-[1650px] xl:w-[1800px] pointer-events-none transition-transform duration-500 ease-out"
                   style={{
                     transform: `translate(${mousePos.x * 14}px, ${mousePos.y * 10}px)`
                   }}
@@ -583,9 +583,8 @@ export default function App() {
                   <img
                     src="/shapes/planet.png"
                     alt="Celestial Planet"
-                    className={`w-full h-auto object-contain filter drop-shadow-[0_0_60px_rgba(168,85,247,0.3)] select-none pointer-events-none transition-all duration-1000 ease-out ${
-                      isLoading ? 'opacity-0 -translate-y-8' : 'opacity-95 translate-y-0'
-                    }`}
+                    className={`w-full h-auto object-contain filter drop-shadow-[0_0_60px_rgba(168,85,247,0.3)] select-none pointer-events-none transition-all duration-1000 ease-out ${isLoading ? 'opacity-0 -translate-y-8' : 'opacity-95 translate-y-0'
+                      }`}
                     draggable={false}
                   />
                 </div>
@@ -598,84 +597,84 @@ export default function App() {
                   {/* Left Column: Bold Headline (Below text slides left first; top line hooks behind) */}
                   <div className="lg:col-span-7 xl:col-span-6 relative -mt-4 lg:-mt-6">
                     <div className="flex flex-col items-start space-y-6 max-w-2xl xl:max-w-3xl relative">
-                    {/* Atmospheric contrast backing moves with the headline */}
-                    <div
-                      ref={heroBackdropRef}
-                      className="absolute -inset-x-8 -inset-y-10 rounded-3xl bg-radial from-black/75 via-black/35 to-transparent blur-2xl -z-10 pointer-events-none"
-                      style={{
-                        willChange: 'transform'
-                      }}
-                    />
+                      {/* Atmospheric contrast backing moves with the headline */}
+                      <div
+                        ref={heroBackdropRef}
+                        className="absolute -inset-x-8 -inset-y-10 rounded-3xl bg-radial from-black/75 via-black/35 to-transparent blur-2xl -z-10 pointer-events-none"
+                        style={{
+                          willChange: 'transform'
+                        }}
+                      />
 
-                    <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08] font-sans">
-                      {/* Visually hidden sentence for screen readers */}
-                      <span className="sr-only">
-                        {activeHeroCopy.srText}
-                      </span>
-
-                      {/* Visual presentation */}
-                      <span aria-hidden="true">
-                        <span
-                          ref={topLineWrapRef}
-                          className="block"
-                          style={{
-                            willChange: 'transform'
-                          }}
-                        >
-                          <BlurRevealText
-                            text={activeHeroCopy.line1}
-                            show={!isLoading}
-                            baseDelayMs={80}
-                            stepDelayMs={36}
-                            className="drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]"
-                          />
+                      <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08] font-sans">
+                        {/* Visually hidden sentence for screen readers */}
+                        <span className="sr-only">
+                          {activeHeroCopy.srText}
                         </span>
-                        <span
-                          ref={belowTextWrapRef}
-                          className="block"
-                          style={{
-                            willChange: 'transform'
-                          }}
-                        >
-                          <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-100 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] mt-2">
+
+                        {/* Visual presentation */}
+                        <span aria-hidden="true">
+                          <span
+                            ref={topLineWrapRef}
+                            className="block"
+                            style={{
+                              willChange: 'transform'
+                            }}
+                          >
                             <BlurRevealText
-                              text={activeHeroCopy.line2}
+                              text={activeHeroCopy.line1}
                               show={!isLoading}
-                              baseDelayMs={380}
-                              stepDelayMs={30}
+                              baseDelayMs={80}
+                              stepDelayMs={36}
+                              className="drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]"
                             />
                           </span>
-
-                          {/* Animated Flip Words Pill in Fixed-Height Stage (Locks 'from India' firmly in place) */}
                           <span
-                            className="flex items-center my-2 sm:my-3 h-12 sm:h-16 md:h-20 lg:h-[5.25rem]"
+                            ref={belowTextWrapRef}
+                            className="block"
                             style={{
-                              opacity: !isLoading ? 1 : 0,
-                              filter: !isLoading ? 'blur(0px)' : 'blur(14px)',
-                              transform: !isLoading ? 'translateY(0px) scale(1)' : 'translateY(10px) scale(0.97)',
-                              transition: 'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) 460ms, filter 700ms cubic-bezier(0.22, 1, 0.36, 1) 460ms, transform 700ms cubic-bezier(0.22, 1, 0.36, 1) 460ms',
+                              willChange: 'transform'
                             }}
                           >
-                            <FlipWords
-                              words={activeHeroCopy.words}
-                              className="text-[clamp(1.05rem,4.5vw,1.75rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem]"
-                            />
-                          </span>
+                            <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-100 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] mt-2">
+                              <BlurRevealText
+                                text={activeHeroCopy.line2}
+                                show={!isLoading}
+                                baseDelayMs={380}
+                                stepDelayMs={30}
+                              />
+                            </span>
 
-                          <span
-                            className="block text-3xl sm:text-5xl md:text-6xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-amber-200 drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)] mt-2"
-                            style={{
-                              opacity: !isLoading ? 1 : 0,
-                              filter: !isLoading ? 'blur(0px)' : 'blur(14px)',
-                              transform: !isLoading ? 'translateY(0px) scale(1)' : 'translateY(10px) scale(0.97)',
-                              transition: 'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) 580ms, filter 700ms cubic-bezier(0.22, 1, 0.36, 1) 580ms, transform 700ms cubic-bezier(0.22, 1, 0.36, 1) 580ms',
-                            }}
-                          >
-                            {activeHeroCopy.lastLine}
+                            {/* Animated Flip Words Pill in Fixed-Height Stage (Locks 'from India' firmly in place) */}
+                            <span
+                              className="flex items-center my-2 sm:my-3 h-12 sm:h-16 md:h-20 lg:h-[5.25rem]"
+                              style={{
+                                opacity: !isLoading ? 1 : 0,
+                                filter: !isLoading ? 'blur(0px)' : 'blur(14px)',
+                                transform: !isLoading ? 'translateY(0px) scale(1)' : 'translateY(10px) scale(0.97)',
+                                transition: 'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) 460ms, filter 700ms cubic-bezier(0.22, 1, 0.36, 1) 460ms, transform 700ms cubic-bezier(0.22, 1, 0.36, 1) 460ms',
+                              }}
+                            >
+                              <FlipWords
+                                words={activeHeroCopy.words}
+                                className="text-[clamp(1.05rem,4.5vw,1.75rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem]"
+                              />
+                            </span>
+
+                            <span
+                              className="block text-3xl sm:text-5xl md:text-6xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-amber-200 drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)] mt-2"
+                              style={{
+                                opacity: !isLoading ? 1 : 0,
+                                filter: !isLoading ? 'blur(0px)' : 'blur(14px)',
+                                transform: !isLoading ? 'translateY(0px) scale(1)' : 'translateY(10px) scale(0.97)',
+                                transition: 'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) 580ms, filter 700ms cubic-bezier(0.22, 1, 0.36, 1) 580ms, transform 700ms cubic-bezier(0.22, 1, 0.36, 1) 580ms',
+                              }}
+                            >
+                              {activeHeroCopy.lastLine}
+                            </span>
                           </span>
                         </span>
-                      </span>
-                    </h1>
+                      </h1>
                     </div>
                   </div>
 
@@ -688,9 +687,8 @@ export default function App() {
                     }}
                   >
                     <div
-                      className={`w-full h-full flex items-center justify-center transition-all duration-1000 ease-out delay-100 ${
-                        isLoading ? 'opacity-0 translate-x-10' : 'opacity-100 translate-x-0'
-                      }`}
+                      className={`w-full h-full flex items-center justify-center -mt-24 lg:-mt-32 transition-all duration-1000 ease-out delay-100 ${isLoading ? 'opacity-0 translate-x-10' : 'opacity-100 translate-x-0'
+                        }`}
                     >
                       <FloatingAstronaut mousePos={mousePos} />
                     </div>
@@ -701,14 +699,15 @@ export default function App() {
 
               {/* CUSTOM LAYERED PARALLAX MOUNTAINS (Fade in after load, slide down and fade out on scroll) */}
               <div
-                className={`absolute inset-0 w-full h-full pointer-events-none z-10 overflow-hidden transition-opacity duration-1000 ease-out ${
-                  isLoading ? 'opacity-0' : 'opacity-100'
-                }`}
+                className={`absolute inset-0 w-full h-full pointer-events-none z-10 overflow-hidden transition-opacity duration-1000 ease-out ${isLoading ? 'opacity-0' : 'opacity-100'
+                  }`}
               >
                 <div
                   ref={mountainOpacityRef}
                   className="absolute inset-0 w-full h-full"
                   style={{
+                    transform: 'scale(1.14)',
+                    transformOrigin: 'bottom center',
                     willChange: 'opacity'
                   }}
                 >
