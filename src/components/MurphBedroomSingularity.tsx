@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, useEffect, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import XpContactWindow from './XpContactWindow';
@@ -224,6 +224,7 @@ function classifyMeshRole(meshName: string): 'wood' | 'wall' | 'accent' | 'secon
 
 interface RoomSceneProps {
   progress: number; // 0.0 to 1.0 (corresponds to contactProgress 1.0 -> 2.0)
+  isVisible: boolean;
   palette: BedroomPalette;
   recolorStrength: number;
   mouseRef: React.MutableRefObject<{ x: number; y: number }>;
@@ -235,6 +236,7 @@ interface RoomSceneProps {
 
 function RoomContent({
   progress,
+  isVisible,
   palette,
   recolorStrength,
   mouseRef,
@@ -303,6 +305,26 @@ function RoomContent({
 
   // Smooth interpolated progress for cinematic damping
   const smoothProgress = useRef(progress);
+  const { camera } = useThree();
+
+  // When hidden (e.g. user clicked Contact nav link to jump back to Gargantua),
+  // immediately reset damped progress and transforms so re-entering never flashes the old zoomed room
+  useEffect(() => {
+    if (!isVisible) {
+      smoothProgress.current = 0;
+      if (roomGroupRef.current) {
+        roomGroupRef.current.scale.setScalar(0.003);
+        roomGroupRef.current.position.set(0, 0, 0);
+        roomGroupRef.current.rotation.set(0, 0, 0);
+      }
+      camera.rotation.set(0, 0, 0);
+      if (overlayBoxRef.current) {
+        overlayBoxRef.current.style.opacity = '0';
+        overlayBoxRef.current.style.display = 'none';
+        overlayBoxRef.current.style.pointerEvents = 'none';
+      }
+    }
+  }, [isVisible, camera, overlayBoxRef]);
 
   useFrame((state, delta) => {
     smoothProgress.current = THREE.MathUtils.damp(
@@ -611,6 +633,7 @@ export default function MurphBedroomSingularity({ contactProgress }: MurphBedroo
           <React.Suspense fallback={null}>
             <RoomContent
               progress={roomProgress}
+              isVisible={isVisible}
               palette={activePalette}
               recolorStrength={recolorStrength}
               mouseRef={mouseRef}

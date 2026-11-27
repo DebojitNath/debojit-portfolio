@@ -55,11 +55,23 @@ function AstronautModel({ calm, followPointer }: ModelProps) {
     }
   }, [actions]);
 
-  // Disable frustum culling so rotation and skeletal bones never get clipped prematurely
+  // Disable frustum culling and keep suit fabric matte (while keeping visor glossy)
   useEffect(() => {
     scene.traverse((obj) => {
       if ((obj as THREE.Mesh).isMesh) {
         obj.frustumCulled = false;
+        const mesh = obj as THREE.Mesh;
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+        mats.forEach((mat) => {
+          if (mat && 'roughness' in mat) {
+            const stdMat = mat as THREE.MeshStandardMaterial;
+            if (stdMat.name !== 'material_1') {
+              stdMat.roughness = Math.max(0.88, stdMat.roughness ?? 0.9);
+              stdMat.metalness = Math.min(0.05, stdMat.metalness ?? 0.05);
+              stdMat.needsUpdate = true;
+            }
+          }
+        });
       }
     });
   }, [scene]);
@@ -107,7 +119,7 @@ function AstronautModel({ calm, followPointer }: ModelProps) {
       floatIntensity={calm ? 0 : 0.55}
       floatingRange={[-0.08, 0.08]}
     >
-      <group ref={tilt} position={[0, 0, 0]}>
+      <group ref={tilt} position={[0, 0.45, 0]}>
         <group ref={group} rotation={BASE_ROTATION}>
           <primitive object={scene} scale={scale} position={offset} />
         </group>
@@ -167,20 +179,20 @@ function ThreeCanvasView({
       camera={{ position: [0, 0, 7.0], fov: 45 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
-      {/* Soft space ambient fill */}
-      <ambientLight intensity={0.45} color="#f8fafc" />
+      {/* Bright soft space ambient so white suit stays crisp and clean */}
+      <ambientLight intensity={0.95} color="#f8fafc" />
 
-      {/* Atmospheric sunset hemisphere light for smooth suit and visor reflection without heavy HDR map */}
-      <hemisphereLight args={['#ffa07a', '#2e0854', 1.1]} />
+      {/* Atmospheric sunset hemisphere light */}
+      <hemisphereLight args={['#ffd1dc', '#3b0764', 1.35]} />
 
-      {/* Right Sunset Key: Brilliant magenta/rose beam from the bright right sky */}
-      <directionalLight position={[5, 1.5, 2.5]} intensity={3.5} color="#ff3b77" />
+      {/* Right Sunset Key: Rose-pink glow on legs, arm & backpack */}
+      <directionalLight position={[5, 1.0, 2.5]} intensity={3.0} color="#ff4d88" />
 
-      {/* Right-Rear Rim: Electric magenta/fuchsia edge glow outlining the right contours */}
-      <directionalLight position={[5.5, 2.5, -3.5]} intensity={4.2} color="#e040fb" />
+      {/* Right-Rear Rim: Magenta edge glow */}
+      <directionalLight position={[5.5, 2.5, -3.5]} intensity={3.2} color="#e040fb" />
 
-      {/* Front-Left Neutral Space Fill: Keeps the suit's authentic white fabric crisp */}
-      <directionalLight position={[-4.5, 1.2, 3.5]} intensity={1.5} color="#ffffff" />
+      {/* Front-Left Soft Fill: Keeps white suit bright & clean (matte finish prevents plastic shine) */}
+      <directionalLight position={[-4.5, 1.5, 4.0]} intensity={1.65} color="#ffffff" />
 
       <Suspense fallback={null}>
         <AstronautModel calm={calm} followPointer={followPointer} />
