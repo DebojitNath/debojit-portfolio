@@ -7,6 +7,7 @@ import WebGLLines from './components/WebGLLines';
 import WebGLHalftone from './components/WebGLHalftone';
 import BlackHoleScene from './components/BlackHoleScene';
 import EnduranceScene from './components/EnduranceScene';
+import MurphBedroomSingularity from './components/MurphBedroomSingularity';
 import { JourneyTimeline, JourneyMilestone } from './components/ui/journey-timeline';
 import { FlipWords } from './components/ui/flip-words';
 import { activeHeroCopy } from './content/heroCopy';
@@ -31,11 +32,14 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  const queryProgress = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('progress') : null;
+  const initialContactProgress = queryProgress !== null ? parseFloat(queryProgress) : 0;
+
+  const [isLoading, setIsLoading] = useState(initialContactProgress === 0);
   const [world, setWorld] = useState<'focus' | 'drift'>('focus');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [contactProgress, setContactProgress] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(initialContactProgress > 0 ? 1 : 0);
+  const [contactProgress, setContactProgress] = useState(initialContactProgress);
   const contactRef = useRef<HTMLElement>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const lenis = useLenis();
@@ -43,6 +47,14 @@ export default function App() {
   useEffect(() => {
     lenisRef.current = lenis;
   }, [lenis]);
+
+  useEffect(() => {
+    if (initialContactProgress > 0) {
+      setTimeout(() => {
+        document.querySelector('#contact')?.scrollIntoView();
+      }, 50);
+    }
+  }, [initialContactProgress]);
 
   // Chronological Journey Milestones with integrated photo slides and Focus effect
   const journeyMilestones: JourneyMilestone[] = [
@@ -148,7 +160,7 @@ export default function App() {
   const mountainY2 = MOUNTAIN_SPREAD.layer2 + scrollProgress * 100; // Sinks behind layer 1
   const mountainY1 = MOUNTAIN_SPREAD.layer1 - scrollProgress * 50;  // Foreground rises slightly for depth
   // Track global scroll progress and section 5 contact immersion progress
-  const contactProgressRef = useRef(0);
+  const contactProgressRef = useRef(initialContactProgress);
 
   useLenis(({ progress }) => {
     setScrollProgress(progress);
@@ -174,11 +186,11 @@ export default function App() {
 
       if (e.deltaY > 0) {
         // Scrolling DOWN
-        if (isAtBottom && contactProgressRef.current < 1) {
+        if (isAtBottom && contactProgressRef.current < 2.0) {
           e.preventDefault();
           e.stopImmediatePropagation();
           const step = Math.min(0.04, Math.max(0.006, Math.abs(e.deltaY) * 0.00035));
-          const next = Math.min(1, contactProgressRef.current + step);
+          const next = Math.min(2.0, contactProgressRef.current + step);
           contactProgressRef.current = next;
           setContactProgress(next);
         }
@@ -208,11 +220,11 @@ export default function App() {
       touchStartY = touchY;
 
       if (deltaY > 0) {
-        if (isAtBottom && contactProgressRef.current < 1) {
+        if (isAtBottom && contactProgressRef.current < 2.0) {
           if (e.cancelable) e.preventDefault();
           e.stopImmediatePropagation();
           const step = Math.min(0.06, Math.max(0.01, deltaY * 0.002));
-          const next = Math.min(1, contactProgressRef.current + step);
+          const next = Math.min(2.0, contactProgressRef.current + step);
           contactProgressRef.current = next;
           setContactProgress(next);
         }
@@ -233,10 +245,10 @@ export default function App() {
       const isZoomed = contactProgressRef.current > 0;
 
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-        if (isAtBottom && contactProgressRef.current < 1) {
+        if (isAtBottom && contactProgressRef.current < 2.0) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          const next = Math.min(1, contactProgressRef.current + 0.05);
+          const next = Math.min(2.0, contactProgressRef.current + 0.05);
           contactProgressRef.current = next;
           setContactProgress(next);
         }
@@ -922,9 +934,13 @@ export default function App() {
           <div className="absolute inset-0 z-10 w-full h-full">
             <BlackHoleScene
               scrollProgress={scrollProgress}
-              contactProgress={contactProgress}
+              contactProgress={Math.min(1.0, contactProgress)}
+              isPaused={contactProgress >= 1.05}
             />
           </div>
+
+          {/* Murph's Bedroom Singularity Scene (Option A) */}
+          <MurphBedroomSingularity contactProgress={contactProgress} />
         </section>
 
       </div>

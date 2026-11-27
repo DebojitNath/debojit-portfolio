@@ -107,7 +107,7 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
     const pointerX = !reducedMotion ? mouse.x * 0.14 * mouseActiveFactor : 0;
     const pointerY = !reducedMotion ? mouse.y * 0.18 * mouseActiveFactor : 0;
 
-    const p = contactProgress;
+    const p = THREE.MathUtils.clamp(contactProgress, 0, 1);
 
     // =========================================================================
     // SATURN ANALOGY TRANSITION:
@@ -177,9 +177,10 @@ function BlackHoleModel({ reducedMotion, mouseRef, contactProgress }: BlackHoleM
 export interface BlackHoleSceneProps {
   scrollProgress?: number;
   contactProgress?: number;
+  isPaused?: boolean;
 }
 
-export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleSceneProps) {
+export default function BlackHoleScene({ contactProgress = 0, isPaused = false }: BlackHoleSceneProps) {
   const [webglSupported, setWebglSupported] = useState(true);
   const reducedMotion = usePrefersReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -231,7 +232,7 @@ export default function BlackHoleScene({ contactProgress = 0 }: BlackHoleScenePr
       <div className="w-full h-full relative z-10">
         <BlackHoleErrorBoundary>
           <Canvas
-            frameloop={isInView || contactProgress > 0 ? 'always' : 'never'}
+            frameloop={isPaused ? 'never' : (isInView || contactProgress > 0 ? 'always' : 'never')}
             camera={{ position: [0, 0, 8.5], fov: 42, near: 0.001, far: 2000 }}
             gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
             dpr={typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 1.35) : 1}
