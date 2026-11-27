@@ -161,6 +161,7 @@ export default function App() {
   const mountainY1 = MOUNTAIN_SPREAD.layer1 - scrollProgress * 50;  // Foreground rises slightly for depth
   // Track global scroll progress and section 5 contact immersion progress
   const contactProgressRef = useRef(initialContactProgress);
+  const bedroomReadyRef = useRef(false);
 
   useLenis(({ progress }) => {
     setScrollProgress(progress);
@@ -183,16 +184,21 @@ export default function App() {
     const onWheel = (e: WheelEvent) => {
       const isAtBottom = checkIsAtBottom();
       const isZoomed = contactProgressRef.current > 0;
+      const maxProgress = bedroomReadyRef.current ? 2.0 : 1.0;
 
       if (e.deltaY > 0) {
         // Scrolling DOWN
-        if (isAtBottom && contactProgressRef.current < 2.0) {
+        if (isAtBottom && contactProgressRef.current < maxProgress) {
           e.preventDefault();
           e.stopImmediatePropagation();
           const step = Math.min(0.04, Math.max(0.006, Math.abs(e.deltaY) * 0.00035));
-          const next = Math.min(2.0, contactProgressRef.current + step);
+          const next = Math.min(maxProgress, contactProgressRef.current + step);
           contactProgressRef.current = next;
           setContactProgress(next);
+        } else if (isAtBottom && !bedroomReadyRef.current && contactProgressRef.current >= 1.0) {
+          // Hold cleanly at the black loading screen while the 3D room loads
+          e.preventDefault();
+          e.stopImmediatePropagation();
         }
       } else if (e.deltaY < 0) {
         // Scrolling UP: while zoomed in, keep black hole locked in place and reverse animation smoothly
@@ -214,19 +220,23 @@ export default function App() {
     const onTouchMove = (e: TouchEvent) => {
       const isAtBottom = checkIsAtBottom();
       const isZoomed = contactProgressRef.current > 0;
+      const maxProgress = bedroomReadyRef.current ? 2.0 : 1.0;
 
       const touchY = e.touches[0].clientY;
       const deltaY = touchStartY - touchY; // positive = swipe up = scroll down
       touchStartY = touchY;
 
       if (deltaY > 0) {
-        if (isAtBottom && contactProgressRef.current < 2.0) {
+        if (isAtBottom && contactProgressRef.current < maxProgress) {
           if (e.cancelable) e.preventDefault();
           e.stopImmediatePropagation();
           const step = Math.min(0.06, Math.max(0.01, deltaY * 0.002));
-          const next = Math.min(2.0, contactProgressRef.current + step);
+          const next = Math.min(maxProgress, contactProgressRef.current + step);
           contactProgressRef.current = next;
           setContactProgress(next);
+        } else if (isAtBottom && !bedroomReadyRef.current && contactProgressRef.current >= 1.0) {
+          if (e.cancelable) e.preventDefault();
+          e.stopImmediatePropagation();
         }
       } else if (deltaY < 0) {
         if (isZoomed) {
@@ -243,14 +253,18 @@ export default function App() {
     const onKeyDown = (e: KeyboardEvent) => {
       const isAtBottom = checkIsAtBottom();
       const isZoomed = contactProgressRef.current > 0;
+      const maxProgress = bedroomReadyRef.current ? 2.0 : 1.0;
 
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-        if (isAtBottom && contactProgressRef.current < 2.0) {
+        if (isAtBottom && contactProgressRef.current < maxProgress) {
           e.preventDefault();
           e.stopImmediatePropagation();
-          const next = Math.min(2.0, contactProgressRef.current + 0.05);
+          const next = Math.min(maxProgress, contactProgressRef.current + 0.05);
           contactProgressRef.current = next;
           setContactProgress(next);
+        } else if (isAtBottom && !bedroomReadyRef.current && contactProgressRef.current >= 1.0) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
         }
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         if (isZoomed) {
@@ -939,8 +953,13 @@ export default function App() {
             />
           </div>
 
-          {/* Murph's Bedroom Singularity Scene (Option A) */}
-          <MurphBedroomSingularity contactProgress={contactProgress} />
+          {/* Murph's Bedroom Singularity Scene (Option A — lazy-loaded after black hole full zoom) */}
+          <MurphBedroomSingularity
+            contactProgress={contactProgress}
+            onReadyChange={(ready) => {
+              bedroomReadyRef.current = ready;
+            }}
+          />
         </section>
 
       </div>

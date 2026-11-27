@@ -232,6 +232,7 @@ interface RoomSceneProps {
   overlayBoxRef: React.RefObject<HTMLDivElement | null>;
   isMobile: boolean;
   isFieldFocused: boolean;
+  onReady: () => void;
 }
 
 function RoomContent({
@@ -244,6 +245,7 @@ function RoomContent({
   overlayBoxRef,
   isMobile,
   isFieldFocused,
+  onReady,
 }: RoomSceneProps) {
   const { scene } = useGLTF(MODEL_PATH);
   const roomGroupRef = useRef<THREE.Group>(null);
@@ -270,7 +272,8 @@ function RoomContent({
         });
       }
     });
-  }, [scene]);
+    onReady();
+  }, [scene, onReady]);
 
   // Step 1: Recolor materials cleanly using palette + recolorStrength
   useEffect(() => {
@@ -493,9 +496,13 @@ function RoomContent({
 
 interface MurphBedroomSingularityProps {
   contactProgress: number; // 0.0 to 2.0
+  onReadyChange?: (ready: boolean) => void;
 }
 
-export default function MurphBedroomSingularity({ contactProgress }: MurphBedroomSingularityProps) {
+export default function MurphBedroomSingularity({
+  contactProgress,
+  onReadyChange,
+}: MurphBedroomSingularityProps) {
   const reducedMotion = usePrefersReducedMotion();
   const mouseRef = useRef({ x: 0, y: 0 });
   const overlayBoxRef = useRef<HTMLDivElement>(null);
@@ -503,6 +510,20 @@ export default function MurphBedroomSingularity({ contactProgress }: MurphBedroo
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== 'undefined' && window.innerWidth < 768
   );
+  // Lazy-load the 48MB bedroom ONLY after black hole zoom reaches the black screen
+  const [shouldLoad, setShouldLoad] = useState(() => contactProgress >= 0.96);
+  const [isRoomReady, setIsRoomReady] = useState(false);
+
+  useEffect(() => {
+    if (contactProgress >= 0.96 && !shouldLoad) {
+      setShouldLoad(true);
+    }
+  }, [contactProgress, shouldLoad]);
+
+  const handleRoomReady = React.useCallback(() => {
+    setIsRoomReady(true);
+    onReadyChange?.(true);
+  }, [onReadyChange]);
 
   const [xpPaletteId, setXpPaletteId] = useState<XpPaletteId>(() => {
     if (typeof window !== 'undefined') {
@@ -573,77 +594,82 @@ export default function MurphBedroomSingularity({ contactProgress }: MurphBedroo
 
       {/* ================================================================= */}
       {/* STEP 2: FILTERED SCENE CONTAINER ONLY (UI / form cards stay outside) */}
+      {/* Stays pitch black (opacity 0) until the bedroom GLB is 100% loaded */}
       {/* ================================================================= */}
       <div
-        className="absolute inset-0 w-full h-full overflow-hidden"
+        className="absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-300"
         style={{
+          opacity: isRoomReady ? 1 : 0,
           filter: cssFilter,
           animation:
-            !reducedMotion && filterStrength > 0.01
+            !reducedMotion && filterStrength > 0.01 && isRoomReady
               ? `bedroomBrightnessDrift ${BRIGHTNESS_DRIFT_DURATION_SEC}s ease-in-out infinite`
               : 'none',
         }}
       >
-        <Canvas
-          frameloop={isVisible ? 'always' : 'never'}
-          camera={{ position: [0, 0, 4.2], fov: 46, near: 0.01, far: 200 }}
-          gl={{ alpha: false, antialias: true, powerPreference: 'high-performance' }}
-          dpr={typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 1.5) : 1}
-        >
-          <color attach="background" args={[bgColor]} />
+        {shouldLoad && (
+          <Canvas
+            frameloop={isVisible ? 'always' : 'never'}
+            camera={{ position: [0, 0, 4.2], fov: 46, near: 0.01, far: 200 }}
+            gl={{ alpha: false, antialias: true, powerPreference: 'high-performance' }}
+            dpr={typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 1.5) : 1}
+          >
+            <color attach="background" args={[bgColor]} />
 
-          {/* STEP 1: Non-black shadows + brightest light beam */}
-          <ambientLight
-            intensity={activePalette.ambientIntensity}
-            color={activePalette.shadowColor}
-          />
-          <hemisphereLight
-            args={[activePalette.wallColor, activePalette.shadowColor, activePalette.hemisphereIntensity]}
-          />
-
-          {/* Brightest element: Primary Light Beam */}
-          <directionalLight
-            position={[4.5, 6.5, 3.8]}
-            intensity={activePalette.beamIntensity}
-            color={activePalette.lightBeamColor}
-          />
-          <spotLight
-            position={[2.8, 3.5, 2.2]}
-            angle={0.55}
-            penumbra={0.65}
-            intensity={activePalette.beamIntensity * 1.3}
-            color={activePalette.lightBeamColor}
-            distance={14}
-          />
-
-          {/* Soft upward fill so the ceiling & underside of the fan aren't pitch dark */}
-          <directionalLight
-            position={[0, -5, 1]}
-            intensity={0.75}
-            color={activePalette.wallColor}
-          />
-
-          {/* Soft shadow-tinted fill so dark corners stay in palette shadow tone */}
-          <directionalLight
-            position={[-5, 3, -3]}
-            intensity={0.95}
-            color={activePalette.accentColor}
-          />
-
-          <React.Suspense fallback={null}>
-            <RoomContent
-              progress={roomProgress}
-              isVisible={isVisible}
-              palette={activePalette}
-              recolorStrength={recolorStrength}
-              mouseRef={mouseRef}
-              reducedMotion={reducedMotion}
-              overlayBoxRef={overlayBoxRef}
-              isMobile={isMobile}
-              isFieldFocused={isFieldFocused}
+            {/* STEP 1: Non-black shadows + brightest light beam */}
+            <ambientLight
+              intensity={activePalette.ambientIntensity}
+              color={activePalette.shadowColor}
             />
-          </React.Suspense>
-        </Canvas>
+            <hemisphereLight
+              args={[activePalette.wallColor, activePalette.shadowColor, activePalette.hemisphereIntensity]}
+            />
+
+            {/* Brightest element: Primary Light Beam */}
+            <directionalLight
+              position={[4.5, 6.5, 3.8]}
+              intensity={activePalette.beamIntensity}
+              color={activePalette.lightBeamColor}
+            />
+            <spotLight
+              position={[2.8, 3.5, 2.2]}
+              angle={0.55}
+              penumbra={0.65}
+              intensity={activePalette.beamIntensity * 1.3}
+              color={activePalette.lightBeamColor}
+              distance={14}
+            />
+
+            {/* Soft upward fill so the ceiling & underside of the fan aren't pitch dark */}
+            <directionalLight
+              position={[0, -5, 1]}
+              intensity={0.75}
+              color={activePalette.wallColor}
+            />
+
+            {/* Soft shadow-tinted fill so dark corners stay in palette shadow tone */}
+            <directionalLight
+              position={[-5, 3, -3]}
+              intensity={0.95}
+              color={activePalette.accentColor}
+            />
+
+            <React.Suspense fallback={null}>
+              <RoomContent
+                progress={roomProgress}
+                isVisible={isVisible}
+                palette={activePalette}
+                recolorStrength={recolorStrength}
+                mouseRef={mouseRef}
+                reducedMotion={reducedMotion}
+                overlayBoxRef={overlayBoxRef}
+                isMobile={isMobile}
+                isFieldFocused={isFieldFocused}
+                onReady={handleRoomReady}
+              />
+            </React.Suspense>
+          </Canvas>
+        )}
 
         {/* Color Wash Overlay (soft-light or multiply) */}
         {filterStrength > 0.01 && (
@@ -726,7 +752,7 @@ export default function MurphBedroomSingularity({ contactProgress }: MurphBedroo
       {/* ================================================================= */}
       {/* MOBILE: FULL-WIDTH FLAT XP CONTACT WINDOW (No 3D tilt)            */}
       {/* ================================================================= */}
-      {isMobile && roomProgress >= 0.68 && (
+      {isMobile && isRoomReady && roomProgress >= 0.68 && (
         <div
           className="absolute inset-0 z-30 flex items-center justify-center p-3 transition-opacity duration-300"
           style={{
@@ -746,5 +772,4 @@ export default function MurphBedroomSingularity({ contactProgress }: MurphBedroo
   );
 }
 
-// Preload model
-useGLTF.preload(MODEL_PATH);
+// Bedroom model is lazy-loaded only after the black hole reaches full zoom
