@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import XpContactWindow from './XpContactWindow';
+import { ShaderAnimation } from './ShaderAnimation';
 import {
   XP_WINDOW_PALETTES,
   DEFAULT_XP_PALETTE_ID,
@@ -565,6 +566,21 @@ export default function MurphBedroomSingularity({
 
   // Keep the void background pure black; palette shadowColor stays inside the 3D room shadows
   const bgColor = '#000000';
+  const [shaderRevealed, setShaderRevealed] = useState(false);
+
+  useEffect(() => {
+    if (!isVisible) {
+      setShaderRevealed(false);
+      return;
+    }
+    const raf = requestAnimationFrame(() => setShaderRevealed(true));
+    return () => cancelAnimationFrame(raf);
+  }, [isVisible]);
+
+  const shaderOpacity = isVisible && shaderRevealed
+    ? 1 - THREE.MathUtils.smoothstep(roomProgress, 0.45, 0.65)
+    : 0;
+  const isShaderActive = isVisible && !reducedMotion && (1 - THREE.MathUtils.smoothstep(roomProgress, 0.45, 0.65)) > 0.01;
 
   const cssFilter = useMemo(
     () => buildCssFilter(activeFilter, filterStrength),
@@ -592,9 +608,22 @@ export default function MurphBedroomSingularity({
         }
       `}</style>
 
+      {/* Singularity shader: fades in slowly inside the black hole and stays outside Murph's emerging room */}
+      {isVisible && (
+        <div
+          className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden"
+          style={{
+            opacity: shaderOpacity,
+            transition: reducedMotion ? 'none' : 'opacity 1500ms ease-in-out',
+          }}
+        >
+          <ShaderAnimation isActive={isShaderActive} />
+        </div>
+      )}
+
       {/* ================================================================= */}
       {/* STEP 2: FILTERED SCENE CONTAINER ONLY (UI / form cards stay outside) */}
-      {/* Stays pitch black (opacity 0) until the bedroom GLB is 100% loaded */}
+      {/* Stays transparent (opacity 0) until the bedroom GLB is 100% loaded */}
       {/* ================================================================= */}
       <div
         className="absolute inset-0 w-full h-full overflow-hidden transition-opacity duration-300"
@@ -611,10 +640,9 @@ export default function MurphBedroomSingularity({
           <Canvas
             frameloop={isVisible ? 'always' : 'never'}
             camera={{ position: [0, 0, 4.2], fov: 46, near: 0.01, far: 200 }}
-            gl={{ alpha: false, antialias: true, powerPreference: 'high-performance' }}
+            gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
             dpr={typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 1.5) : 1}
           >
-            <color attach="background" args={[bgColor]} />
 
             {/* STEP 1: Non-black shadows + brightest light beam */}
             <ambientLight

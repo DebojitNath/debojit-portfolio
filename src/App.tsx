@@ -10,6 +10,7 @@ import EnduranceScene from './components/EnduranceScene';
 import MurphBedroomSingularity from './components/MurphBedroomSingularity';
 import { JourneyTimeline, JourneyMilestone } from './components/ui/journey-timeline';
 import { FlipWords } from './components/ui/flip-words';
+import { BlurRevealText } from './components/ui/blur-reveal-text';
 import { activeHeroCopy } from './content/heroCopy';
 import {
   Sparkles,
@@ -27,8 +28,7 @@ import {
   Layers,
   Terminal,
   Brain,
-  CheckCircle2,
-  GraduationCap
+  CheckCircle2
 } from 'lucide-react';
 
 export default function App() {
@@ -39,6 +39,21 @@ export default function App() {
   const [world, setWorld] = useState<'focus' | 'drift'>('focus');
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [scrollProgress, setScrollProgress] = useState(initialContactProgress > 0 ? 1 : 0);
+  const heroScrollYRef = useRef(0);
+  const smoothHeroExitRef = useRef(0);
+  const heroFixedWrapRef = useRef<HTMLDivElement>(null);
+  const heroSkyRef = useRef<HTMLDivElement>(null);
+  const heroGlow1Ref = useRef<HTMLDivElement>(null);
+  const heroGlow2Ref = useRef<HTMLDivElement>(null);
+  const planetWrapRef = useRef<HTMLDivElement>(null);
+  const heroBackdropRef = useRef<HTMLDivElement>(null);
+  const topLineWrapRef = useRef<HTMLSpanElement>(null);
+  const belowTextWrapRef = useRef<HTMLSpanElement>(null);
+  const astroWrapRef = useRef<HTMLDivElement>(null);
+  const mountainOpacityRef = useRef<HTMLDivElement>(null);
+  const mountainLayer3Ref = useRef<HTMLImageElement>(null);
+  const mountainLayer2Ref = useRef<HTMLImageElement>(null);
+  const mountainLayer1Ref = useRef<HTMLImageElement>(null);
   const [contactProgress, setContactProgress] = useState(initialContactProgress);
   const contactRef = useRef<HTMLElement>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
@@ -149,22 +164,95 @@ export default function App() {
   // 1. Initial Landing Page Spread (Y offset in px when at top of page)
   //    Higher number = sits lower down on the screen.
   const MOUNTAIN_SPREAD = {
-    layer3: 50, // Background horizon (spread lowest)
-    layer2: 15,  // Midground ridges
-    layer1: -30,  // Foreground rocks
+    layer3: 85, // Background horizon (slightly lower at rest)
+    layer2: 20, // Midground ridges
+    layer1: 0,  // Foreground rocks (flush with bottom edge, no cut line)
   };
 
-  // 2. Scroll Convergence (how fast they sink and hide behind each other on scroll)
-  //    Adjust the multipliers (* 220, * 110, etc.) to control how fast each layer sinks.
-  const mountainY3 = MOUNTAIN_SPREAD.layer3 + scrollProgress * 300; // Sinks fastest behind layer 2 & 1
-  const mountainY2 = MOUNTAIN_SPREAD.layer2 + scrollProgress * 100; // Sinks behind layer 1
-  const mountainY1 = MOUNTAIN_SPREAD.layer1 - scrollProgress * 50;  // Foreground rises slightly for depth
+  // 2. Hero Scroll Exit (0 at top -> 1 over 110vh sticky range, zero-rerender 60fps ref animation)
+  const applyHeroExit = (heroExit: number) => {
+    const smoothstep = (edge0: number, edge1: number, x: number) => {
+      const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
+      return t * t * (3 - 2 * t);
+    };
+
+    const planetExit = smoothstep(0, 1.0, heroExit);
+    const planetMountainOpacity = 1 - smoothstep(0.06, 0.78, heroExit);
+    const sideExit = smoothstep(0.25, 1.0, heroExit);
+    const topLineExit = smoothstep(0.40, 1.0, heroExit);
+
+    const mountainExit3 = smoothstep(0, 0.65, heroExit);
+    const mountainExit2 = smoothstep(0.08, 0.85, heroExit);
+    const mountainExit1 = smoothstep(0.16, 1.0, heroExit);
+
+    if (heroFixedWrapRef.current) {
+      heroFixedWrapRef.current.style.visibility = heroExit >= 1 ? 'hidden' : 'visible';
+    }
+    if (heroSkyRef.current) {
+      heroSkyRef.current.style.opacity = `${Math.max(0, 1 - heroExit * 1.1)}`;
+    }
+    if (heroGlow1Ref.current) {
+      heroGlow1Ref.current.style.opacity = `${Math.max(0, 1 - heroExit * 1.25)}`;
+    }
+    if (heroGlow2Ref.current) {
+      heroGlow2Ref.current.style.opacity = `${Math.max(0, 1 - heroExit * 1.25)}`;
+    }
+    if (planetWrapRef.current) {
+      planetWrapRef.current.style.transform = `translate3d(0, ${-planetExit * 115}vh, 0)`;
+      planetWrapRef.current.style.opacity = `${planetMountainOpacity}`;
+    }
+    if (heroBackdropRef.current) {
+      heroBackdropRef.current.style.transform = `translate3d(${-sideExit * 70}vw, 0, 0)`;
+    }
+    if (topLineWrapRef.current) {
+      topLineWrapRef.current.style.transform = `translate3d(${-topLineExit * 70}vw, 0, 0)`;
+    }
+    if (belowTextWrapRef.current) {
+      belowTextWrapRef.current.style.transform = `translate3d(${-sideExit * 70}vw, 0, 0)`;
+    }
+    if (astroWrapRef.current) {
+      astroWrapRef.current.style.transform = `translate3d(${sideExit * 70}vw, 0, 0)`;
+    }
+    if (mountainOpacityRef.current) {
+      mountainOpacityRef.current.style.opacity = `${planetMountainOpacity}`;
+    }
+    if (mountainLayer3Ref.current) {
+      mountainLayer3Ref.current.style.transform = `translate3d(0, calc(${MOUNTAIN_SPREAD.layer3}px + ${mountainExit3 * 115}vh), 0)`;
+    }
+    if (mountainLayer2Ref.current) {
+      mountainLayer2Ref.current.style.transform = `translate3d(0, calc(${MOUNTAIN_SPREAD.layer2}px + ${mountainExit2 * 110}vh), 0)`;
+    }
+    if (mountainLayer1Ref.current) {
+      mountainLayer1Ref.current.style.transform = `translate3d(0, calc(${MOUNTAIN_SPREAD.layer1}px + ${mountainExit1 * 105}vh), 0)`;
+    }
+  };
+
+  useEffect(() => {
+    let rafId = 0;
+    const tick = () => {
+      const heroExitDistance = window.innerHeight * 1.1 || 900;
+      const target = Math.min(1, Math.max(0, heroScrollYRef.current / heroExitDistance));
+      const diff = target - smoothHeroExitRef.current;
+      if (Math.abs(diff) > 0.0004) {
+        smoothHeroExitRef.current += diff * 0.16;
+        applyHeroExit(smoothHeroExitRef.current);
+      } else if (smoothHeroExitRef.current !== target) {
+        smoothHeroExitRef.current = target;
+        applyHeroExit(target);
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
   // Track global scroll progress and section 5 contact immersion progress
   const contactProgressRef = useRef(initialContactProgress);
   const bedroomReadyRef = useRef(false);
 
-  useLenis(({ progress }) => {
+  useLenis(({ progress, scroll }) => {
     setScrollProgress(progress);
+    heroScrollYRef.current = scroll;
   });
 
   // When user reaches the black hole section at the bottom of the page,
@@ -305,7 +393,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen w-full max-w-full overflow-x-hidden relative select-none font-sans transition-colors duration-700 ${world === 'focus'
+      className={`min-h-screen w-full max-w-full overflow-x-clip relative select-none font-sans transition-colors duration-700 ${world === 'focus'
         ? 'bg-[#000000] text-[#f8fafc]'
         : 'bg-[#e5e9d6] text-[#1b2018]'
         }`}
@@ -430,53 +518,59 @@ export default function App() {
       <div className="relative z-20">
 
         {/* --------------------------------------------------------- */}
-        {/* SECTION 1: HERO VIEWPORT (Full Screen Width, Zero Gaps!) */}
+        {/* SECTION 1: HERO VIEWPORT (Fixed static screen while elements exit) */}
         {/* --------------------------------------------------------- */}
-        <section id="hero" className="min-h-screen relative flex flex-col justify-between w-full overflow-hidden">
+        <section
+          id="hero"
+          className={`relative w-full ${world === 'focus' ? 'h-[210vh] pointer-events-none' : 'min-h-screen flex flex-col justify-between overflow-hidden'}`}
+        >
           {world === 'focus' ? (
-            <>
+            <div
+              ref={heroFixedWrapRef}
+              className="fixed inset-0 z-20 w-full h-screen overflow-hidden flex flex-col justify-between pointer-events-none"
+            >
               {/* VIBRANT PURPLE COSMIC SKY AT TOP OF WEBPAGE */}
               <div
+                ref={heroSkyRef}
                 className="absolute top-0 inset-x-0 h-[480px] pointer-events-none z-0"
                 style={{
                   background: 'radial-gradient(ellipse 100% 90% at 50% -10%, rgba(138, 43, 226, 0.45) 0%, rgba(98, 25, 155, 0.35) 35%, rgba(55, 12, 95, 0.22) 65%, transparent 100%)',
-                  opacity: Math.max(0, 1 - scrollProgress * 3.5),
                   willChange: 'opacity'
                 }}
               />
 
               {/* SMOOTH ATMOSPHERIC SUNSET LIGHT (Shifted to right, brighter radiant sunset glow) */}
               <div
+                ref={heroGlow1Ref}
                 className="absolute inset-0 pointer-events-none z-0"
                 style={{
                   background: 'radial-gradient(ellipse 80% 70% at 88% 34%, rgba(255, 115, 50, 0.55) 0%, rgba(244, 63, 94, 0.42) 28%, rgba(192, 38, 211, 0.28) 52%, rgba(107, 33, 168, 0.15) 72%, transparent 100%)',
                   WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
                   maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
-                  opacity: Math.max(0, 1 - scrollProgress * 5.0),
                   willChange: 'opacity'
                 }}
               />
 
               {/* SECONDARY INTENSE SUNSET CORE (Bright radiant corona along far right) */}
               <div
+                ref={heroGlow2Ref}
                 className="absolute inset-0 pointer-events-none z-0"
                 style={{
                   background: 'radial-gradient(ellipse 50% 55% at 94% 32%, rgba(255, 145, 70, 0.45) 0%, rgba(244, 63, 94, 0.25) 35%, rgba(217, 70, 239, 0.14) 60%, transparent 100%)',
                   WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
                   maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 85%)',
-                  opacity: Math.max(0, 1 - scrollProgress * 5.0),
                   willChange: 'opacity'
                 }}
               />
 
               {/* ======================================================= */}
-              {/* HERO SKY PLANET (Replaced weird ball with planet.png)    */}
+              {/* HERO SKY PLANET (Moves up and fades out before boundary) */}
               {/* ======================================================= */}
               <div
+                ref={planetWrapRef}
                 className="absolute inset-0 pointer-events-none z-0 overflow-hidden"
                 style={{
-                  opacity: Math.max(0, 1 - scrollProgress * 3.5),
-                  willChange: 'opacity'
+                  willChange: 'transform, opacity'
                 }}
               >
                 {/* COLOSSAL CELESTIAL PLANET (Framing the left periphery naturally) */}
@@ -489,7 +583,9 @@ export default function App() {
                   <img
                     src="/shapes/planet.png"
                     alt="Celestial Planet"
-                    className="w-full h-auto object-contain filter drop-shadow-[0_0_60px_rgba(168,85,247,0.3)] select-none pointer-events-none opacity-95"
+                    className={`w-full h-auto object-contain filter drop-shadow-[0_0_60px_rgba(168,85,247,0.3)] select-none pointer-events-none transition-all duration-1000 ease-out ${
+                      isLoading ? 'opacity-0 -translate-y-8' : 'opacity-95 translate-y-0'
+                    }`}
                     draggable={false}
                   />
                 </div>
@@ -499,17 +595,17 @@ export default function App() {
               <div className="w-full max-w-[1850px] mx-auto px-6 sm:px-10 md:px-14 lg:px-16 xl:px-20 2xl:px-24 pt-16 sm:pt-20 pb-20 sm:pb-28 my-auto relative z-20">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
 
-                  {/* Left Column: Bold Headline & Honest Student Bio */}
-                  <div className="lg:col-span-7 xl:col-span-6 flex flex-col items-start space-y-6 max-w-2xl xl:max-w-3xl relative">
-                    {/* Atmospheric contrast backing ensuring text is always 100% readable over celestial artwork */}
-                    <div className="absolute -inset-x-8 -inset-y-10 rounded-3xl bg-radial from-black/75 via-black/35 to-transparent blur-2xl -z-10 pointer-events-none" />
-
-                    <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-black/40 border border-white/15 backdrop-blur-md shadow-lg shadow-black/40">
-                      <GraduationCap className="w-4 h-4 text-orange-400" />
-                      <span className="text-xs font-mono uppercase tracking-widest text-slate-200">
-                        B.Tech CSE · Class of 2027
-                      </span>
-                    </div>
+                  {/* Left Column: Bold Headline (Below text slides left first; top line hooks behind) */}
+                  <div className="lg:col-span-7 xl:col-span-6 relative -mt-4 lg:-mt-6">
+                    <div className="flex flex-col items-start space-y-6 max-w-2xl xl:max-w-3xl relative">
+                    {/* Atmospheric contrast backing moves with the headline */}
+                    <div
+                      ref={heroBackdropRef}
+                      className="absolute -inset-x-8 -inset-y-10 rounded-3xl bg-radial from-black/75 via-black/35 to-transparent blur-2xl -z-10 pointer-events-none"
+                      style={{
+                        willChange: 'transform'
+                      }}
+                    />
 
                     <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08] font-sans">
                       {/* Visually hidden sentence for screen readers */}
@@ -519,99 +615,144 @@ export default function App() {
 
                       {/* Visual presentation */}
                       <span aria-hidden="true">
-                        <span className="drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">{activeHeroCopy.line1}</span>
-                        <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-100 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] mt-2">
-                          {activeHeroCopy.line2}
-                        </span>
-
-                        {/* Animated Flip Words Pill in Fixed-Height Stage (Locks 'from India' firmly in place) */}
-                        <span className="flex items-center my-2 sm:my-3 h-12 sm:h-16 md:h-20 lg:h-[5.25rem]">
-                          <FlipWords
-                            words={activeHeroCopy.words}
-                            className="text-[clamp(1.05rem,4.5vw,1.75rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem]"
+                        <span
+                          ref={topLineWrapRef}
+                          className="block"
+                          style={{
+                            willChange: 'transform'
+                          }}
+                        >
+                          <BlurRevealText
+                            text={activeHeroCopy.line1}
+                            show={!isLoading}
+                            baseDelayMs={80}
+                            stepDelayMs={36}
+                            className="drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]"
                           />
                         </span>
+                        <span
+                          ref={belowTextWrapRef}
+                          className="block"
+                          style={{
+                            willChange: 'transform'
+                          }}
+                        >
+                          <span className="block text-2xl sm:text-4xl md:text-5xl font-light text-slate-100 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] mt-2">
+                            <BlurRevealText
+                              text={activeHeroCopy.line2}
+                              show={!isLoading}
+                              baseDelayMs={380}
+                              stepDelayMs={30}
+                            />
+                          </span>
 
-                        <span className="block text-3xl sm:text-5xl md:text-6xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-amber-200 drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)] mt-2">
-                          {activeHeroCopy.lastLine}
+                          {/* Animated Flip Words Pill in Fixed-Height Stage (Locks 'from India' firmly in place) */}
+                          <span
+                            className="flex items-center my-2 sm:my-3 h-12 sm:h-16 md:h-20 lg:h-[5.25rem]"
+                            style={{
+                              opacity: !isLoading ? 1 : 0,
+                              filter: !isLoading ? 'blur(0px)' : 'blur(14px)',
+                              transform: !isLoading ? 'translateY(0px) scale(1)' : 'translateY(10px) scale(0.97)',
+                              transition: 'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) 460ms, filter 700ms cubic-bezier(0.22, 1, 0.36, 1) 460ms, transform 700ms cubic-bezier(0.22, 1, 0.36, 1) 460ms',
+                            }}
+                          >
+                            <FlipWords
+                              words={activeHeroCopy.words}
+                              className="text-[clamp(1.05rem,4.5vw,1.75rem)] sm:text-4xl md:text-5xl lg:text-[3.5rem]"
+                            />
+                          </span>
+
+                          <span
+                            className="block text-3xl sm:text-5xl md:text-6xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-rose-300 to-amber-200 drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)] mt-2"
+                            style={{
+                              opacity: !isLoading ? 1 : 0,
+                              filter: !isLoading ? 'blur(0px)' : 'blur(14px)',
+                              transform: !isLoading ? 'translateY(0px) scale(1)' : 'translateY(10px) scale(0.97)',
+                              transition: 'opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) 580ms, filter 700ms cubic-bezier(0.22, 1, 0.36, 1) 580ms, transform 700ms cubic-bezier(0.22, 1, 0.36, 1) 580ms',
+                            }}
+                          >
+                            {activeHeroCopy.lastLine}
+                          </span>
                         </span>
                       </span>
                     </h1>
-
-                    <p className="text-base sm:text-lg text-slate-200 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] max-w-xl font-normal leading-relaxed pt-1">
-                      {activeHeroCopy.paragraph}
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-4 pt-4 font-mono">
-                      <button
-                        onClick={() => scrollTo('#projects')}
-                        className="group relative inline-flex items-center gap-3 px-7 py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 text-white font-semibold text-xs tracking-wider uppercase shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
-                      >
-                        <span>Explore Projects</span>
-                        <ArrowDown className="w-4 h-4 group-hover:translate-y-1 transition-transform" />
-                      </button>
-
-                      <button
-                        onClick={() => scrollTo('#about')}
-                        className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium text-xs tracking-wider uppercase backdrop-blur-md transition-all cursor-pointer"
-                      >
-                        <span>About Me</span>
-                      </button>
                     </div>
                   </div>
 
-                  {/* Right Column: CLEAN SLEEK FLOATING ASTRONAUT */}
-                  <div className="lg:col-span-5 xl:col-span-6 relative flex items-center justify-center w-full min-h-[460px] sm:min-h-[520px] lg:min-h-[620px] xl:min-h-[720px]">
-                    <FloatingAstronaut mousePos={mousePos} />
+                  {/* Right Column: CLEAN SLEEK FLOATING ASTRONAUT (Slides right past border on scroll) */}
+                  <div
+                    ref={astroWrapRef}
+                    className="lg:col-span-5 xl:col-span-6 relative flex items-center justify-center w-full min-h-[460px] sm:min-h-[520px] lg:min-h-[620px] xl:min-h-[720px]"
+                    style={{
+                      willChange: 'transform'
+                    }}
+                  >
+                    <div
+                      className={`w-full h-full flex items-center justify-center transition-all duration-1000 ease-out delay-100 ${
+                        isLoading ? 'opacity-0 translate-x-10' : 'opacity-100 translate-x-0'
+                      }`}
+                    >
+                      <FloatingAstronaut mousePos={mousePos} />
+                    </div>
                   </div>
 
                 </div>
               </div>
 
-              {/* CUSTOM LAYERED PARALLAX MOUNTAINS (Zero Cursor Movement + Dynamic Scroll Convergence) */}
-              <div className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-hidden">
-                {/* Layer 3 (Background Horizon): mountain3.png */}
-                <img
-                  src="/shapes/mountain3.png"
-                  alt="Alien Mountain Layer 3"
-                  className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-10 transition-transform duration-300 ease-out"
-                  style={{
-                    transform: `translate3d(0, ${mountainY3}px, 0)`
-                  }}
-                  draggable={false}
-                />
-
-                {/* Layer 2 (Midground Ridges): mountain2.png */}
-                <img
-                  src="/shapes/mountain2.png"
-                  alt="Alien Mountain Layer 2"
-                  className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-20 transition-transform duration-300 ease-out"
-                  style={{
-                    transform: `translate3d(0, ${mountainY2}px, 0)`
-                  }}
-                  draggable={false}
-                />
-
-                {/* Layer 1 (Foreground Spires / Rocks): mountain1.png */}
-                <img
-                  src="/shapes/mountain1.png"
-                  alt="Alien Mountain Layer 1"
-                  className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-30 transition-transform duration-300 ease-out"
-                  style={{
-                    transform: `translate3d(0, ${mountainY1}px, 0)`
-                  }}
-                  draggable={false}
-                />
-
-                {/* Mountain Bottom Base Blend: Seamlessly fades mountain bottom into black */}
+              {/* CUSTOM LAYERED PARALLAX MOUNTAINS (Fade in after load, slide down and fade out on scroll) */}
+              <div
+                className={`absolute inset-0 w-full h-full pointer-events-none z-10 overflow-hidden transition-opacity duration-1000 ease-out ${
+                  isLoading ? 'opacity-0' : 'opacity-100'
+                }`}
+              >
                 <div
-                  className="absolute bottom-0 inset-x-0 h-20 sm:h-28 pointer-events-none z-35"
+                  ref={mountainOpacityRef}
+                  className="absolute inset-0 w-full h-full"
                   style={{
-                    background: 'linear-gradient(to top, #000000 0%, rgba(0,0,0,0.85) 45%, transparent 100%)'
+                    willChange: 'opacity'
                   }}
-                />
+                >
+                  {/* Layer 3 (Background Horizon): mountain3.png */}
+                  <img
+                    ref={mountainLayer3Ref}
+                    src="/shapes/mountain3.png"
+                    alt="Alien Mountain Layer 3"
+                    className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-10"
+                    style={{
+                      transform: `translate3d(0, ${MOUNTAIN_SPREAD.layer3}px, 0)`,
+                      willChange: 'transform'
+                    }}
+                    draggable={false}
+                  />
+
+                  {/* Layer 2 (Midground Ridges): mountain2.png */}
+                  <img
+                    ref={mountainLayer2Ref}
+                    src="/shapes/mountain2.png"
+                    alt="Alien Mountain Layer 2"
+                    className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-20"
+                    style={{
+                      transform: `translate3d(0, ${MOUNTAIN_SPREAD.layer2}px, 0)`,
+                      willChange: 'transform'
+                    }}
+                    draggable={false}
+                  />
+
+                  {/* Layer 1 (Foreground Spires / Rocks): mountain1.png */}
+                  <img
+                    ref={mountainLayer1Ref}
+                    src="/shapes/mountain1.png"
+                    alt="Alien Mountain Layer 1"
+                    className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none select-none z-30"
+                    style={{
+                      transform: `translate3d(0, ${MOUNTAIN_SPREAD.layer1}px, 0)`,
+                      willChange: 'transform'
+                    }}
+                    draggable={false}
+                  />
+                </div>
               </div>
-            </>
+            </div>
           ) : (
             /* DRIFT HERO */
             <div className="max-w-4xl mx-auto w-full py-12 flex flex-col items-start space-y-8">
@@ -652,16 +793,6 @@ export default function App() {
             </div>
           )}
         </section>
-
-        {/* GRADIENT BEDROCK: Overlaps the bottom of mountain PNGs so the cut line is completely eliminated */}
-        {world === 'focus' && (
-          <div
-            className="w-full h-44 sm:h-52 md:h-60 relative z-20 pointer-events-none -mt-20 sm:-mt-24 md:-mt-28"
-            style={{
-              background: 'linear-gradient(to bottom, transparent 0%, #000000 28%, #000000 78%, transparent 100%)'
-            }}
-          />
-        )}
 
         {/* --------------------------------------------------------- */}
         {/* SECTION 2: ABOUT                                          */}

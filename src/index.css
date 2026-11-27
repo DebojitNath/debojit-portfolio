@@ -8,10 +8,10 @@
   }
   html {
     font-size: 90%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
     overflow-y: visible;
     max-width: 100%;
     width: 100%;
